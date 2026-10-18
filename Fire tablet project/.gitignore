@@ -1,0 +1,6 @@
+# Build output, made fresh by every build
+.gradle/
+build/
+app/build/
+local.properties
+*.apk

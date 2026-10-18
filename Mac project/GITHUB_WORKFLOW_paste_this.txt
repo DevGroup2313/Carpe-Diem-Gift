@@ -1,0 +1,158 @@
+# CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
+# NO LICENCE IS GRANTED. See LICENCE.txt.
+#
+# Builds "Carpe Diem.app" on GitHub's own Mac, so nothing has to be
+# downloaded or built on your Mac. The app is UNIVERSAL: one app that runs on
+# Intel Macs (such as a 2019 MacBook Pro) and on Apple silicon Macs.
+#
+# It runs by itself whenever something is uploaded to the repository, and by
+# hand from the Actions tab ("Build Carpe Diem for Mac", "Run workflow").
+# The result, Carpe-Diem-Mac.zip, is placed on the Releases page and under
+# "Artifacts" on the run's page. Installing it is a copy, not a build.
+
+name: Build Carpe Diem for Mac
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Get the project
+        uses: actions/checkout@v4
+
+      - name: Find the project folder
+        run: |
+          F=$(find . -name carpe_diem.spec -not -path './.git/*' | head -n 1)
+          if [ -z "$F" ]; then echo "carpe_diem.spec not found. Upload the CONTENTS of the Mac project folder."; exit 1; fi
+          echo "PROJ=$(dirname "$F")" >> "$GITHUB_ENV"
+          echo "Project folder: $(dirname "$F")"
+
+      - name: Install Python 3.12 for Intel and Apple silicon
+        # python.org's own installer is "universal2": it carries both kinds of
+        # Mac code, which a universal app needs. 3.12.10 is the last 3.12
+        # release that has a Mac installer.
+        run: |
+          curl -sSL --retry 4 -o "$RUNNER_TEMP/python.pkg" https://www.python.org/ftp/python/3.12.10/python-3.12.10-macos11.pkg
+          sudo installer -pkg "$RUNNER_TEMP/python.pkg" -target / > /dev/null
+          PY=/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12
+          "$PY" --version
+          echo "Python carries: $(lipo -archs /Library/Frameworks/Python.framework/Versions/3.12/Python)"
+          "$PY" -m venv "$RUNNER_TEMP/venv"
+          echo "VPY=$RUNNER_TEMP/venv/bin/python" >> "$GITHUB_ENV"
+
+      - name: Install the build tools
+        run: |
+          "$VPY" -m pip install --quiet --upgrade pip
+          "$VPY" -m pip install --quiet pyinstaller pywebview
+          "$VPY" -m pip list | grep -i -E "pyinstaller|pywebview|pyobjc-core" || true
+
+      - name: Read the clipboard as the app's Paste does
+        # build 1048: the page's right-click Paste asks the app for the clipboard, so a link
+        # copied anywhere on the Mac can be pasted without the keyboard. Checked on a real Mac.
+        run: |
+          cd "$PROJ"
+          printf 'Carpe 1048, copied outside the app: https://example.org/x' | pbcopy
+          "$VPY" -c "import carpe_diem_app as a; r = a.read_clipboard(); print(r); assert 'copied outside the app' in r['text']"
+
+      - name: Check every compiled part is universal
+        # A universal app can only be made from parts that carry both kinds of
+        # Mac code. Any part that does not is named here, before building.
+        run: |
+          BAD=0
+          while IFS= read -r f; do
+            A=$(lipo -archs "$f" 2>/dev/null || echo "?")
+            case "$A" in *x86_64*arm64*|*arm64*x86_64*) ;; *) echo "NOT UNIVERSAL ($A): $f"; BAD=1 ;; esac
+          done < <(find "$RUNNER_TEMP/venv/lib" \( -name "*.so" -o -name "*.dylib" \))
+          if [ "$BAD" = 1 ]; then exit 1; fi
+          echo "Every compiled part carries Intel and Apple silicon code."
+
+      - name: Build Carpe Diem.app
+        env:
+          CD_TARGET_ARCH: universal2
+        run: |
+          cd "$PROJ"
+          set -o pipefail
+          "$VPY" -m PyInstaller --noconfirm --clean carpe_diem.spec 2>&1 | tee "$RUNNER_TEMP/build-log.txt"
+          test -d "dist/Carpe Diem.app"
+          echo "The app carries: $(lipo -archs "dist/Carpe Diem.app/Contents/MacOS/Carpe Diem")"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "dist/Carpe Diem.app/Contents/Info.plist"
+
+      - name: If the build failed, show why
+        if: failure()
+        run: tail -n 80 "$RUNNER_TEMP/build-log.txt" || echo "(no build log was written)"
+
+      - name: Open the app once, as Apple silicon and as Intel
+        # Starts the finished app for 40 seconds each way, checks its page server
+        # answers, photographs the screen twice, and reads the app's own log.
+        # The Intel run uses Rosetta, Apple's translator, as an Intel Mac would
+        # run the Intel half natively.
+        run: |
+          cd "$PROJ"
+          APP="dist/Carpe Diem.app/Contents/MacOS/Carpe Diem"
+          LOG="dist/Carpe Diem.app/Contents/MacOS/carpe_diem_crash.log"
+          if ! arch -x86_64 /usr/bin/true 2>/dev/null; then
+            softwareupdate --install-rosetta --agree-to-license > /dev/null 2>&1 || true
+          fi
+          for MODE in arm64 x86_64; do
+            rm -f "$LOG" "$HOME/carpe_diem_crash.log"
+            arch -$MODE "$APP" > "$RUNNER_TEMP/run-$MODE.txt" 2>&1 &
+            PID=$!
+            mkdir -p "$RUNNER_TEMP/shots"
+            sleep 12
+            screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-12s.png" 2>/dev/null || echo "no screenshot"
+            # the app serves its page from this Mac only; it must answer
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:42001/carpe_diem.html || true)
+            echo "$MODE: the app's page server answered $CODE"
+            sleep 28
+            screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-40s.png" 2>/dev/null || echo "no screenshot"
+            if kill -0 $PID 2>/dev/null; then echo "$MODE: still running after 40 seconds"; kill $PID; sleep 3; else echo "$MODE: EXITED EARLY"; exit 1; fi
+            if [ "$CODE" != "200" ]; then echo "$MODE: the page server did not answer, so the window would be blank"; exit 1; fi
+            echo "--- what the app recorded ($MODE) ---"
+            cat "$LOG" 2>/dev/null || cat "$HOME/carpe_diem_crash.log" 2>/dev/null || echo "(nothing)"
+            if grep -q "Traceback" "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; then echo "$MODE: a fault was recorded"; exit 1; fi
+          done
+          rm -f "$LOG"
+
+      - name: Keep the screenshots with this run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-screenshots
+          path: ${{ runner.temp }}/shots
+          if-no-files-found: warn
+
+      - name: Pack the app
+        run: |
+          cd "$PROJ/dist"
+          ditto -c -k --sequesterRsrc --keepParent "Carpe Diem.app" "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
+          ls -la "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
+
+      - name: Keep the app with this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: carpe-diem-mac
+          path: Carpe-Diem-Mac.zip
+          if-no-files-found: error
+
+      - name: Put the app on the Releases page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=carpe-diem-mac
+          PASS=$(grep -m1 '^Pass:' "$PROJ/BUILD_INFO.txt" | tr -dc '0-9')
+          NOTES="Carpe Diem for Mac, build ${PASS}. One app for Intel and Apple silicon Macs. Built $(date -u '+%d %B %Y, %H:%M UTC') from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA:0:7}.
+          Unzip, drag Carpe Diem.app to Applications, then follow the READ ME for the first open."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" Carpe-Diem-Mac.zip --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" Carpe-Diem-Mac.zip --target "$GITHUB_SHA" --title "Carpe Diem for Mac" --notes "$NOTES"
+          fi

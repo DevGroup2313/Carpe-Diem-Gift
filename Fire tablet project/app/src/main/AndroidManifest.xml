@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
+  NO LICENCE IS GRANTED. No copying, adaptation, redistribution, reverse
+  engineering or commercial use without the author's written permission.
+  See LICENCE.txt. Every distributed copy carries a build marker.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- INTERNET, at the owner's request (2 October 2026). Carpe Diem still
+         runs entirely from the copy inside the app and works with no
+         connection. The permission lets it reach the network whenever
+         something in it can use one, as the Mac, Windows and iOS builds
+         already could. Build 1046: plain http is allowed for one purpose,
+         the laptop's writing model on the home Wi-Fi (a home address cannot
+         have a certificate). Those requests are made by the app itself, only
+         when the person connects a laptop in the Writing model panel. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- No adaptive icon on purpose. An adaptive icon has a background layer
+         that fills the launcher's mask, and Fire OS masks to a rounded square.
+         A circular seal cannot cover a rounded square's corners, so the
+         background shows there, and a transparent background is drawn white by
+         the launcher. That was the white square behind the seal. With only the
+         legacy transparent PNG, the Fire launcher draws the seal as it is. -->
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".MainActivity" android:exported="true"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Build 1046: the tablet's writing model, in a process of its own,
+             so that if the system closes it for memory the page and the work
+             in it stay open (as in Inkwell 7.35) -->
+        <service
+            android:name=".ModelService"
+            android:exported="false"
+            android:process=":model" />
+    </application>
+</manifest>

@@ -1,0 +1,122 @@
+# CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
+# NO LICENCE IS GRANTED. See LICENCE.txt.
+#
+# Builds the Carpe Diem APK for the Fire tablet on GitHub's own computers.
+# It runs by itself every time something is uploaded (committed) to the
+# repository, and can also be started by hand from the Actions tab
+# ("Build Carpe Diem APK", then "Run workflow").
+#
+# When it finishes, the APK is in two places:
+#   1. The Releases page of the repository, as carpe-diem.apk. This is the one
+#      to use on the tablet: open the Releases page in Silk and tap it.
+#   2. The run's own page, under "Artifacts", as a zip (needs a computer).
+
+name: Build Carpe Diem APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Get the project
+        uses: actions/checkout@v4
+
+      - name: Find the Gradle project
+        # Works whether the project was uploaded at the top of the repository
+        # or inside a folder.
+        run: |
+          F=$(find './Fire tablet project' -name settings.gradle | head -n 1)
+          if [ -z "$F" ]; then
+            echo "No settings.gradle found. Upload the CONTENTS of the Fire tablet folder."
+            exit 1
+          fi
+          D=$(dirname "$F")
+          echo "Project folder: $D"
+          echo "PROJ=$D" >> "$GITHUB_ENV"
+
+      - name: Prepare Java and the Android tools
+        run: |
+          # Java 17 is already on GitHub's computers.
+          echo "JAVA_HOME=${JAVA_HOME_17_X64:-$JAVA_HOME}" >> "$GITHUB_ENV"
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          SDKM=$(ls "$SDK"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -n 1)
+          if [ -n "$SDKM" ]; then
+            yes | "$SDKM" --licenses > /dev/null
+            "$SDKM" "platforms;android-34" "build-tools;34.0.0" "ndk;26.1.10909125" "cmake;3.22.1" > /dev/null
+            echo "Android tools ready in $SDK"
+          else
+            echo "sdkmanager not found; the Android plugin will fetch what it needs."
+          fi
+
+      - name: Get Gradle 8.7
+        # Pinned on purpose: a newer Gradle cannot run this project's Android
+        # plugin, and a run that relied on whatever Gradle the computer had
+        # could break without any change on our side.
+        run: |
+          curl -sSL --retry 4 -o "$RUNNER_TEMP/gradle.zip" https://services.gradle.org/distributions/gradle-8.7-bin.zip
+          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-8.7/bin" >> "$GITHUB_PATH"
+
+      # Build 1046: the tablet's writing model is built from llama.cpp (MIT
+      # licence) at a fixed release, the one Inkwell's tests were run against
+      - name: Fetch llama.cpp for the tablet's model
+        run: |
+          set -euo pipefail
+          dest="$PROJ/app/src/main/cpp/llama.cpp"
+          if [ ! -f "$dest/CMakeLists.txt" ]; then
+            rm -rf "$dest"
+            git clone --depth 1 --branch b11398 https://github.com/ggml-org/llama.cpp "$dest"
+          fi
+          git -C "$dest" log -1 --format='llama.cpp %h %cd' || true
+
+      - name: Build the APK
+        run: |
+          cd "$PROJ"
+          set -o pipefail
+          gradle --no-daemon :app:assembleRelease 2>&1 | tee "$RUNNER_TEMP/build-log.txt"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/carpe-diem.apk"
+          ls -la "$GITHUB_WORKSPACE/carpe-diem.apk"
+          # the model engine is inside it, and 32-bit tablets still have their placeholder
+          unzip -l "$GITHUB_WORKSPACE/carpe-diem.apk" | grep -E 'lib/' | awk '{print $1, $4}'
+          for f in lib/arm64-v8a/libinkllm.so lib/arm64-v8a/libllama.so lib/arm64-v8a/libggml-base.so lib/armeabi-v7a/libinkllm.so; do
+            unzip -l "$GITHUB_WORKSPACE/carpe-diem.apk" | grep -q "$f" || { echo "::error::$f is missing from the APK"; exit 1; }
+          done
+          unzip -l "$GITHUB_WORKSPACE/carpe-diem.apk" | grep -q 'lib/arm64-v8a/libggml-cpu' || { echo "::error::no processor variant of the engine in the APK"; exit 1; }
+
+      - name: If the build failed, show why
+        if: failure()
+        run: |
+          echo "Last 60 lines of the build log:"
+          tail -n 60 "$RUNNER_TEMP/build-log.txt" || echo "(no build log was written)"
+
+      - name: Keep the APK with this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: carpe-diem-apk
+          path: carpe-diem.apk
+          if-no-files-found: error
+
+      - name: Put the APK on the Releases page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=carpe-diem-apk
+          NOTES="Carpe Diem for Fire tablet. Built $(date -u '+%d %B %Y, %H:%M UTC') from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA:0:7}.
+          On the tablet: tap carpe-diem.apk below, then open it from Downloads to install.
+          Each new build installs over the old one and keeps your work."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" carpe-diem.apk --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" carpe-diem.apk --target "$GITHUB_SHA" \
+              --title "Carpe Diem for Fire tablet" --notes "$NOTES"
+          fi
