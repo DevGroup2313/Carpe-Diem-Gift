@@ -110,13 +110,19 @@ jobs:
             arch -$MODE "$APP" > "$RUNNER_TEMP/run-$MODE.txt" 2>&1 &
             PID=$!
             mkdir -p "$RUNNER_TEMP/shots"
-            sleep 12
-            screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-12s.png" 2>/dev/null || echo "no screenshot"
-            # the app serves its page from this Mac only, at its own address since
-            # build 1050 (127.0.0.1:42049); it must answer
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:42049/carpe_diem.html || true)
-            echo "$MODE: the app's page server answered $CODE"
-            sleep 28
+            # the app serves its page from this Mac only, at its own address since build 1050
+            # (127.0.0.1:42049); it must answer. Asked every 2 seconds for up to 40: the first start as
+            # Intel runs through Rosetta, which translates the app before it runs, so it can take longer
+            # than 12 seconds to begin serving, while a late answer is still a working app.
+            CODE=000; T=0
+            while [ $T -lt 40 ]; do
+              sleep 2; T=$((T+2))
+              CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:42049/carpe_diem.html || true)
+              if [ "$CODE" = "200" ]; then break; fi
+            done
+            echo "$MODE: the app's page server answered $CODE after $T seconds"
+            screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-first.png" 2>/dev/null || echo "no screenshot"
+            if [ $T -lt 40 ]; then sleep $((40-T)); fi
             screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-40s.png" 2>/dev/null || echo "no screenshot"
             if kill -0 $PID 2>/dev/null; then echo "$MODE: still running after 40 seconds"; kill $PID; sleep 3; else echo "$MODE: EXITED EARLY"; exit 1; fi
             if [ "$CODE" != "200" ]; then echo "$MODE: the page server did not answer, so the window would be blank"; exit 1; fi
