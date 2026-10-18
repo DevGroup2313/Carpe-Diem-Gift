@@ -108,7 +108,7 @@ jobs:
             sleep 12
             screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-12s.png" 2>/dev/null || echo "no screenshot"
             # the app serves its page from this Mac only; it must answer
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:42001/carpe_diem.html || true)
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:42049/carpe_diem.html || true)
             echo "$MODE: the app's page server answered $CODE"
             sleep 28
             screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-40s.png" 2>/dev/null || echo "no screenshot"
