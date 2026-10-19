@@ -16,7 +16,7 @@
 ;   %LOCALAPPDATA%\CarpeDiem\backups\setup-<date and time>
 
 #ifndef AppVersion
-  #define AppVersion "1056"
+  #define AppVersion "1057"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist\Carpe Diem"
