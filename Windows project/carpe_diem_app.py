@@ -429,12 +429,21 @@ class TabulaWindowApi:
         self.win = None
         self.host = host
 
-    def open_app(self, which):
+    def open_app(self, which, base=None):
         try:
             if self.host is not None:
-                return self.host.open_app(which)
+                return self.host.open_app(which, base)
         except Exception:
             log_problem("TabulaWindowApi.open_app(%r)" % (which,))
+        return False
+
+    def broadcast_theme(self, dark):
+        """Build 1059: a day or night change made in this window reaches the desk and every other window."""
+        try:
+            if self.host is not None:
+                return self.host.broadcast_theme(dark)
+        except Exception:
+            log_problem("TabulaWindowApi.broadcast_theme")
         return False
 
 
@@ -497,7 +506,7 @@ def _end_session():
     """A clean ending, so the next run knows the last one was well."""
     import os
     try:
-        lite_clear()
+        room_clear()
     except Exception:
         pass
     try:
@@ -548,7 +557,7 @@ def _prepare_windows_graphics(prior_failures):
 
 
 class CarpeApiSingle:
-    """The API offered on Windows by default: no second native window.
+    """The API offered when CARPE_DIEM_NATIVE_WINDOWS=0: no second native window.
 
     Why: a second web view in the same process is what killed the Intel machine
     the moment a studio was opened. The page asks Python for a native window only
@@ -557,7 +566,9 @@ class CarpeApiSingle:
     poor relation: they resize from every edge, remember their size and place,
     fold into the dock and answer the desk tabs. Nothing is lost except the crash.
 
-    Anyone who wants the old behaviour can set CARPE_DIEM_NATIVE_WINDOWS=1.
+    From build 1059 native room windows are on by default (CarpeApi), opened
+    from the ↗ key of a floating window; a run that follows a bad ending while
+    one was open offers none. CARPE_DIEM_NATIVE_WINDOWS=0 chooses this API.
     """
 
     def __init__(self, app_url):
@@ -575,18 +586,6 @@ class CarpeApiSingle:
 
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
-
-    def open_lite(self, payload_json):
-        """Build 1051: a light window (the room alone, with the desk's side keys) beside Carpe Diem."""
-        return open_lite_window(self._app_url, payload_json)
-
-    def lite_taken(self, tok):
-        """Build 1051: whether that light window has taken its room (only then does Carpe Diem let it go)."""
-        return lite_taken(tok)
-
-    def lite_cancel(self, tok):
-        """Build 1051: withdraw a room a light window has not taken in time; False if it already has it."""
-        return lite_cancel(tok)
 
     def carry_state(self):
         """Build 1050: whether the work kept at the old address still has to come across (asked by the page)."""
@@ -610,8 +609,8 @@ class CarpeApiSingle:
 class CarpeApi:
     """JS API exposed to the main window as window.pywebview.api.
 
-    Opens Tabula, Abacus, or Imago in its own native window (the in-app floating
-    button calls open_app). The windows share the same on-disk localStorage where
+    Opens Tabula, Abacus, Imago, Scriba or Fontes in its own native window (the ↗ key
+    of a floating window calls open_app; build 1059). The windows share the same on-disk localStorage where
     the platform web view allows it; each app re-reads its saved work on load.
     """
 
@@ -687,10 +686,25 @@ class CarpeApi:
             pass
         return True
 
-    def open_app(self, which):
-        """Open (or focus) a separate native window for the app. True on success."""
+    def _room_url(self, base):
+        """Carpe Diem's own address when the page gives it (http://127.0.0.1:<port>, where the desk's
+        storage lives, so the window shares the work), else the file URI."""
+        try:
+            b = str(base or "").split("#")[0]
+            own = str(self._app_url or "").split("#")[0]
+            if b and (b.startswith("http://127.0.0.1:") or b.startswith("http://localhost:") or b == own):
+                return b
+        except Exception:
+            pass
+        return self._app_url
+
+    def open_app(self, which, base=None):
+        """Open (or focus) a separate native window for the app. True on success;
+        {"ok": False, "why": "safety"} when this run offers no native windows (build 1059)."""
         if which not in self.APP_TITLES:
             return False
+        if _ROOM.get("off"):
+            return {"ok": False, "why": "safety"}
         with self._lock:
             if self._alive(which):
                 return self.focus_app(which)
@@ -701,9 +715,10 @@ class CarpeApi:
         try:
             import webview
             win_api = TabulaWindowApi(host=self)
+            _room_mark()
             win = webview.create_window(
                 self.APP_TITLES[which],
-                url=self._app_url + "#cd=" + which,
+                url=self._room_url(base) + "#cd=" + which,
                 width=1050,
                 height=760,
                 min_size=(MIN_WIDTH, MIN_HEIGHT),
@@ -728,18 +743,6 @@ class CarpeApi:
                 self._creating.discard(which)
 
     # Backward compatible names kept for older builds of the app HTML.
-    def open_lite(self, payload_json):
-        """Build 1051: a light window (the room alone, with the desk's side keys) beside Carpe Diem."""
-        return open_lite_window(self._app_url, payload_json)
-
-    def lite_taken(self, tok):
-        """Build 1051: whether that light window has taken its room (only then does Carpe Diem let it go)."""
-        return lite_taken(tok)
-
-    def lite_cancel(self, tok):
-        """Build 1051: withdraw a room a light window has not taken in time; False if it already has it."""
-        return lite_cancel(tok)
-
     def carry_state(self):
         """Build 1050: whether the work kept at the old address still has to come across (asked by the page)."""
         return carry_state()
@@ -1229,44 +1232,48 @@ def start_carry_server():
 
 
 # ---------------------------------------------------------------------------
-# Build 1051: light windows. The ↗ key on a floating window opens its room in a
-# window of its own beside Carpe Diem: the room alone, with the desk's side keys
-# (notes, Clepsydra, bell, day and night, thoughts), never a second copy of the
-# whole app, which is what made a second window heavy enough to crash. Any number
-# may be open, and they all share the one desk. If a run ever ends badly while
-# light windows were open, the next run keeps rooms in Carpe Diem's own floating
-# windows and says why; the run after that offers light windows again.
+# Build 1059: native room windows (Tabula, Abacus, Imago, Scriba, Fontes in a
+# window of their own, asked for by the ↗ key of a floating window) are on by
+# default. A breadcrumb records that one was opened; if the run then ends badly,
+# the next run offers no native window (open_app answers {"ok": False, "why":
+# "safety"}) and the page keeps its own floating windows and says so; the run
+# after that offers them again. CARPE_DIEM_NATIVE_WINDOWS=0 keeps one window.
 # ---------------------------------------------------------------------------
-LITE_COLORS = {"tabula": "#2A2622", "abacus": "#1E3D2C", "slides": "#7A2530", "scriba": "#22304A", "fontes": "#F1EBE1"}
-import threading as _lite_threading
-_LITE = {"wins": [], "off": False, "lock": _lite_threading.RLock(), "parcels": {}}
+_ROOM = {"off": False}
 
 
-def _lite_flag_path():
+def _room_flag_path():
     try:
         f = _session_flag()
         if f is None:
             return None
-        return os.path.join(os.path.dirname(str(f)), "carpe_lite.flag")
+        return os.path.join(os.path.dirname(str(f)), "carpe_room.flag")
     except Exception:
         return None
 
 
-def lite_check_start(prior_bad):
-    """At start: if the last run ended badly while light windows were open, keep them off for this run only."""
-    p = _lite_flag_path()
+def room_check_start(prior_bad):
+    """At start: if the last run ended badly while a native room window was open, offer none for this run only."""
+    p = _room_flag_path()
     try:
         if p and os.path.isfile(p):
             if prior_bad:
-                _LITE["off"] = True
-                log_problem("light windows: the last run ended badly while they were open; off for this run")
+                _ROOM["off"] = True
+                log_problem("native windows: the last run ended badly while one was open; off for this run")
             os.remove(p)
+    except Exception:
+        pass
+    try:
+        # the light windows of build 1051 are gone; their breadcrumb with them
+        old = os.path.join(os.path.dirname(str(p)), "carpe_lite.flag") if p else None
+        if old and os.path.isfile(old):
+            os.remove(old)
     except Exception:
         pass
 
 
-def _lite_mark():
-    p = _lite_flag_path()
+def _room_mark():
+    p = _room_flag_path()
     try:
         if p and not os.path.isfile(p):
             with open(p, "w", encoding="utf-8") as fh:
@@ -1275,140 +1282,14 @@ def _lite_mark():
         pass
 
 
-def lite_clear():
-    """A clean ending: light windows were not to blame for anything."""
-    p = _lite_flag_path()
+def room_clear():
+    """A clean ending: native windows were not to blame for anything."""
+    p = _room_flag_path()
     try:
         if p and os.path.isfile(p):
             os.remove(p)
     except Exception:
         pass
-
-
-class LiteWindowApi:
-    """window.pywebview.api inside a light window. Its room is handed over once, then let go.
-
-    The handing over is recorded here, in the app, so Carpe Diem lets the room go only once
-    this window truly has it, and a window that is too slow is closed with the room still
-    safe in Carpe Diem: never lost, never open twice."""
-
-    def __init__(self, payload, tok):
-        self._payload = payload
-        self._tok = tok
-        self._state = "waiting"
-        self._win = None
-
-    def lite_payload(self):
-        with _LITE["lock"]:
-            if self._state != "waiting":
-                return None
-            self._state = "taken"
-            p, self._payload = self._payload, None
-            return p
-
-    def save_file(self, name, mime, data_b64):
-        return save_bytes(self._win, name, mime, data_b64)
-
-    def print_document(self, name, mime, data_b64):
-        return print_document(self._win, name, mime, data_b64)
-
-    def read_clipboard(self):
-        return read_clipboard()
-
-    def open_export(self, name, data_b64):
-        return open_export(None, name, data_b64)
-
-    def close_self(self):
-        try:
-            if self._win is not None:
-                self._win.destroy()
-                return True
-        except Exception:
-            pass
-        return False
-
-
-def lite_taken(tok):
-    a = _LITE["parcels"].get(str(tok))
-    return bool(a is not None and a._state == "taken")
-
-
-def lite_cancel(tok):
-    """True: withdrawn before the window took it (the window is closed). False: too late, the window has it."""
-    with _LITE["lock"]:
-        a = _LITE["parcels"].get(str(tok))
-        if a is None:
-            return True
-        if a._state == "taken":
-            return False
-        a._state = "cancelled"
-        a._payload = None
-    try:
-        if a._win is not None:
-            a._win.destroy()
-    except Exception:
-        pass
-    return True
-
-
-def open_lite_window(app_url, payload_json):
-    """Open one light window. True, False, or {"ok": False, "why": ...} for the page to explain."""
-    import json
-    import re
-    import secrets
-    if _LITE["off"]:
-        return {"ok": False, "why": "safety"}
-    try:
-        p = json.loads(payload_json)
-        cfg = json.loads(p.get("cfg") or "{}")
-    except Exception:
-        log_problem("open_lite: the parcel could not be read", sys.exc_info())
-        return False
-    base = str(p.get("base") or "").split("#")[0]
-    own = str(app_url or "").split("#")[0]
-    if not (base.startswith("http://127.0.0.1:") or base.startswith("http://localhost:") or (own and base == own)):
-        log_problem("open_lite: refused an address that is not Carpe Diem's own (%r)" % (base[:160],))
-        return False
-    tok = str(p.get("tok") or "")
-    if not re.match(r"^n[a-z0-9]{6,40}$", tok) or tok in _LITE["parcels"]:
-        tok = "n" + secrets.token_hex(8)
-    try:
-        import webview
-        which = str(cfg.get("which") or "")
-        api = LiteWindowApi(payload_json, tok)
-        with _LITE["lock"]:
-            _lite_mark()
-            _LITE["parcels"][tok] = api
-            win = webview.create_window(
-                str(p.get("title") or "Carpe Diem")[:120],
-                url=base + "#cdlite=" + tok,
-                width=1180,
-                height=840,
-                min_size=(MIN_WIDTH, MIN_HEIGHT),
-                background_color=LITE_COLORS.get(which, ACCENT_BLUE),
-                confirm_close=False,
-                text_select=True,
-                js_api=api,
-            )
-            api._win = win
-            _LITE["wins"].append(win)
-
-        def _gone(*a, w=win, t=tok):
-            with _LITE["lock"]:
-                if w in _LITE["wins"]:
-                    _LITE["wins"].remove(w)
-                _LITE["parcels"].pop(t, None)
-        try:
-            win.events.closed += _gone
-        except Exception:
-            pass
-        log_problem("light window opened: %s (%d open)" % (which, len(_LITE["wins"])))
-        return True
-    except Exception:
-        with _LITE["lock"]:
-            _LITE["parcels"].pop(tok, None)
-        log_problem("open_lite", sys.exc_info())
-        return False
 
 
 def main():
@@ -1427,7 +1308,7 @@ def main():
         sys.exit(1)
 
     _prior = _begin_session()
-    lite_check_start(_prior)
+    room_check_start(_prior)
     if _prior >= 3:
         # PASS 447: three runs in a row took the process with them, including one
         # with acceleration fully off and software rendering forced. The graphics
@@ -1499,11 +1380,13 @@ def main():
     except Exception:
         pass
 
-    if sys.platform.startswith("win") and not os.environ.get("CARPE_DIEM_NATIVE_WINDOWS"):
+    if os.environ.get("CARPE_DIEM_NATIVE_WINDOWS", "").strip() == "0":
         api = CarpeApiSingle(app_url)
-        log_problem("windows: one window, the app draws its own floating windows")
+        log_problem("windows: one window (CARPE_DIEM_NATIVE_WINDOWS=0), the app draws its own floating windows")
     else:
         api = CarpeApi(app_url)
+        if _ROOM.get("off"):
+            log_problem("windows: no native window this run, the last run ended badly while one was open")
     try:
         window = _make_window(webview, api, app_url)
     except BaseException:

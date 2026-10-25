@@ -135,7 +135,22 @@ jobs:
           path: ${{ runner.temp }}/shots
           if-no-files-found: warn
 
+      - name: Give the app its own seal as a custom icon
+        # macOS 26 draws an app's bundle icon shrunk inside a grey square when it is not Apple's
+        # rounded square, but shows a custom icon (the kind Finder's Get Info sets) as it is. This
+        # is seal_icon from Build Mac App.command, for the copy on the Releases page: the icon is
+        # a file "Icon\r" at the bundle root plus a Finder flag, which ditto keeps below.
+        # To undo on a Mac: Get Info on the app, click the small icon at the top, press Delete.
+        run: |
+          cd "$PROJ"
+          osascript -l JavaScript - "$PWD/carpe_diem.png" "$PWD/dist/Carpe Diem.app" <<'JS' || echo "seal: osascript failed (the app is still complete)"
+          ObjC.import('AppKit');
+          function run(a){var i=$.NSImage.alloc.initWithContentsOfFile(a[0]);if(!i||i.isNil())return 'seal: no picture';return $.NSWorkspace.sharedWorkspace.setIconForFileOptions(i,a[1],0)?'seal: set':'seal: refused';}
+          JS
+          if [ -f "dist/Carpe Diem.app/Icon"$'\r' ]; then echo "seal: the Icon file is in the bundle"; else echo "seal: NO Icon file in the bundle"; fi
+
       - name: Pack the app
+        # --sequesterRsrc keeps the custom icon (its resource fork and the Finder flag) in the zip
         run: |
           cd "$PROJ/dist"
           ditto -c -k --sequesterRsrc --keepParent "Carpe Diem.app" "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"

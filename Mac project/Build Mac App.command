@@ -12,11 +12,15 @@ LOG="build_log.txt"
 # The round seal at its full size: macOS 26 sets an app's own icon in a grey square when it is not Apple's rounded
 # square, and shrinks it, but leaves a custom icon as it is; so each copy is given the seal as its custom icon, as
 # Finder's Get Info would. To undo: Get Info on the app, click the small icon at the top, press Delete.
+# The GitHub workflow does the same for the copy on the Releases page, and the app does it once for itself
+# when a copy has no custom icon yet. make_carpe_icon.py regenerates carpe_diem.icns from carpe_diem.png.
 seal_icon(){ [ -f "$1" ] && [ -d "$2" ] || return 0
-  osascript -l JavaScript - "$1" "$2" >>"$LOG" 2>&1 <<'JS' || true
+  R=$(osascript -l JavaScript - "$1" "$2" 2>>"$LOG" <<'JS' || true
 ObjC.import('AppKit');
 function run(a){var i=$.NSImage.alloc.initWithContentsOfFile(a[0]);if(!i||i.isNil())return 'seal: no picture';return $.NSWorkspace.sharedWorkspace.setIconForFileOptions(i,a[1],0)?'seal: set':'seal: refused';}
 JS
+)
+  say "Custom icon: ${R:-not set}"
 }
 : > "$LOG"
 say(){ printf '%s\n' "$*" | tee -a "$LOG"; }

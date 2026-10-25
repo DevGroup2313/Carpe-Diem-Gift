@@ -1,15 +1,44 @@
 CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
-NO LICENCE IS GRANTED. No copying, adaptation, redistribution, reverse
-engineering or commercial use without the author's written permission.
-See LICENCE.txt. Every distributed copy carries a build marker.
+The sole original work of Yannie D. Forest. NO LICENCE IS GRANTED: no
+right of use, access, copying, adaptation or distribution without the
+author's written, revocable permission. See LICENCE.txt. Every
+distributed copy carries a build marker.
 --------------------------------------------------------------------------
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1048, 9 October 2026.** The About panel in the app ends with
-"Build 2026-10-09 · 1048 · 528171048".
+**Build 1059, 25 October 2026.** The About panel in the app ends with
+"Build 2026-10-25 · 1059 · 528171059".
 
-## New in build 1048
+## New in build 1059
+
+A room can open in its own window on the laptop again, at Carpe Diem's own
+address. If Carpe Diem ended badly while a room window was open, the next
+start keeps rooms in floating windows once, to be safe. The work on Windows
+start-up speed, installing and uninstalling, the zip kits and the Windows 10
+side buttons is still in progress; it is not in this build.
+
+The floating windows and their dock are back. Tabula, Abacus, Imago, Scriba
+and Fontes open again in a floating window inside Carpe Diem, and a folded
+window waits in the dock. The ↗ key on a window now asks where it should go:
+its own window on this device, its own page (a file), or nowhere (close). A
+room in its own window is a whole Carpe Diem, with the same side buttons at
+full size, the same solid notes panel, and right-click copy and paste in the
+notes and in Tabula. The light window of builds 1051 to 1058, which caused the
+odd layout, is gone.
+
+The licence now says plainly that Carpe Diem is the sole original work of
+Yannie D. Forest, that no one else has any right to it or any access to it,
+and that any permission is limited, personal and revocable at any time
+(LICENCE.txt; a French translation is in LICENCE-FR.txt). The open-source
+parts the apps use are named in THIRD_PARTY_NOTICES.txt.
+
+The page carries a security policy that limits where it may load code from and
+where it may send data. It also carries an integrity seal: if a copy has been
+altered since it was built, the About panel says so. Old comments and stale
+instructions are removed from the code; the copyright and licence lines stay.
+
+## Earlier, in build 1048
 
 **The book spines, mended.** On Home's Current readings and on every shelf of
 the Library, each spine had white panels over its leather by day, and navy
@@ -1031,9 +1060,12 @@ Reported from the field, and both signatures are useful:
   remember their size and place, fold into the dock at the lower left and answer
   the tabs along the top. Nothing is lost except the crash.
 
-If you would rather have real separate desktop windows back, set the environment
-variable `CARPE_DIEM_NATIVE_WINDOWS` to `1` before starting. It is off by default
-on Windows for the reason above.
+From build 1059 a room's own desktop window is back, on by default: the ↗ key on a
+floating window offers "Open in its own window on this device", and the window
+shares the desk's work, notes and Clepsydra. If a run ends badly while such a
+window is open, the next run offers none and says so; the run after that offers
+them again. To keep everything in one window, set the environment variable
+`CARPE_DIEM_NATIVE_WINDOWS` to `0` before starting.
 
 ### Run it without building anything
 
