@@ -26,6 +26,12 @@ MIN_WIDTH = 380      # the app works down to a narrow width
 MIN_HEIGHT = 560
 ACCENT_BLUE = "#1B6B93"   # the Carpe Diem sigil blue
 
+# Build 1063, as The Forge 649 and 9s57: Carpe Diem's own identity on Windows (its taskbar button, its pins and its Start
+# menu shortcut are one), one copy at a time in a sign-in, and the rooms a Start menu shortcut can open by name.
+APP_USER_MODEL_ID = "com.yannieforest.carpediem"
+SINGLE_INSTANCE_NAME = "Local\\CarpeDiem.windows.single"
+ROOMS = ("tabula", "abacus", "slides", "scriba", "fontes")
+
 
 def tell_user(text, title="Carpe Diem"):
     """Say something the person will actually see.
@@ -1292,7 +1298,225 @@ def room_clear():
         pass
 
 
+def _own_taskbar_identity():
+    """Carpe Diem's own AppUserModelID, set before any window, so its taskbar button and its pins are its own and match
+    the installer's Start menu shortcut, even when it runs from the kit's script as python.exe."""
+    if not sys.platform.startswith("win"):
+        return
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_USER_MODEL_ID)
+    except Exception:
+        log_problem("taskbar identity: not set")
+
+
+def _room_asked():
+    """The room a shortcut asked for (--room tabula, abacus, slides, scriba or fontes), or None."""
+    args = sys.argv[1:]
+    for i, a in enumerate(args):
+        w = None
+        if a.lower() in ("--room", "/room") and i + 1 < len(args):
+            w = args[i + 1]
+        elif a.lower().startswith("--room="):
+            w = a.split("=", 1)[1]
+        if w is not None:
+            w = w.strip().lower()
+            w = {"imago": "slides"}.get(w, w)
+            return w if w in ROOMS else None
+    return None
+
+
+def _room_request_path():
+    """%LOCALAPPDATA%\\CarpeDiem\\open-room.txt: where a second start leaves the room it was asked for."""
+    d = storage_dir() or os.path.join(os.path.expanduser("~"), "CarpeDiem", "storage")
+    return os.path.join(os.path.dirname(d), "open-room.txt")
+
+
+def _another_copy_is_open(room=None):
+    """True when Carpe Diem is already open in this sign-in: its window is brought forward (and the room a shortcut asked
+    for is handed to it), and this copy ends at once, without touching the session mark. A second copy would read the
+    session mark as a run that never finished, and two copies would compete for the same address and work.
+
+    A named mutex (Microsoft, CreateMutexW): the first copy keeps its handle for its whole life, and the system closes it
+    when the process ends, so a crash never leaves the name behind. Anything that goes wrong here starts the app as usual."""
+    if not sys.platform.startswith("win"):
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.CreateMutexW.argtypes = (ctypes.c_void_p, wintypes.BOOL, wintypes.LPCWSTR)
+        kernel32.CreateMutexW.restype = wintypes.HANDLE
+        handle = kernel32.CreateMutexW(None, False, SINGLE_INSTANCE_NAME)
+        err = ctypes.get_last_error()
+        if not handle:
+            return False
+        if err != 183:   # ERROR_ALREADY_EXISTS
+            _single_instance.append(handle)
+            return False
+        try:
+            kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+            kernel32.CloseHandle(handle)
+        except Exception:
+            pass
+    except Exception:
+        log_problem("single copy: no guard on this PC; opening as usual")
+        return False
+    if room:
+        try:
+            with open(_room_request_path(), "w", encoding="utf-8") as fh:
+                fh.write(room)
+        except Exception:
+            log_problem("room %s: the request could not be left for the open copy" % room)
+    try:
+        if not _bring_window_forward():
+            tell_user("Carpe Diem is still opening.\n\nIts window will appear in a moment.")
+    except Exception:
+        log_problem("already open; its window could not be brought forward")
+    return True
+
+
+_single_instance = []
+
+
+def _bring_window_forward(wait_s=30.0):
+    """Find the open copy's window by its title (its own window class only: pywebview's WindowsForms window, or one of its
+    message boxes) and bring it forward: restored if minimised, otherwise shown as it is."""
+    import ctypes
+    import time
+    from ctypes import wintypes
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    user32.FindWindowExW.argtypes = (wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR)
+    user32.FindWindowExW.restype = wintypes.HWND
+    user32.GetClassNameW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    user32.IsIconic.argtypes = (wintypes.HWND,)
+    user32.ShowWindow.argtypes = (wintypes.HWND, ctypes.c_int)
+    user32.SetForegroundWindow.argtypes = (wintypes.HWND,)
+
+    def find():
+        after = None
+        for _ in range(64):
+            hwnd = user32.FindWindowExW(None, after, None, WINDOW_TITLE)
+            if not hwnd:
+                return None
+            name = ctypes.create_unicode_buffer(256)
+            user32.GetClassNameW(hwnd, name, 256)
+            if name.value.startswith("WindowsForms") or name.value == "#32770":
+                return hwnd
+            after = hwnd
+        return None
+
+    end = time.monotonic() + wait_s
+    hwnd = find()
+    while not hwnd and time.monotonic() < end:
+        time.sleep(0.25)
+        hwnd = find()
+    if not hwnd:
+        return False
+    user32.ShowWindow(hwnd, 9 if user32.IsIconic(hwnd) else 5)   # SW_RESTORE or SW_SHOW
+    user32.SetForegroundWindow(hwnd)
+    return True
+
+
+def _rooms_on_request(api, window, first=None):
+    """A room asked for by a Start menu shortcut opens in its own window: the one this start was asked for once the
+    desk has loaded, and any asked for later by a second start (left in open-room.txt) as it comes."""
+    import threading
+    import time
+    path = _room_request_path()
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+
+    def base():
+        try:
+            u = window.get_current_url() or ""
+            return u if u.startswith("http://127.0.0.1:") else None
+        except Exception:
+            return None
+
+    def open_room(which):
+        try:
+            ok = api.open_app(which, base())
+            log_problem("room %s asked by a shortcut: %s" % (which, "opened" if ok is True else repr(ok)))
+        except Exception:
+            log_problem("room %s asked by a shortcut could not open" % which, sys.exc_info())
+
+    def run():
+        if first:
+            for _ in range(240):
+                if base():
+                    break
+                time.sleep(0.5)
+            time.sleep(2.0)
+            open_room(first)
+        while True:
+            time.sleep(0.8)
+            try:
+                if not os.path.isfile(path):
+                    continue
+                with open(path, "r", encoding="utf-8") as fh:
+                    which = fh.read().strip().lower()
+                os.remove(path)
+                if which in ROOMS:
+                    open_room(which)
+            except Exception:
+                log_problem("room request: could not be read")
+                time.sleep(5)
+    threading.Thread(target=run, daemon=True).start()
+
+
+_CARE = {"attached": False, "reloads": []}
+
+
+def _care_attach(window):
+    """As The Forge 647 does: when the page's own process stops (Edge WebView2 ends a page that ran out of memory, or a
+    driver fault), the page is loaded again by itself, up to three times in two minutes; work is saved as it goes."""
+    if _CARE["attached"] or not sys.platform.startswith("win"):
+        return
+    _CARE["attached"] = True
+    try:
+        import time as _t
+        import clr  # noqa: F401  (pythonnet, already loaded by the window)
+        from System import Func, Type
+        from Microsoft.Web.WebView2.Core import CoreWebView2ProcessFailedKind as K
+        form = getattr(window, "native", None)
+        wv = getattr(form, "webview", None) if form is not None else None
+        if wv is None:
+            return
+
+        def failed(_sender, args):
+            try:
+                if args.ProcessFailedKind == K.RenderProcessExited:
+                    now = _t.time()
+                    recent = [x for x in _CARE["reloads"] if now - x < 120]
+                    if len(recent) >= 3:
+                        log_problem("page: its process stopped again after three new starts in two minutes; left as it is")
+                        return
+                    recent.append(now)
+                    _CARE["reloads"] = recent
+                    log_problem("page: its process stopped; the page is loaded again")
+                    wv.CoreWebView2.Reload()
+            except BaseException:
+                log_problem("care: a stopped process could not be handled", sys.exc_info())
+
+        def attach():
+            core = wv.CoreWebView2
+            if core is not None:
+                core.ProcessFailed += failed
+                _CARE["refs"] = [failed]
+            return None
+        form.Invoke(Func[Type](attach))
+    except BaseException:
+        log_problem("care: could not listen to the web view", sys.exc_info())
+
+
 def main():
+    _own_taskbar_identity()
+    _room = _room_asked()
+    if _another_copy_is_open(_room):
+        return
     app_html = find_app_html()
     if not app_html:
         tell_user(
@@ -1409,6 +1633,12 @@ def main():
         api.main_window = window
     except Exception:
         pass
+    try:
+        window.events.loaded += (lambda *a: _care_attach(window))
+    except Exception:
+        log_problem("care: the page's loading could not be heard")
+    if isinstance(api, CarpeApi):
+        _rooms_on_request(api, window, _room)
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).

@@ -162,12 +162,28 @@ jobs:
           "Desktop shortcut: $(Test-Path (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Carpe Diem.lnk'))"
           $bk = Get-ChildItem (Join-Path $env:LOCALAPPDATA "CarpeDiem\backups") -Directory -ErrorAction SilentlyContinue
           "safety copies before install: $(@($bk).Count)"
+          # build 1063: the five rooms in the Start menu, each opening in a window of its own
+          foreach ($r in 'Tabula','Abacus','Imago','Scriba','Fontes') {
+            $rl = Join-Path ([Environment]::GetFolderPath('Programs')) "$r.lnk"
+            if (-not (Test-Path $rl)) { Write-Error "The Start menu has no shortcut for $r"; exit 1 }
+          }
+          "Start menu: Carpe Diem and its five rooms."
           $p = Start-Process -FilePath "$app\Carpe Diem.exe" -PassThru
           Start-Sleep -Seconds 25
           $alive = -not $p.HasExited
-          if ($alive) { "The installed Carpe Diem is running."; Stop-Process -Id $p.Id -Force } else { "EXITED EARLY with code $($p.ExitCode)" }
-          if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" }
-          if (-not $alive) { exit 1 }
+          if (-not $alive) { "EXITED EARLY with code $($p.ExitCode)"; if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" }; exit 1 }
+          "The installed Carpe Diem is running."
+          # one copy at a time: a second start, here asking for Tabula, hands the room to the open copy and ends at once
+          $q = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room','tabula' -PassThru
+          if (-not $q.WaitForExit(40000)) { Stop-Process -Id $q.Id -Force; Write-Error "A second start did not end: two copies would be open."; exit 1 }
+          $n = @(Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue).Count
+          "Copies of Carpe Diem running after a second start: $n"
+          if ($n -ne 1) { Write-Error "Expected one copy of Carpe Diem, found $n."; exit 1 }
+          Start-Sleep -Seconds 12
+          if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "room|copy|care" | ForEach-Object { $_.Line } }
+          if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut: opened" -Quiet -ErrorAction SilentlyContinue)) { Write-Error "Tabula's shortcut did not open its window in the open copy."; exit 1 }
+          "Tabula's shortcut opened Tabula's window in the open copy."
+          Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
           $u = Start-Process -FilePath "$app\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -PassThru -Wait
           # the uninstaller hands its work to a copy of itself, so wait until the program is gone
@@ -204,9 +220,11 @@ jobs:
           $tag = "carpe-diem-windows"
           $pass = ((Select-String -Path "$env:PROJ\BUILD_INFO.txt" -Pattern '^Pass:').Line -replace '[^0-9]', '')
           $notes = "Carpe Diem for Windows, build $pass. Built $((Get-Date).ToUniversalTime().ToString('dd MMMM yyyy, HH:mm')) UTC from branch $env:GITHUB_REF_NAME, commit $($env:GITHUB_SHA.Substring(0,7)). RECOMMENDED: download $env:SETUP_NAME and open it. It installs Carpe Diem for you only, with no administrator password, adds it to the Start menu (and the Desktop if you tick it), and should open sooner than the single file, because nothing is unpacked at each start. Python is not needed. If Windows SmartScreen says it protected your PC, choose More info, then Run anyway (the installer is not signed with a paid certificate). To remove it: Settings, Apps, Carpe Diem, Uninstall; your work stays. For a USB stick instead: Carpe-Diem-Windows.zip holds the portable Carpe Diem.exe. Both open the same work."
+          # build 1063: the same installer under a name that never changes, so a saved link always gives the newest
+          Copy-Item "out/$env:SETUP_NAME" "out/carpe-diem-windows-setup.exe" -Force
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag Carpe-Diem-Windows.zip "out/$env:SETUP_NAME" --clobber
+            gh release upload $tag Carpe-Diem-Windows.zip "out/$env:SETUP_NAME" "out/carpe-diem-windows-setup.exe" --clobber
             gh release edit $tag --notes $notes
             # only this build's installer stays on the page, so there is one file to choose
             $names = gh release view $tag --json assets -q '.assets[].name'
@@ -215,5 +233,5 @@ jobs:
             }
             $global:LASTEXITCODE = 0   # tidying the page never fails the build
           } else {
-            gh release create $tag Carpe-Diem-Windows.zip "out/$env:SETUP_NAME" --target $env:GITHUB_SHA --title "Carpe Diem for Windows" --notes $notes
+            gh release create $tag Carpe-Diem-Windows.zip "out/$env:SETUP_NAME" "out/carpe-diem-windows-setup.exe" --target $env:GITHUB_SHA --title "Carpe Diem for Windows" --notes $notes
           }

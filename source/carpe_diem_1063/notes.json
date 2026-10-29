@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-29",
+ "pass": "1063",
+ "stamp": "528171063",
+ "prev": "1062",
+ "when": "29 October 2026",
+ "prev_when": "29 October 2026",
+ "ios_version": "2026102903",
+ "en": "Windows: Carpe Diem installs, opens and uninstalls as a proper app, on the pattern of\nThe Forge's installer. An update first clears the program's old libraries, so nothing\nstale is left behind, and never counts as a bad ending; uninstalling asks an open\nCarpe Diem to close the way its own close button does, then removes it from Settings,\nApps, leaving your work where it is. A PC without Microsoft Edge WebView2 is told so on\none calm page. A Desktop or Start menu shortcut left by an older copy that says \"the\nfile has moved\" is mended to open the installed one, and if an antivirus removes the\nprogram just after it is installed, the installer says what to do.\n\nCarpe Diem now has its own place on the Windows taskbar, and opens one copy at a time:\na second click brings the open window forward. The Start menu holds Tabula, Abacus,\nImago, Scriba and Fontes beside Carpe Diem; each opens its room in a window of its own\n(in the open Carpe Diem, or starting it). If the page's own process stops, the page is\nloaded again by itself. The Releases page also keeps the installer under a name that\nnever changes, carpe-diem-windows-setup.exe.\n\nEverywhere: while the page is only being read (no key, pointer or touch for twenty\nseconds, or the window not in front), its background checks run at a third of their\npace, so the app sits lighter on a laptop; the first touch brings them back at once.\nA running Clepsydra is never slowed.",
+ "web": "While the page is only being read (no key, pointer or touch for twenty seconds, or the window not in front), its background checks run at a third of their pace, so it sits lighter on a laptop or a tablet; the first touch brings them back at once.",
+ "ios": "While the page is only being read, its background checks run at a third\nof their pace, so the app sits lighter on the iPhone and iPad; the first\ntouch brings them back at once."
+}

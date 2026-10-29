@@ -7,10 +7,33 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1062, 29 October 2026.** The About panel in the app ends with
-"Build 1062 · 528171062".
+**Build 1063, 29 October 2026.** The About panel in the app ends with
+"Build 1063 · 528171063".
 
-## New in build 1062
+## New in build 1063
+
+Windows: Carpe Diem installs, opens and uninstalls as a proper app, on the pattern of
+The Forge's installer. An update first clears the program's old libraries, so nothing
+stale is left behind, and never counts as a bad ending; uninstalling asks an open
+Carpe Diem to close the way its own close button does, then removes it from Settings,
+Apps, leaving your work where it is. A PC without Microsoft Edge WebView2 is told so on
+one calm page. A Desktop or Start menu shortcut left by an older copy that says "the
+file has moved" is mended to open the installed one, and if an antivirus removes the
+program just after it is installed, the installer says what to do.
+
+Carpe Diem now has its own place on the Windows taskbar, and opens one copy at a time:
+a second click brings the open window forward. The Start menu holds Tabula, Abacus,
+Imago, Scriba and Fontes beside Carpe Diem; each opens its room in a window of its own
+(in the open Carpe Diem, or starting it). If the page's own process stops, the page is
+loaded again by itself. The Releases page also keeps the installer under a name that
+never changes, carpe-diem-windows-setup.exe.
+
+Everywhere: while the page is only being read (no key, pointer or touch for twenty
+seconds, or the window not in front), its background checks run at a third of their
+pace, so the app sits lighter on a laptop; the first touch brings them back at once.
+A running Clepsydra is never slowed.
+
+## Earlier, in build 1062
 
 Ingenium's Quiet Screen is in Carpe Diem. The leaf 🌿 in the side column (under
 the bell, above the 💭) opens it: a still, dim page with one line of words and a slow

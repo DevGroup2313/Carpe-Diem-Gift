@@ -1,0 +1,79 @@
+# CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
+# NO LICENCE IS GRANTED. See LICENCE.txt.
+#
+# Makes the install kits on GitHub's own computer, exactly as the app's Author Studio makes them: one zip for each
+# device (Mac, Mac mini, Windows, Fire tablet, iPhone and iPad, the web) and the standalone page, the whole app in one
+# file. They are placed on the Releases page as "Carpe Diem install kits" (tag carpe-diem-kits), and under "Artifacts"
+# on the run's page. It runs by itself whenever the app is uploaded, and by hand from the Actions tab.
+
+name: Make the install kits
+
+on:
+  push:
+    paths:
+      - 'Mac project/carpe_diem.html'
+      - '.github/kits/**'
+      - '.github/workflows/build-kits.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  kits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Get the project
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Install the headless browser
+        run: |
+          cd .github/kits
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund playwright@1.63.0 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+          npx playwright --version
+
+      - name: Make the kits from the app itself
+        run: |
+          PASS=$(grep -m1 '^Pass:' "Mac project/BUILD_INFO.txt" | tr -dc '0-9')
+          echo "PASS=$PASS" >> "$GITHUB_ENV"
+          node .github/kits/make_kits.js "Mac project/carpe_diem.html" "$RUNNER_TEMP/kits"
+          ls -la "$RUNNER_TEMP/kits"
+          N=$(ls "$RUNNER_TEMP/kits"/*.zip | wc -l)
+          if [ "$N" -lt 6 ]; then echo "::error::only $N kits were made"; exit 1; fi
+          for z in "$RUNNER_TEMP/kits"/*.zip; do unzip -tq "$z" > /dev/null || { echo "::error::$z is not a sound zip"; exit 1; }; done
+          unzip -p "$RUNNER_TEMP/kits/Carpe Diem $PASS for Windows.zip" "*/Windows project/BUILD_INFO.txt" | grep -q "Pass: $PASS" || { echo "::error::the Windows kit is not build $PASS"; exit 1; }
+
+      - name: Keep the kits with this run
+        uses: actions/upload-artifact@v6
+        with:
+          name: carpe-diem-kits
+          path: ${{ runner.temp }}/kits
+          if-no-files-found: error
+
+      - name: Put the kits on the Releases page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=carpe-diem-kits
+          cd "$RUNNER_TEMP/kits"
+          NOTES="Carpe Diem install kits, build ${PASS}. Built $(date -u '+%d %B %Y, %H:%M UTC') from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA:0:7}.
+          One zip for each device: Mac (MacBook Pro), Mac mini, Windows, Fire tablet, iPhone and iPad, and the web; each holds the project and a READ ME FIRST that says how to install it. The standalone page is the whole app in one file: open it in a browser.
+          The ready-made apps are on the other Releases: Carpe Diem for Mac (Carpe-Diem-Mac.zip), for Windows (carpe-diem-windows-setup.exe), and for the Fire tablet (carpe-diem.apk); the iPhone and iPad app is in the Offline-ios repository's Releases (CarpeDiem.ipa)."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            for old in $(gh release view "$TAG" --json assets -q '.assets[].name' | tr ' ' '#'); do
+              gh release delete-asset "$TAG" "$(echo "$old" | tr '#' ' ')" --yes || true
+            done
+            gh release upload "$TAG" ./* --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" ./* --target "$GITHUB_SHA" --title "Carpe Diem install kits" --notes "$NOTES"
+          fi
