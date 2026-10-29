@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Get the project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Find the project folder
         run: |
@@ -134,7 +134,7 @@ jobs:
 
       - name: Keep the screenshots with this run
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: mac-screenshots
           path: ${{ runner.temp }}/shots
@@ -162,7 +162,7 @@ jobs:
           ls -la "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
 
       - name: Keep the app with this run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: carpe-diem-mac
           path: Carpe-Diem-Mac.zip

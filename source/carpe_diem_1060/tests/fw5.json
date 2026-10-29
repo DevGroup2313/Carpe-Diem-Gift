@@ -1,0 +1,11 @@
+{"viewport":[1400,900],"scale":2,"steps":[
+ {"wait":4000},
+ {"eval":"(function(){ var b=[...document.querySelectorAll('button')].find(x=>/Go to Home/.test(x.textContent)); if(b) b.click(); try{ window.__cdTC.add('A thought to test the badge'); }catch(e){} return !!b;})()"},
+ {"wait":1200},
+ {"eval":"(function(){ openExt('tabula'); return 1; })()"},
+ {"wait":5000},
+ {"eval":"(function(){ cdFloatApp('tabula'); return 1; })()"},
+ {"wait":4000},
+ {"eval":"(function(){ var f=document.querySelector('#cd-fw-tabula iframe'); var d=f.contentDocument; var w=d.defaultView; var out=[]; d.querySelectorAll('#cd-jewel-winfabs button, #cd-jewel-winfabs button > *').forEach(function(e){ var cs=w.getComputedStyle(e); out.push((e.id||e.className)+' filter='+cs.filter+' anim='+cs.animationName+' txt='+(e.textContent||'').slice(0,4)); }); var mb=document.querySelector('#cd-thought-fab .tc-badge'); var cs=getComputedStyle(mb); out.push('main badge bg='+cs.backgroundImage+' '+cs.backgroundColor+' bs='+cs.boxShadow); return out; })()"},
+ {"shot":"../work/fw5.png"}
+]}

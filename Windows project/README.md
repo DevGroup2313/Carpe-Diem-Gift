@@ -7,16 +7,48 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1059, 25 October 2026.** The About panel in the app ends with
-"Build 2026-10-25 · 1059 · 528171059".
+**Build 1060, 29 October 2026.** The About panel in the app ends with
+"Build 1060 · 528171060".
 
-## New in build 1059
+## New in build 1060
+
+The proposal no longer carries a date of its own. Earlier builds set a target date
+42 days after the first start, and three lines wrote "16 September 2026" whatever
+was chosen. Your desk's proposal date is cleared once, as you asked, and no edition
+ever chooses one for you: choose one if and when it suits you, in Candidatus,
+Proposal, "Rename the proposal". That key now opens the proposal's own details: its
+working title, its target date (with a key to clear it) and its sections' names. The
+curriculum's names have their own panel, "Rename the curriculum". The first-draft
+milestone follows the proposal's date, and a passed date is said calmly, once.
+
+The side buttons inside a floating window are drawn as the main window's are,
+without the stacked dark shadows, which were slow and showed as dark squares on a
+Mac; they keep their lift, the bell's ring and the hourglass's turn. The 💭 there
+shows the number of thoughts too, and that number is one flat colour, as the bell's.
+
+Timed reminders ("In five minutes: ...", the two-minute clock, a thought asking to
+come back, and Custodia's pause) come in Carpe Diem's own blue card with a fine gold
+rim, by day and by night. Custodia's card and its keys are styled again.
+
+On Windows 10 the side buttons show Microsoft's flat emoji drawings, as on Windows
+11, without the heavy black outline.
+
+While Carpe Diem starts, the loading page says that the page is still being painted
+and how far it has got, in English or French; after a long wait it offers to start
+again. Refresh (the ↻ key beside Display, the first row of the Display menu, F5, or
+Ctrl+Shift+R, Command+Shift+R on a Mac) saves the work of every open room, then
+starts Carpe Diem again.
+
+The About panel is shorter. The workflows that build the apps on GitHub use actions
+that run on Node.js 24, so the Node.js 20 notice no longer appears.
+
+## Earlier, in build 1059
 
 A room can open in its own window on the laptop again, at Carpe Diem's own
 address. If Carpe Diem ended badly while a room window was open, the next
 start keeps rooms in floating windows once, to be safe. The work on Windows
-start-up speed, installing and uninstalling, the zip kits and the Windows 10
-side buttons is still in progress; it is not in this build.
+start-up speed, installing and uninstalling and the zip kits was still in
+progress then.
 
 The floating windows and their dock are back. Tabula, Abacus, Imago, Scriba
 and Fontes open again in a floating window inside Carpe Diem, and a folded

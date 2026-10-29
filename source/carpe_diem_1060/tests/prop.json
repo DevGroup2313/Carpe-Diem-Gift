@@ -1,0 +1,20 @@
+{"viewport":[1400,900],"scale":1,
+ "init":"try{ if(!sessionStorage.getItem('seeded')){ sessionStorage.setItem('seeded','1'); var k='carpe_diem_offline_v1'; var st={}; try{st=JSON.parse(localStorage.getItem(k)||'{}');}catch(e){} st.proposalTarget='2026-09-16'; st.candidature={milestones:[{id:'ms-proposal',label:'Proposal first full draft',date:'2026-09-16',done:false},{id:'ms-supervisor',label:'Identify and contact potential supervisors',date:'2026-09-30',done:false},{id:'ms-references',label:'Request letters',date:'2026-11-20',done:false}],funding:[],visa:[]}; localStorage.setItem(k, JSON.stringify(st)); } }catch(e){}",
+ "steps":[
+ {"wait":5000},
+ {"eval":"(function(){ var b=[...document.querySelectorAll('button')].find(x=>/Go to Home/.test(x.textContent)); if(b) b.click(); return {target: state.proposalTarget, ms: state.candidature.milestones.map(m=>m.id+'='+m.date), cleared: state.cd1060DatesCleared}; })()"},
+ {"wait":800},
+ {"eval":"(function(){ try{ renderOverview(); }catch(e){ return 'err '+e; } var t=document.getElementById('overview-body'); return t? t.innerText.slice(0,900):'no overview'; })()"},
+ {"eval":"(function(){ showSection('applications'); candUI.tab='proposal'; renderCandidature(); var r=document.getElementById('cand-proposal'); return r.innerText.slice(0,500); })()"},
+ {"wait":600},
+ {"shot":"../work/t_prop1.png"},
+ {"eval":"(function(){ var b=[...document.querySelectorAll('#cand-proposal button')].find(x=>/Rename the proposal/.test(x.textContent)); b.click(); var m=document.querySelector('.cd-prop-details'); return m? m.innerText.slice(0,700) : 'no panel'; })()"},
+ {"wait":500},
+ {"shot":"../work/t_prop2.png"},
+ {"eval":"(function(){ var m=document.querySelector('.cd-prop-details'); var ins=m.querySelectorAll('input'); ins[0].value='A Working Title'; ins[0].dispatchEvent(new Event('change')); ins[1].value='2026-12-07'; ins[1].dispatchEvent(new Event('change')); ins[2].value='Abstract (250 words)'; ins[2].dispatchEvent(new Event('change')); return {title: state.proposalTitle, target: state.proposalTarget, ms: state.candidature.milestones[0].date, sec0: state.proposalOutline.sections[0].title, note: m.querySelector('[role=status]').textContent}; })()"},
+ {"eval":"(function(){ closeModal(); candUI.tab='overview'; renderCandidature(); var a=document.getElementById('cand-overview').innerText.slice(0,300); renderOverview(); var o=document.getElementById('overview-body').innerText; var i=o.indexOf('Proposal'); return {cand:a, ov:o.slice(i,i+300)}; })()"},
+ {"eval":"(function(){ candUI.tab='milestones'; renderCandidature(); return document.getElementById('cand-milestones').innerText.slice(0,600); })()"},
+ {"shot":"../work/t_prop3.png"},
+ {"eval":"(function(){ openProposalDetails(); var m=document.querySelector('.cd-prop-details'); var c=[...m.querySelectorAll('button')].find(x=>/Clear the date/.test(x.textContent)); c.click(); closeModal(); renderOverview(); var o=document.getElementById('overview-body').innerText; var i=o.indexOf('Proposal'); return {target: state.proposalTarget, ms: state.candidature.milestones[0].date, ov: o.slice(i,i+200)}; })()"},
+ {"eval":"(async function(){ var ok = await window.cdSealCheck(); return 'seal ok: '+ok; })()"}
+]}
