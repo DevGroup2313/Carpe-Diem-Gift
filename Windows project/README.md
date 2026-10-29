@@ -7,10 +7,23 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1060, 29 October 2026.** The About panel in the app ends with
-"Build 1060 · 528171060".
+**Build 1061, 29 October 2026.** The About panel in the app ends with
+"Build 1061 · 528171061".
 
-## New in build 1060
+## New in build 1061
+
+Carpe Diem and a room can now share the screen. The ↗ key of a floating window
+(Tabula, Abacus, Imago, Scriba or Fontes) offers, second, "Side by side with Carpe
+Diem": the room fills the right of the window and Carpe Diem the left, divided by a
+line you can drag (or move with the arrow keys); the width is remembered, and the
+same place then offers "Float again". It works on every device, the Fire tablet and
+the iPad included. On a Mac, the first choice, the room's own window, now joins Carpe
+Diem's window as a tab ("Carpe Diem | Tabula" across the top), as it did when Carpe
+Diem filled the screen. The copy of a room as a page in the browser (which opened
+Safari) is no longer offered there. The small notes at the foot of the screen take
+the reminders' pastel card too.
+
+## Earlier, in build 1060
 
 The proposal no longer carries a date of its own. Earlier builds set a target date
 42 days after the first start, and three lines wrote "16 September 2026" whatever

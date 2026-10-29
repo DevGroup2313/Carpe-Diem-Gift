@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1060, 29 October 2026. The About panel inside the app ends with
-"Build 1060 · 528171060".
-The app's own version is 1060 too; Android usually shows it on the
+Build 1061, 29 October 2026. The About panel inside the app ends with
+"Build 1061 · 528171061".
+The app's own version is 1061 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,20 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1060
+NEW IN BUILD 1061
+  Carpe Diem and a room can now share the screen. The ↗ key of a floating window
+  (Tabula, Abacus, Imago, Scriba or Fontes) offers, second, "Side by side with Carpe
+  Diem": the room fills the right of the window and Carpe Diem the left, divided by a
+  line you can drag (or move with the arrow keys); the width is remembered, and the
+  same place then offers "Float again". It works on every device, the Fire tablet and
+  the iPad included. On a Mac, the first choice, the room's own window, now joins Carpe
+  Diem's window as a tab ("Carpe Diem | Tabula" across the top), as it did when Carpe
+  Diem filled the screen. The copy of a room as a page in the browser (which opened
+  Safari) is no longer offered there. The small notes at the foot of the screen take
+  the reminders' pastel card too.
+
+
+EARLIER, IN BUILD 1060
   The proposal no longer carries a date of its own. Earlier builds set a target date
   42 days after the first start, and three lines wrote "16 September 2026" whatever
   was chosen. Your desk's proposal date is cleared once, as you asked, and no edition

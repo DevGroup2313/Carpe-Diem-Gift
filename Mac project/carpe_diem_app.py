@@ -675,6 +675,7 @@ class CarpeApi:
                 win.events.closed += (lambda *a, w=which: self._wins.pop(w, None))
             except Exception:
                 pass
+            self._tab_beside_desk(win)
             return True
         except Exception:
             log_problem("open_app(%r)" % (which,))
@@ -683,6 +684,42 @@ class CarpeApi:
         finally:
             with self._lock:
                 self._creating.discard(which)
+
+    def _tab_beside_desk(self, win):
+        """Build 1061: a room's own window joins Carpe Diem's window as a tab ("Carpe Diem | Tabula" across the top),
+        as macOS does by itself only while Carpe Diem fills the screen. Closing the tab closes the room's window."""
+        def attach(*_a):
+            try:
+                import AppKit
+                from PyObjCTools import AppHelper
+            except Exception:
+                log_problem("tab beside the desk: AppKit", sys.exc_info())
+                return
+
+            def go():
+                try:
+                    desk = getattr(self.main_window, "native", None)
+                    room = getattr(win, "native", None)
+                    if desk is None or room is None or desk is room:
+                        return
+                    for w in (desk, room):
+                        try:
+                            w.setTabbingIdentifier_("CarpeDiem")
+                            w.setTabbingMode_(AppKit.NSWindowTabbingModePreferred)
+                        except Exception:
+                            pass
+                    group = room.tabGroup() if hasattr(room, "tabGroup") else None
+                    if group is not None and desk in list(group.windows() or []):
+                        return
+                    desk.addTabbedWindow_ordered_(room, AppKit.NSWindowAbove)
+                    room.makeKeyAndOrderFront_(None)
+                except Exception:
+                    log_problem("tab beside the desk", sys.exc_info())
+            AppHelper.callAfter(go)
+        try:
+            win.events.shown += attach
+        except Exception:
+            log_problem("tab beside the desk: no shown event", sys.exc_info())
 
     def carry_state(self):
         """Build 1050: whether the work kept at the old address still has to come across (asked by the page)."""
