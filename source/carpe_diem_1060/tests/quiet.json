@@ -1,0 +1,20 @@
+{"viewport":[1400,900],"scale":1,"steps":[
+ {"wait":4500},
+ {"eval":"(function(){ var b=[...document.querySelectorAll('button')].find(x=>/Go to Home/.test(x.textContent)); if(b) b.click(); return 1; })()"},
+ {"wait":2500},
+ {"eval":"(function(){ var ids=['reminders-fab','cd-quiet-fab','cd-thought-fab','cd-theme-fab','horo-fab','sticky-fab']; return ids.map(function(i){ var e=document.getElementById(i); if(!e) return i+': none'; var r=e.getBoundingClientRect(); return i+' y='+Math.round(r.top)+' disp='+getComputedStyle(e).display; }); })()"},
+ {"shot":"../work/q_col.png","clip":[1250,520,150,380]},
+ {"eval":"(function(){ document.getElementById('cd-quiet-fab').click(); var q=document.getElementById('cd-quiet'); return q? {open: !q.hidden, text: q.innerText} : 'none'; })()"},
+ {"wait":800},
+ {"shot":"../work/q_day.png"},
+ {"key":"Escape"},
+ {"wait":400},
+ {"eval":"(function(){ var q=document.getElementById('cd-quiet'); var r={closedAfterEsc: q.hidden}; setLang('fr'); document.getElementById('cd-theme-fab').click(); return r; })()"},
+ {"wait":1200},
+ {"eval":"(function(){ cdQuiet.open(); var q=document.getElementById('cd-quiet'); return {text: q.innerText, label: q.getAttribute('aria-label')}; })()"},
+ {"wait":800},
+ {"shot":"../work/q_night_fr.png"},
+ {"eval":"(function(){ cdQuiet.close(); setLang('en'); showSection('focus'); return 1; })()"},
+ {"wait":1500},
+ {"eval":"(function(){ var w=document.querySelector('.cd-quiet-way'); var b=[...document.querySelectorAll('button')].find(x=>/I need quiet/.test(x.textContent)); if(b) b.click(); var q=document.getElementById('cd-quiet'); var old=document.getElementById('sc-quiet'); return {way: !!w, needQuietBtn: !!b, newOpen: q && !q.hidden, oldScreen: !!old}; })()"}
+]}

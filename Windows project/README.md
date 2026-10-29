@@ -7,10 +7,25 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1061, 29 October 2026.** The About panel in the app ends with
-"Build 1061 · 528171061".
+**Build 1062, 29 October 2026.** The About panel in the app ends with
+"Build 1062 · 528171062".
 
-## New in build 1061
+## New in build 1062
+
+Ingenium's Quiet Screen is in Carpe Diem. The leaf 🌿 in the side column (under
+the bell, above the 💭) opens it: a still, dim page with one line of words and a slow
+circle to breathe with, cream by day and a soft night blue by night, in English or
+French. Reminders and the thought bubble wait while it is open; "I am ready to come
+back" or Esc closes it. Focus has the same way in, beside the clock of Now, and its
+"I need quiet" opens it too. The leaf is in a floating window's column as well.
+
+The mini Forge in the Author Studio is now The Forge 656 (it was The Forge 641), with
+every fix the Forge has had since: among them the Editor's live preview, which holds
+still while the room scrolls, and the loading page. That loading page now speaks
+French when Carpe Diem does, and follows its day or night. "Edit this app" still opens
+this very build in it: in your own edition, the full Carpe Diem.
+
+## Earlier, in build 1061
 
 Carpe Diem and a room can now share the screen. The ↗ key of a floating window
 (Tabula, Abacus, Imago, Scriba or Fontes) offers, second, "Side by side with Carpe
