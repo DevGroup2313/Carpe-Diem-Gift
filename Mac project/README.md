@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1063, 29 October 2026.** The About panel in the app ends with
-"Build 1063 · 528171063". Finder's Get Info on the app shows
-version 1063.
+**Build 1064, 30 October 2026.** The About panel in the app ends with
+"Build 1064 · 528171064". Finder's Get Info on the app shows
+version 1064.
 
-## New in build 1063
+## New in build 1064
+
+The Mac app shows the build that is installed. After an update, the Mac's web view
+could keep showing the page of an earlier build (1059, for the owner, after installing
+1062 and 1063), because the app's own address served its page without saying it must not
+be kept. Now every answer from that address says it is not to be kept, the first start of
+a new build empties the web view's cache of pages (never your work), and if the window
+still shows an earlier build's page, the app loads the page again by itself. Windows has
+the same, and the address answers only Carpe Diem's own window.
+
+The Quiet Screen's leaf follows its neighbours: it steps aside in the writing rooms, folds
+and moves exactly as the other side keys do.
+
+## Earlier, in build 1063
 
 Windows: Carpe Diem installs, opens and uninstalls as a proper app, on the pattern of
 The Forge's installer. An update first clears the program's old libraries, so nothing

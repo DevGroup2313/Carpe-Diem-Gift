@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1064",
+ "stamp": "528171064",
+ "prev": "1063",
+ "when": "30 October 2026",
+ "prev_when": "29 October 2026",
+ "ios_version": "2026103001",
+ "en": "The Mac app shows the build that is installed. After an update, the Mac's web view\ncould keep showing the page of an earlier build (1059, for the owner, after installing\n1062 and 1063), because the app's own address served its page without saying it must not\nbe kept. Now every answer from that address says it is not to be kept, the first start of\na new build empties the web view's cache of pages (never your work), and if the window\nstill shows an earlier build's page, the app loads the page again by itself. Windows has\nthe same, and the address answers only Carpe Diem's own window.\n\nThe Quiet Screen's leaf follows its neighbours: it steps aside in the writing rooms, folds\nand moves exactly as the other side keys do.",
+ "web": "The Quiet Screen's leaf follows its neighbours: it steps aside in the writing rooms, and folds and moves exactly as the other side keys do.",
+ "ios": "The Quiet Screen's leaf follows its neighbours: it steps aside in the writing\nrooms, and folds and moves exactly as the other side keys do."
+}

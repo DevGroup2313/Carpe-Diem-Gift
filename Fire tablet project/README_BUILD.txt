@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1063, 29 October 2026. The About panel inside the app ends with
-"Build 1063 · 528171063".
-The app's own version is 1063 too; Android usually shows it on the
+Build 1064, 30 October 2026. The About panel inside the app ends with
+"Build 1064 · 528171064".
+The app's own version is 1064 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,20 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1063
+NEW IN BUILD 1064
+  The Mac app shows the build that is installed. After an update, the Mac's web view
+  could keep showing the page of an earlier build (1059, for the owner, after installing
+  1062 and 1063), because the app's own address served its page without saying it must not
+  be kept. Now every answer from that address says it is not to be kept, the first start of
+  a new build empties the web view's cache of pages (never your work), and if the window
+  still shows an earlier build's page, the app loads the page again by itself. Windows has
+  the same, and the address answers only Carpe Diem's own window.
+
+  The Quiet Screen's leaf follows its neighbours: it steps aside in the writing rooms, folds
+  and moves exactly as the other side keys do.
+
+
+EARLIER, IN BUILD 1063
   Windows: Carpe Diem installs, opens and uninstalls as a proper app, on the pattern of
   The Forge's installer. An update first clears the program's old libraries, so nothing
   stale is left behind, and never counts as a bad ending; uninstalling asks an open

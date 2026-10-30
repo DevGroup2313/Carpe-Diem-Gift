@@ -121,6 +121,20 @@ jobs:
               if [ "$CODE" = "200" ]; then break; fi
             done
             echo "$MODE: the app's page server answered $CODE after $T seconds"
+            # build 1064: the page goes out not to be kept, and it is this build's page (the owner saw 1059 after
+            # installing 1062 and 1063, a page the web view had kept from the earlier build)
+            if [ "$CODE" = "200" ]; then
+              HDR=$(curl -s -D - -o "$RUNNER_TEMP/page-$MODE.html" --max-time 20 http://127.0.0.1:42049/carpe_diem.html | tr -d '\r')
+              echo "$HDR" | grep -i -E '^(cache-control|etag|last-modified|pragma|expires):' || true
+              echo "$HDR" | grep -qi '^cache-control: no-store' || { echo "::error::$MODE: the page is not served no-store"; kill $PID; exit 1; }
+              if echo "$HDR" | grep -qi -E '^(etag|last-modified):'; then echo "::error::$MODE: the page still carries a validator a cache keeps"; kill $PID; exit 1; fi
+              WANT=$(grep -m1 '^Pass:' BUILD_INFO.txt | tr -dc '0-9')
+              grep -q "pass:\"$WANT\"" "$RUNNER_TEMP/page-$MODE.html" || { echo "::error::$MODE: the served page is not build $WANT"; kill $PID; exit 1; }
+              echo "$MODE: the page is build $WANT, served no-store"
+              BAD=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: elsewhere.example' --max-time 5 http://127.0.0.1:42049/carpe_diem.html || true)
+              echo "$MODE: a request under another name is answered $BAD"
+              [ "$BAD" = "421" ] || { echo "::error::$MODE: the address answers a page under another name"; kill $PID; exit 1; }
+            fi
             screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-first.png" 2>/dev/null || echo "no screenshot"
             if [ $T -lt 40 ]; then sleep $((40-T)); fi
             screencapture -x "$RUNNER_TEMP/shots/mac-$MODE-40s.png" 2>/dev/null || echo "no screenshot"

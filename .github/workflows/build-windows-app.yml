@@ -93,7 +93,11 @@ jobs:
             "Screenshot taken."
           } catch { "No screenshot: $($_.Exception.Message)" }
           $alive = -not $p.HasExited
-          if ($alive) { "Still running after 30 seconds."; Stop-Process -Id $p.Id -Force } else { "EXITED EARLY with code $($p.ExitCode)" }
+          if ($alive) { "Still running after 30 seconds." } else { "EXITED EARLY with code $($p.ExitCode)" }
+          # the single file starts a second process of the same name: every Carpe Diem process is stopped, so the
+          # next step does not find a copy already open (build 1063 opens one copy at a time)
+          Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 2
           "--- what the app recorded ---"
           if (Test-Path carpe_diem_crash.log) { Get-Content carpe_diem_crash.log } else { "(nothing)" }
           if ((Test-Path carpe_diem_crash.log) -and (Select-String -Path carpe_diem_crash.log -Pattern "Traceback" -Quiet)) { Write-Error "A fault was recorded."; exit 1 }
@@ -127,7 +131,9 @@ jobs:
           $p = Start-Process -FilePath ".\Carpe Diem.exe" -PassThru
           Start-Sleep -Seconds 25
           $alive = -not $p.HasExited
-          if ($alive) { "Still running after 25 seconds."; Stop-Process -Id $p.Id -Force } else { "EXITED EARLY with code $($p.ExitCode)" }
+          if ($alive) { "Still running after 25 seconds." } else { "EXITED EARLY with code $($p.ExitCode)" }
+          Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 2
           "--- what the app recorded ---"
           if (Test-Path carpe_diem_crash.log) { Get-Content carpe_diem_crash.log } else { "(nothing)" }
           if ((Test-Path carpe_diem_crash.log) -and (Select-String -Path carpe_diem_crash.log -Pattern "Traceback" -Quiet)) { Write-Error "A fault was recorded."; exit 1 }
@@ -149,6 +155,7 @@ jobs:
 
       - name: Install, open, and uninstall it, as a person would
         run: |
+          Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
           $setup = "$env:GITHUB_WORKSPACE\out\$env:SETUP_NAME"
           $app = Join-Path $env:LOCALAPPDATA "Programs\Carpe Diem"
           $store = Join-Path $env:LOCALAPPDATA "CarpeDiem\storage"
@@ -173,6 +180,14 @@ jobs:
           $alive = -not $p.HasExited
           if (-not $alive) { "EXITED EARLY with code $($p.ExitCode)"; if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" }; exit 1 }
           "The installed Carpe Diem is running."
+          # build 1064: the page goes out not to be kept, and it is this build's page
+          $want = ((Select-String -Path "$env:PROJ\BUILD_INFO.txt" -Pattern '^Pass:').Line -replace '[^0-9]', '')
+          $r = Invoke-WebRequest -Uri 'http://127.0.0.1:42049/carpe_diem.html' -UseBasicParsing -TimeoutSec 30
+          "Cache-Control: $($r.Headers['Cache-Control']) | ETag: $($r.Headers['ETag']) | Last-Modified: $($r.Headers['Last-Modified'])"
+          if ("$($r.Headers['Cache-Control'])" -notmatch 'no-store') { Write-Error "The page is not served no-store."; exit 1 }
+          if ($r.Headers['ETag'] -or $r.Headers['Last-Modified']) { Write-Error "The page still carries a validator a cache keeps."; exit 1 }
+          if ($r.Content -notmatch ('pass:"' + $want + '"')) { Write-Error "The served page is not build $want."; exit 1 }
+          "The page is build $want, served no-store."
           # one copy at a time: a second start, here asking for Tabula, hands the room to the open copy and ends at once
           $q = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room','tabula' -PassThru
           if (-not $q.WaitForExit(40000)) { Stop-Process -Id $q.Id -Force; Write-Error "A second start did not end: two copies would be open."; exit 1 }
