@@ -6,7 +6,7 @@ const S = process.env.CD_TEST_DIR || (__dirname + '/');
   const b = await chromium.launch(); let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
   const ctx = await b.newContext({ viewport: { width: 1400, height: 900 } });
   await ctx.route('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/*', r => r.fulfill({ status: 200, contentType: 'text/javascript', body: fs.readFileSync(S + 'vendor_pdfjs/x/package/legacy/build/' + r.request().url().split('/').pop()) }));
-  await ctx.addInitScript(() => { window.__rep = []; window.pywebview = { api: { file_opened: (n, h) => { window.__rep.push(n + ': ' + h); return Promise.resolve(true); } } }; });
+  await ctx.addInitScript(() => { window.__rep = []; window.__q = []; window.__parts = {}; window.pywebview = { api: { file_opened: (n, h) => { window.__rep.push(n + ': ' + h); return Promise.resolve(true); }, take_file: (w) => { if (w !== 'desk' || !window.__q.length) return Promise.resolve(null); const f = window.__q.shift(), key = 'k' + Math.random(); window.__parts[key] = f.b64; return Promise.resolve({ key, name: f.name, parts: 1 }); }, file_part: (k, i) => Promise.resolve(window.__parts[k] || '') } }; });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   const dialogs = []; p.on('dialog', d => { dialogs.push(d.message().slice(0, 60)); d.accept(); });
   await p.goto('http://127.0.0.1:8765/' + process.argv[2], { waitUntil: 'load', timeout: 120000 });
@@ -15,7 +15,7 @@ const S = process.env.CD_TEST_DIR || (__dirname + '/');
   const doorUp = await doorVis();
   async function hand(file, name) {
     const b64 = fs.readFileSync(S + file).toString('base64');
-    await p.evaluate(([b64, name]) => { window.__cdIn = window.__cdIn || {}; window.__cdIn.k1 = ''; for (let i = 0; i < b64.length; i += 1 << 20) window.__cdIn.k1 += b64.slice(i, i + (1 << 20)); return window.cdHostOpenFile(name, 'k1'); }, [b64, name]);
+    await p.evaluate(([b64, name]) => { window.__q.push({ name, b64 }); }, [b64, name]);
     for (let k = 0; k < 80; k++) { await p.waitForTimeout(250); const r = await p.evaluate(() => window.__rep.slice()); if (r.some(x => x.startsWith(name))) return r.filter(x => x.startsWith(name)).pop(); }
     return '(no report)';
   }

@@ -4,8 +4,8 @@ The owner asked that Tabula be an opener for Word and PDF files. The Mac and Win
 and .pdf (Open With; neither takes over as the default, which stays the owner's choice), and hand a file they are asked
 to open to the page in pieces. This pass is the page's side:
 
-* window.cdHostOpenFile(name, key): the file the app left in window.__cdIn[key] opens in Tabula (the door gives way to
-  it): a PDF through Tabula's PDF reader (1071), a Word document through the full Word reader (1069), asking first only
+* The page asks its app every 1.2 s for a file waiting to open (take_file, then file_part for each 1 MB piece), so the
+  app never has to call into a page that may not be ready; the file opens in Tabula (the door gives way to it): a PDF through Tabula's PDF reader (1071), a Word document through the full Word reader (1069), asking first only
   when the page already holds writing. The outcome goes back to the app's record (file_opened), which GitHub's builds
   read to know that a real file opened.
 * A Word or PDF file dropped on the desk took the same older route as before 1069 for Word, and a PDF was turned away
@@ -65,7 +65,7 @@ def apply(p, full):
 JS = r'''<script id="cd-1072-host-open">
 (function () {
   'use strict';
-  if (window.cdHostOpenFile) return;
+  if (window.cdHostAsk) return;
   function fr() { try { return typeof state !== 'undefined' && state && state.lang === 'fr'; } catch (e) { return false; } }
   function report(name, how) {
     try { var a = window.pywebview && window.pywebview.api; if (a && a.file_opened) a.file_opened(String(name), String(how)); } catch (e) {}
@@ -112,14 +112,30 @@ JS = r'''<script id="cd-1072-host-open">
       })();
     });
   }
-  var turn = Promise.resolve();
-  // a Word or PDF file the app was asked to open (Open With in the Finder or in Explorer) opens in Tabula
-  window.cdHostOpenFile = function (name, key) {
-    var b64 = '';
-    try { b64 = (window.__cdIn || {})[key] || ''; delete window.__cdIn[key]; } catch (e) {}
-    turn = turn.then(function () { return openOne(String(name), b64); }, function () { return openOne(String(name), b64); });
-    return true;
-  };
+  // the app keeps a file it was asked to open (Open With in the Finder or in Explorer) until this page asks for it: Carpe
+  // Diem's own window asks, or Tabula's own window when one is open; the app answers which may take it
+  var where = (function () { try { return (typeof cdAppWindowWhich === 'function' && cdAppWindowWhich()) || 'desk'; } catch (e) { return 'desk'; } })();
+  var busy = false;
+  function ask() {
+    var a = null;
+    try { a = window.pywebview && window.pywebview.api; } catch (e) {}
+    if (busy || !a || typeof a.take_file !== 'function' || (where !== 'desk' && where !== 'tabula')) return;
+    busy = true;
+    function free() { busy = false; }
+    Promise.resolve(a.take_file(where)).then(function (t) {
+      if (!t || !t.key) { free(); return; }
+      var parts = [], i = 0;
+      (function next() {
+        if (i >= t.parts) { openOne(String(t.name), parts.join('')).then(free, free); return; }
+        Promise.resolve(a.file_part(t.key, i)).then(function (s) { parts.push(String(s || '')); i++; next(); },
+          function () { report(t.name, 'not opened: a piece did not arrive'); free(); });
+      })();
+    }, free);
+  }
+  // often while the app is starting (a file that started it is waiting), then now and then
+  var born = Date.now();
+  (function tick() { ask(); setTimeout(tick, Date.now() - born < 60000 ? 1200 : 2500); })();
+  window.cdHostAsk = ask;
 })();
 </script>
 '''

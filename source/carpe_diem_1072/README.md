@@ -13,18 +13,26 @@ Word (.docx) and PDF files open in Tabula from the Finder and from Explorer.
   (`SupportedTypes`), for this user only, removed on uninstall, with `ChangesAssociations=yes`. Nothing is made the
   default. A start with a file and no copy open hands the file to its own page; a second start (one copy at a time)
   appends the file to `%LOCALAPPDATA%\CarpeDiem\open-file.txt` and ends, and the open copy takes it (`_files_on_request`).
-* **Both** (`files_asked`, `_deliver_files`): the file goes to Tabula's own window if one is open, else Carpe Diem's,
-  in 1 MB pieces into `window.__cdIn[key]`, then `cdHostOpenFile(name, key)`; the page reports back through
-  `file_opened`, written to the record as `file: <name> opened` (or why not).
+* **Both** (`files_asked`, `take_file`, `file_part`): the file waits in the program until the page asks for it. The page
+  asks every 1.2 s for its first minute, then every 2.5 s (`take_file("desk")` from Carpe Diem's window, or
+  `take_file("tabula")` from Tabula's own window, which takes it when one is open), then fetches it in 1 MB pieces
+  (`file_part`), opens it, and reports back through `file_opened`, written to the record as `file: <name> opened` (or
+  why not). The first version pushed the file into the page with `evaluate_js` from a thread of its own; on GitHub's
+  Windows that thread waited without end (pywebview's `evaluate_js` waits for an answer with no time limit, and a call
+  made while the window was still starting got none), and on the Mac a file opened while the app was open was heard but
+  never handed over. Now the program never calls into the page: the page's own requests, the path every other request
+  of the page takes, carry the file.
 * **Page** (`p_open.py`): `cdHostOpenFile` opens one file at a time; the door gives way; a PDF goes to Tabula's PDF
   reader, a Word file to the full Word reader, asking first only when the page holds writing. A Word or PDF file dropped
   on the desk now goes to those readers too (Tabula's `__cdOpenFile` used the older Word reader, and the desk turned PDFs
   away), and to a room in sight (before, a hidden, closed room could take it unseen). The PDF reader's fingerprint is
   checked with the page's own SHA-256 (`sha256.js`, FIPS 180-4) where the engine keeps `crypto.subtle` from the page.
 
-Tests here: the page (`tests/t_host_open.js`: a file handed by the app, with the door up; dropped Word and PDF files;
-all three editions); the programs' calls (`tests/record_host_calls.py` loads either program with a stand-in window and
-records what it sends; `tests/t_host_replay.js` runs those calls in the page: both files opened, in order);
+Tests here: the page (`tests/t_host_open.js`: a file waiting in the app, with the door up; dropped Word and PDF files;
+all three editions); the programs (`tests/t_host_pull.js <page> <program.py>`: `serve_host_api.py` loads either
+program, asks it to open a Word file, a PDF and a text file, and answers the page's requests as pywebview passes them:
+the Word file and then the PDF open, in order, the text file is left alone; the 1.3 MB dissertation PDF arrives in two
+pieces with all 310 notes);
 `tests/t_sha256.js` (the page's SHA-256 against Node's on ten inputs, the two pdf.js files among them); PDF opening with
 the engine's SHA-256 taken away. On GitHub: the Mac build opens a PDF with `open -a` (it starts the app; the record must
 say `file: chapter.pdf opened`) and then a Word file while it is open (`handed to Tabula`); the Windows build checks the
