@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1068",
+ "stamp": "528171068",
+ "prev": "1067",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103005",
+ "en": "Abacus types as Excel does. One click on a cell (or the Name Box) chooses it, and typing\nreplaces what it holds; until now the text went in beside what was there (\"Item\" and\n\"Name\" became \"ItemName\"), which also stopped the number formats working. A double\nclick or F2 writes inside the cell, Backspace empties it and writes, Delete empties it,\nand the arrow keys move from cell to cell. Currency shows thousands as Excel does\n($1,234.50), and the comma style keeps two decimals. Imago's ribbon was tested the same\nway and holds.",
+ "web": "Abacus types as Excel does: one click chooses a cell and typing replaces it (until now it was added beside what was there), a double click or F2 writes inside it, and the arrow keys move between cells. Currency shows as $1,234.50.",
+ "ios": "Abacus types as Excel does: one click chooses a cell and typing replaces it,\na double click or F2 writes inside it, and the arrow keys move between cells.\nCurrency shows as $1,234.50."
+}

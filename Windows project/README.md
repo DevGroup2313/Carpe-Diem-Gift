@@ -7,10 +7,20 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1067, 30 October 2026.** The About panel in the app ends with
-"Build 1067 · 528171067".
+**Build 1068, 30 October 2026.** The About panel in the app ends with
+"Build 1068 · 528171068".
 
-## New in build 1067
+## New in build 1068
+
+Abacus types as Excel does. One click on a cell (or the Name Box) chooses it, and typing
+replaces what it holds; until now the text went in beside what was there ("Item" and
+"Name" became "ItemName"), which also stopped the number formats working. A double
+click or F2 writes inside the cell, Backspace empties it and writes, Delete empties it,
+and the arrow keys move from cell to cell. Currency shows thousands as Excel does
+($1,234.50), and the comma style keeps two decimals. Imago's ribbon was tested the same
+way and holds.
+
+## Earlier, in build 1067
 
 Tabula's ribbon does what it says. Choosing a size now gives that size (18 had made the
 text 48 px, the largest there is), and with nothing selected the size waits for what you

@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1067, 30 October 2026. The About panel inside the app ends with
-"Build 1067 · 528171067".
-The app's own version is 1067 too; Android usually shows it on the
+Build 1068, 30 October 2026. The About panel inside the app ends with
+"Build 1068 · 528171068".
+The app's own version is 1068 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,17 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1067
+NEW IN BUILD 1068
+  Abacus types as Excel does. One click on a cell (or the Name Box) chooses it, and typing
+  replaces what it holds; until now the text went in beside what was there ("Item" and
+  "Name" became "ItemName"), which also stopped the number formats working. A double
+  click or F2 writes inside the cell, Backspace empties it and writes, Delete empties it,
+  and the arrow keys move from cell to cell. Currency shows thousands as Excel does
+  ($1,234.50), and the comma style keeps two decimals. Imago's ribbon was tested the same
+  way and holds.
+
+
+EARLIER, IN BUILD 1067
   Tabula's ribbon does what it says. Choosing a size now gives that size (18 had made the
   text 48 px, the largest there is), and with nothing selected the size waits for what you
   type next. The text colour key (A) and the highlight key (H) now colour the selection with

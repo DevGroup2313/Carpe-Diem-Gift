@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1400, height: 900 } })).newPage();
+  const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 200)));
+  await p.goto((process.env.CD_BASE || 'http://127.0.0.1:8765/') + process.argv[2], { waitUntil: 'load', timeout: 120000 });
+  await p.waitForTimeout(5000); await p.evaluate(() => cdCloseDoor()); await p.waitForTimeout(800);
+  await p.evaluate(() => openExt('abacus')); await p.waitForTimeout(4000);
+  const fr = await (await p.$('#frame-abacus')).contentFrame();
+  const txt = (r) => fr.evaluate((r) => (document.querySelector('td[data-ref="' + r + '"]') || {}).textContent, r);
+  const at = () => fr.evaluate(() => (document.activeElement && document.activeElement.getAttribute('data-ref')) || document.activeElement.tagName);
+  await fr.click('td[data-ref="A1"]'); await p.keyboard.press('ArrowRight'); const r1 = await at(); await p.keyboard.press('ArrowDown'); const r2 = await at();
+  console.log('A1 → right:', r1, '→ down:', r2);
+  await p.keyboard.type('7'); await p.keyboard.press('Enter'); console.log('B2 typed 7 →', JSON.stringify(await txt('B2')), 'now at', await at());
+  await fr.click('td[data-ref="B2"]'); await p.keyboard.press('Delete'); await p.keyboard.press('ArrowDown'); console.log('B2 after Delete →', JSON.stringify(await txt('B2')));
+  await fr.dblclick('td[data-ref="A2"]'); const before = await txt('A2'); await p.keyboard.press('ArrowLeft'); await p.keyboard.type('X'); await p.keyboard.press('Enter');
+  console.log('double-click A2 (' + JSON.stringify(before) + '), ←, type X →', JSON.stringify(await txt('A2')));
+  await fr.click('td[data-ref="A3"]'); await p.keyboard.press('F2'); await p.keyboard.type('!'); await p.keyboard.press('Enter'); console.log('F2 on A3 then ! →', JSON.stringify(await txt('A3')));
+  await fr.click('td[data-ref="A4"]'); await p.keyboard.press('Backspace'); await p.keyboard.type('new'); await p.keyboard.press('Enter'); console.log('Backspace on A4 then "new" →', JSON.stringify(await txt('A4')));
+  console.log('errors', errs);
+  await b.close();
+})();
