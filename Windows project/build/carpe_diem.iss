@@ -21,7 +21,7 @@
 ; The AppId never changes, so every build installs over the one before and keeps one entry in Settings, Apps.
 
 #ifndef AppVersion
-  #define AppVersion "1071"
+  #define AppVersion "1072"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist_installed\Carpe Diem"
@@ -62,6 +62,8 @@ RestartApplications=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 SetupLogging=yes
+; build 1072: Explorer is told when Open With gains Carpe Diem for .docx and .pdf
+ChangesAssociations=yes
 
 [Tasks]
 Name: "desktopicon"; Description: "Put Carpe Diem on the Desktop"; GroupDescription: "Shortcuts:"
@@ -90,6 +92,22 @@ Name: "{userdesktop}\Abacus"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--r
 Name: "{userdesktop}\Imago"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room slides"; WorkingDir: "{app}"; Comment: "Imago, in Carpe Diem"; Tasks: roomsdesktop
 Name: "{userdesktop}\Scriba"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room scriba"; WorkingDir: "{app}"; Comment: "Scriba, in Carpe Diem"; Tasks: roomsdesktop
 Name: "{userdesktop}\Fontes"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room fontes"; WorkingDir: "{app}"; Comment: "Fontes, in Carpe Diem"; Tasks: roomsdesktop
+
+[Registry]
+; build 1072: Word and PDF files offer "Tabula (Carpe Diem)" under Open With, and open in Tabula. Only Open With: the
+; default program for each stays as it is unless you choose Carpe Diem there ("Always use this app"). For this user
+; only, and taken away on uninstall.
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula"; ValueType: string; ValueName: ""; ValueData: "Document for Tabula"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Document for Tabula"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Carpe Diem.exe,0"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula (Carpe Diem)"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.docx\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula (Carpe Diem)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".docx"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".pdf"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" ""%1"""
 
 [Run]
 Filename: "{app}\Carpe Diem.exe"; Description: "Open Carpe Diem now"; Flags: nowait postinstall skipifsilent

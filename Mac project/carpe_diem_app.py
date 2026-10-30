@@ -525,6 +525,11 @@ class TabulaWindowApi:
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
 
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
+
     def save_file(self, name, mime, data_b64):
         """The floating window previously had no way to write a file at all."""
         return save_bytes(self.win, name, mime, data_b64)
@@ -590,6 +595,11 @@ class CarpeApi:
     def read_clipboard(self):
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
+
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
 
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
@@ -776,6 +786,97 @@ def log_note(tag):
             fh.write("\n=== %s  %s ===\n" % (datetime.datetime.now().isoformat(timespec="seconds"), tag))
     except Exception:
         pass
+
+
+# Build 1072: a Word or PDF file the app is asked to open (Open With in the Finder or in Explorer, or a double click once
+# Carpe Diem is chosen for it) goes to Tabula, through the same readers as Tabula's File, Open.
+OPENABLE = (".docx", ".pdf")
+_OPENED = {"queue": [], "event": None}
+
+
+def _openable(path):
+    try:
+        return isinstance(path, str) and path.lower().endswith(OPENABLE) and os.path.isfile(path)
+    except Exception:
+        return False
+
+
+def files_asked(paths):
+    """Word and PDF files to hand to Tabula as soon as the page can take them."""
+    got = [os.path.abspath(p) for p in (paths or []) if _openable(p)]
+    for p in got:
+        log_note("file: %s asked to open" % os.path.basename(p))
+    if got:
+        _OPENED["queue"].extend(got)
+        ev = _OPENED.get("event")
+        if ev is not None:
+            ev.set()
+    return len(got)
+
+
+def _deliver_files(api, window):
+    """Hand each file asked for to the page in pieces (a long PDF is many megabytes), then ask the page to open it in
+    Tabula: in Tabula's own window when one is open, else in Carpe Diem's. The page says how it went (file_opened)."""
+    import base64
+    import json
+    import threading
+    import time
+    import uuid
+    ev = _OPENED["event"] = threading.Event()
+    if _OPENED["queue"]:
+        ev.set()
+
+    def target():
+        try:
+            if getattr(api, "_alive", None) and api._alive("tabula"):
+                return api._wins.get("tabula") or window
+        except Exception:
+            pass
+        return window
+
+    def ready(w):
+        try:
+            return bool(w.evaluate_js("!!(window.cdHostOpenFile && document.readyState === 'complete')"))
+        except Exception:
+            return False
+
+    def give(path):
+        name = os.path.basename(path)
+        try:
+            with open(path, "rb") as fh:
+                data = fh.read()
+        except Exception:
+            log_note("file: %s could not be read (%s)" % (name, sys.exc_info()[1]))
+            return
+        w = target()
+        for _ in range(240):
+            if ready(w):
+                break
+            time.sleep(0.5)
+        else:
+            log_note("file: %s was not handed over: the page did not become ready" % name)
+            return
+        time.sleep(1.0)
+        b64 = base64.b64encode(data).decode("ascii")
+        key = json.dumps(uuid.uuid4().hex)
+        w.evaluate_js("(window.__cdIn=window.__cdIn||{})[%s]='';0" % key)
+        step = 1 << 20
+        for i in range(0, len(b64), step):
+            w.evaluate_js("window.__cdIn[%s]+=%s;0" % (key, json.dumps(b64[i:i + step])))
+        w.evaluate_js("window.cdHostOpenFile(%s,%s);0" % (json.dumps(name), key))
+        log_note("file: %s handed to Tabula (%d bytes)" % (name, len(data)))
+
+    def run():
+        while True:
+            ev.wait()
+            ev.clear()
+            while _OPENED["queue"]:
+                p = _OPENED["queue"].pop(0)
+                try:
+                    give(p)
+                except Exception:
+                    log_problem("file: %s could not be handed to Tabula" % os.path.basename(p))
+    threading.Thread(target=run, daemon=True).start()
 
 
 def _no_store(start_response):
@@ -1172,6 +1273,30 @@ def _clean_quit_ends_session():
         log_note("quit: a clean Quit could not be heard (%s)" % (sys.exc_info()[1],))
 
 
+def _hear_opened_files():
+    """Build 1072: a Word or PDF file opened with Carpe Diem while it is open comes from the Finder as an Apple event,
+    which the app's delegate hears (pywebview's own delegate has no ear for it). One that starts the app arrives in
+    sys.argv instead (argv_emulation in carpe_diem.spec)."""
+    try:
+        from webview.platforms import cocoa
+    except Exception:
+        log_problem("files: the Finder's requests cannot be heard")
+        return
+
+    class CarpeDiemAppDelegate(cocoa.BrowserView.AppDelegate):
+        def application_openURLs_(self, app, urls):
+            try:
+                files_asked([str(u.path()) for u in urls if u.isFileURL()])
+            except Exception:
+                log_problem("files: the Finder's request could not be read")
+
+    try:
+        cocoa.BrowserView._shared_app_delegate = CarpeDiemAppDelegate.alloc().init()
+        log_note("files: listening for Word and PDF files from the Finder")
+    except Exception:
+        log_problem("files: the Finder's requests cannot be heard")
+
+
 def _make_window(webview, api, app_html):
     """The main window, in one place so its creation can be guarded."""
     _guard_local_server()
@@ -1225,6 +1350,11 @@ class CarpeApiSingle:
     def read_clipboard(self):
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
+
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
 
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
@@ -1500,6 +1630,7 @@ def main():
         sys.exit(1)
 
     _note_own_bundle()
+    files_asked(sys.argv[1:])
     try:
         if not _older_copies_step_aside():
             return
@@ -1607,6 +1738,8 @@ def main():
     _watch_for_newer_build(window, app_html)
     _clean_quit_ends_session()
     _hear_quit_please()
+    _hear_opened_files()
+    _deliver_files(api, window)
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).

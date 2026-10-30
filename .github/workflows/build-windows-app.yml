@@ -218,6 +218,32 @@ jobs:
           Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "another build|other build" | ForEach-Object { $_.Line }
           if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "the other build has closed" -SimpleMatch -Quiet)) { Write-Error "The record does not say the older copy closed."; exit 1 }
           "A newer build took the older one's place."
+          # build 1072: Explorer's Open With offers Carpe Diem for .docx and .pdf; a file opened with it goes to Tabula,
+          # when it starts the app and, through a second start that hands it over, when the app is already open
+          $ow = @('.docx', '.pdf') | ForEach-Object { [bool]((Get-Item "HKCU:\Software\Classes\$_\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') }
+          "Open With offers Carpe Diem for .docx and .pdf: $($ow -join ', ')"
+          if ($ow -contains $false) { Write-Error "The installer did not offer Carpe Diem under Open With."; exit 1 }
+          "Open With's command: $((Get-ItemProperty 'HKCU:\Software\Classes\CarpeDiem.Tabula\shell\open\command').'(default)')"
+          Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 3
+          Remove-Item "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue
+          # the runs above were stopped from outside, which the app counts as endings that did not finish
+          Remove-Item (Join-Path $store "carpe_session.flag") -ErrorAction SilentlyContinue
+          $F = Join-Path $env:GITHUB_WORKSPACE ".github\test-files"
+          $o = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList ('"' + (Join-Path $F 'chapter.pdf') + '"') -PassThru
+          $ok = $false
+          for ($k = 0; $k -lt 150 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.pdf opened" -SimpleMatch -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "file" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A PDF that started Carpe Diem did not open in Tabula."; exit 1 }
+          "A PDF that started Carpe Diem opened in Tabula."
+          $s = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList ('"' + (Join-Path $F 'chapter.docx') + '"') -PassThru
+          if (-not $s.WaitForExit(40000)) { Stop-Process -Id $s.Id -Force; Write-Error "A second start with a file did not end: two copies would be open."; exit 1 }
+          $ok = $false
+          for ($k = 0; $k -lt 60 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.docx handed to Tabula" -SimpleMatch -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.docx|second start" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A Word file opened while Carpe Diem was open did not reach Tabula."; exit 1 }
+          "A Word file opened while Carpe Diem was open reached Tabula in the open copy."
+          if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
           Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
           $u = Start-Process -FilePath "$app\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -PassThru -Wait
@@ -226,6 +252,8 @@ jobs:
           "uninstaller exit code: $($u.ExitCode)"
           if (Test-Path "$app\Carpe Diem.exe") { Write-Error "Uninstalling left the program behind."; exit 1 }
           if (-not (Test-Path (Join-Path $store "keep-me.txt"))) { Write-Error "Uninstalling touched the work folder."; exit 1 }
+          if (Test-Path "HKCU:\Software\Classes\CarpeDiem.Tabula") { Write-Error "Uninstalling left Open With's entry behind."; exit 1 }
+          if ((Get-Item "HKCU:\Software\Classes\.pdf\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') { Write-Error "Uninstalling left Carpe Diem under Open With for .pdf."; exit 1 }
           "Uninstalled cleanly; the work folder is untouched."
 
       - name: Keep the installer with this run

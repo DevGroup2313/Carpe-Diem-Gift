@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1072",
+ "stamp": "528171072",
+ "prev": "1071",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103009",
+ "en": "Word and PDF files open in Tabula from the Finder and from Explorer. On the Mac, a .docx\nor .pdf shows Carpe Diem under Open With (and, once chosen in Get Info, opens with it by a\ndouble click); on Windows the installer adds Tabula (Carpe Diem) to Open With for both.\nNeither takes over as the default: that stays your choice. The file opens in Tabula\nwhether Carpe Diem was closed or already open, through the same readers as File, Open.\nA Word or PDF file dropped on the desk now uses those readers too.",
+ "web": "A Word or PDF file dropped on the desk opens in Tabula through the full readers of File, Open.",
+ "ios": "A Word or PDF file dropped on the desk opens in Tabula through the full\nreaders of File, Open."
+}

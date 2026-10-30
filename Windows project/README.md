@@ -7,10 +7,19 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1071, 30 October 2026.** The About panel in the app ends with
-"Build 1071 · 528171071".
+**Build 1072, 30 October 2026.** The About panel in the app ends with
+"Build 1072 · 528171072".
 
-## New in build 1071
+## New in build 1072
+
+Word and PDF files open in Tabula from the Finder and from Explorer. On the Mac, a .docx
+or .pdf shows Carpe Diem under Open With (and, once chosen in Get Info, opens with it by a
+double click); on Windows the installer adds Tabula (Carpe Diem) to Open With for both.
+Neither takes over as the default: that stays your choice. The file opens in Tabula
+whether Carpe Diem was closed or already open, through the same readers as File, Open.
+A Word or PDF file dropped on the desk now uses those readers too.
+
+## Earlier, in build 1071
 
 Tabula opens a PDF as a document to write in. File, Open (or a PDF dropped on Tabula)
 brings its words in: paragraphs, headings, centred lines, lists, bold and italic, and

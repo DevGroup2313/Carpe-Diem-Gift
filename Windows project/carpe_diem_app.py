@@ -461,6 +461,11 @@ class TabulaWindowApi:
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
 
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
+
     def save_file(self, name, mime, data_b64):
         """The floating window previously had no way to write a file at all."""
         return save_bytes(self.win, name, mime, data_b64)
@@ -590,6 +595,11 @@ class CarpeApiSingle:
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
 
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
+
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
 
@@ -654,6 +664,11 @@ class CarpeApi:
     def read_clipboard(self):
         """Build 1048: the page's Paste reads the system clipboard through the app."""
         return read_clipboard()
+
+    def file_opened(self, name, how):
+        """Build 1072: how a file opened with Carpe Diem went in Tabula, for the record."""
+        log_note("file: %s %s" % (str(name)[:120], str(how)[:200]))
+        return True
 
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
@@ -799,6 +814,97 @@ def log_note(tag):
             fh.write("\n=== %s  %s ===\n" % (datetime.datetime.now().isoformat(timespec="seconds"), tag))
     except Exception:
         pass
+
+
+# Build 1072: a Word or PDF file the app is asked to open (Open With in the Finder or in Explorer, or a double click once
+# Carpe Diem is chosen for it) goes to Tabula, through the same readers as Tabula's File, Open.
+OPENABLE = (".docx", ".pdf")
+_OPENED = {"queue": [], "event": None}
+
+
+def _openable(path):
+    try:
+        return isinstance(path, str) and path.lower().endswith(OPENABLE) and os.path.isfile(path)
+    except Exception:
+        return False
+
+
+def files_asked(paths):
+    """Word and PDF files to hand to Tabula as soon as the page can take them."""
+    got = [os.path.abspath(p) for p in (paths or []) if _openable(p)]
+    for p in got:
+        log_note("file: %s asked to open" % os.path.basename(p))
+    if got:
+        _OPENED["queue"].extend(got)
+        ev = _OPENED.get("event")
+        if ev is not None:
+            ev.set()
+    return len(got)
+
+
+def _deliver_files(api, window):
+    """Hand each file asked for to the page in pieces (a long PDF is many megabytes), then ask the page to open it in
+    Tabula: in Tabula's own window when one is open, else in Carpe Diem's. The page says how it went (file_opened)."""
+    import base64
+    import json
+    import threading
+    import time
+    import uuid
+    ev = _OPENED["event"] = threading.Event()
+    if _OPENED["queue"]:
+        ev.set()
+
+    def target():
+        try:
+            if getattr(api, "_alive", None) and api._alive("tabula"):
+                return api._wins.get("tabula") or window
+        except Exception:
+            pass
+        return window
+
+    def ready(w):
+        try:
+            return bool(w.evaluate_js("!!(window.cdHostOpenFile && document.readyState === 'complete')"))
+        except Exception:
+            return False
+
+    def give(path):
+        name = os.path.basename(path)
+        try:
+            with open(path, "rb") as fh:
+                data = fh.read()
+        except Exception:
+            log_note("file: %s could not be read (%s)" % (name, sys.exc_info()[1]))
+            return
+        w = target()
+        for _ in range(240):
+            if ready(w):
+                break
+            time.sleep(0.5)
+        else:
+            log_note("file: %s was not handed over: the page did not become ready" % name)
+            return
+        time.sleep(1.0)
+        b64 = base64.b64encode(data).decode("ascii")
+        key = json.dumps(uuid.uuid4().hex)
+        w.evaluate_js("(window.__cdIn=window.__cdIn||{})[%s]='';0" % key)
+        step = 1 << 20
+        for i in range(0, len(b64), step):
+            w.evaluate_js("window.__cdIn[%s]+=%s;0" % (key, json.dumps(b64[i:i + step])))
+        w.evaluate_js("window.cdHostOpenFile(%s,%s);0" % (json.dumps(name), key))
+        log_note("file: %s handed to Tabula (%d bytes)" % (name, len(data)))
+
+    def run():
+        while True:
+            ev.wait()
+            ev.clear()
+            while _OPENED["queue"]:
+                p = _OPENED["queue"].pop(0)
+                try:
+                    give(p)
+                except Exception:
+                    log_problem("file: %s could not be handed to Tabula" % os.path.basename(p))
+    threading.Thread(target=run, daemon=True).start()
 
 
 def _no_store(start_response):
@@ -1487,7 +1593,43 @@ def _room_request_path():
     return os.path.join(os.path.dirname(d), "open-room.txt")
 
 
-def _another_copy_is_open(room=None):
+def _file_request_path():
+    """Build 1072: %LOCALAPPDATA%\\CarpeDiem\\open-file.txt: Word and PDF files a second start was asked to open, one
+    to a line, for the open copy."""
+    return os.path.join(os.path.dirname(_room_request_path()), "open-file.txt")
+
+
+def _files_on_request():
+    """Build 1072: the open copy takes the files a second start left for it (Open With on a file while Carpe Diem is
+    open starts a second copy, which hands its file over and ends)."""
+    import threading
+    import time
+    path = _file_request_path()
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+
+    def run():
+        while True:
+            time.sleep(0.8)
+            try:
+                if not os.path.isfile(path):
+                    continue
+                taking = path + ".taking"
+                os.replace(path, taking)
+                with open(taking, "r", encoding="utf-8") as fh:
+                    got = [ln.strip() for ln in fh if ln.strip()]
+                os.remove(taking)
+                log_note("files: a second start asked for %d" % len(got))
+                files_asked(got)
+            except Exception:
+                log_problem("file request: could not be read")
+                time.sleep(5)
+    threading.Thread(target=run, daemon=True).start()
+
+
+def _another_copy_is_open(room=None, files=None):
     """True when Carpe Diem is already open in this sign-in: its window is brought forward (and the room a shortcut asked
     for is handed to it), and this copy ends at once, without touching the session mark. A second copy would read the
     session mark as a run that never finished, and two copies would compete for the same address and work.
@@ -1525,6 +1667,14 @@ def _another_copy_is_open(room=None):
                 fh.write(room)
         except Exception:
             log_problem("room %s: the request could not be left for the open copy" % room)
+    if files:
+        try:
+            with open(_file_request_path(), "a", encoding="utf-8") as fh:
+                for p in files:
+                    fh.write(os.path.abspath(p) + "\n")
+            log_note("file: %d left for the open copy" % len(files))
+        except Exception:
+            log_problem("files: the request could not be left for the open copy")
     try:
         if not _bring_window_forward():
             tell_user("Carpe Diem is still opening.\n\nIts window will appear in a moment.")
@@ -1769,8 +1919,10 @@ def _care_attach(window):
 def main():
     _own_taskbar_identity()
     _room = _room_asked()
-    if _another_copy_is_open(_room):
+    _files = [a for a in sys.argv[1:] if _openable(a)]
+    if _another_copy_is_open(_room, _files):
         return
+    files_asked(_files)
     app_html = find_app_html()
     try:
         if app_html:
@@ -1899,6 +2051,8 @@ def main():
         log_problem("care: the page's loading could not be heard")
     if isinstance(api, CarpeApi):
         _rooms_on_request(api, window, _room)
+    _files_on_request()
+    _deliver_files(api, window)
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).

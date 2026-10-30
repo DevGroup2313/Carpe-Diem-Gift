@@ -176,6 +176,33 @@ jobs:
           if grep -q "Traceback" "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; then cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; echo "a fault was recorded"; kill $B; exit 1; fi
           kill $B; sleep 3; rm -f "$LOG"
 
+      - name: Open a PDF and a Word file with it, as the Finder does
+        # build 1072: Carpe Diem is offered for .docx and .pdf under Open With; a file opened with it goes to Tabula,
+        # when it starts the app (the file arrives in the program's arguments) and when the app is already open (the
+        # Finder's Apple event, heard by the app's delegate). The page reports back how each one went.
+        run: |
+          cd "$PROJ"
+          APPDIR="$PWD/dist/Carpe Diem.app"
+          LOG="$APPDIR/Contents/MacOS/carpe_diem_crash.log"
+          rm -f "$LOG" "$HOME/carpe_diem_crash.log" "$HOME/Library/Application Support/CarpeDiem/carpe_session.flag"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleDocumentTypes" "$APPDIR/Contents/Info.plist"
+          /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APPDIR" || true
+          F="$GITHUB_WORKSPACE/.github/test-files"
+          rec() { cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; }
+          stop() { pkill -f "Carpe Diem.app/Contents/MacOS/Carpe Diem" 2>/dev/null || true; }
+          open -a "$APPDIR" "$F/chapter.pdf"
+          T=0; until rec | grep -q "file: chapter.pdf opened" || [ $T -ge 150 ]; do sleep 3; T=$((T+3)); done
+          rec | grep -E "file:|files:" || true
+          if ! rec | grep -q "file: chapter.pdf opened"; then echo "::error::a PDF that started Carpe Diem did not open in Tabula"; rec | tail -40; stop; exit 1; fi
+          echo "A PDF that started Carpe Diem opened in Tabula after $T seconds."
+          open -a "$APPDIR" "$F/chapter.docx"
+          T=0; until rec | grep -q "file: chapter.docx handed to Tabula" || [ $T -ge 60 ]; do sleep 2; T=$((T+2)); done
+          rec | grep -E "file: chapter.docx" || true
+          if ! rec | grep -q "file: chapter.docx handed to Tabula"; then echo "::error::a Word file opened while Carpe Diem was open did not reach Tabula"; rec | tail -40; stop; exit 1; fi
+          echo "A Word file opened while Carpe Diem was open reached Tabula."
+          if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
+          stop; sleep 3; rm -f "$LOG"
+
       - name: Keep the screenshots with this run
         if: always()
         uses: actions/upload-artifact@v6

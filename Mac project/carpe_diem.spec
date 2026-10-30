@@ -119,6 +119,15 @@ if sys.platform == 'darwin':
             'NSHighResolutionCapable': True,
             'LSMinimumSystemVersion': '11.0',
 
+            # Build 1072: Word and PDF files offer Carpe Diem under Open With, and open in Tabula. "Alternate": it
+            # never takes over as the default; the owner chooses that in Get Info (Open with, Change All).
+            'CFBundleDocumentTypes': [
+                {'CFBundleTypeName': 'Word document', 'CFBundleTypeRole': 'Editor', 'LSHandlerRank': 'Alternate',
+                 'LSItemContentTypes': ['org.openxmlformats.wordprocessingml.document']},
+                {'CFBundleTypeName': 'PDF document', 'CFBundleTypeRole': 'Viewer', 'LSHandlerRank': 'Alternate',
+                 'LSItemContentTypes': ['com.adobe.pdf']},
+            ],
+
             # REQUIRED, not optional. macOS terminates an app the instant it
             # asks for the microphone without a reason string present, and it
             # dies with no message a person could read. Scriba's dictation asks
