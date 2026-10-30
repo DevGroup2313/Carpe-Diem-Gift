@@ -7,11 +7,20 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1066, 30 October 2026.** The About panel in the app ends with
-"Build 1066 · 528171066". Finder's Get Info on the app shows
-version 1066.
+**Build 1067, 30 October 2026.** The About panel in the app ends with
+"Build 1067 · 528171067". Finder's Get Info on the app shows
+version 1067.
 
-## New in build 1066
+## New in build 1067
+
+Tabula's ribbon does what it says. Choosing a size now gives that size (18 had made the
+text 48 px, the largest there is), and with nothing selected the size waits for what you
+type next. The text colour key (A) and the highlight key (H) now colour the selection with
+the colour shown under the letter, as in Word, instead of opening the system's colour
+chooser and losing the selection; the arrow beside each opens the palette, and "More
+colours…" opens the chooser. This holds in Tabula's floating window and its own window too.
+
+## Earlier, in build 1066
 
 In the writing rooms, the line under a room's header counts its rooms correctly and is in
 French when the desk is in French (the French Tutor no longer says "Five rooms in this

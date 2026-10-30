@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1066, 30 October 2026. The About panel inside the app ends with
-"Build 1066 · 528171066".
-The app's own version is 1066 too; Android usually shows it on the
+Build 1067, 30 October 2026. The About panel inside the app ends with
+"Build 1067 · 528171067".
+The app's own version is 1067 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,16 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1066
+NEW IN BUILD 1067
+  Tabula's ribbon does what it says. Choosing a size now gives that size (18 had made the
+  text 48 px, the largest there is), and with nothing selected the size waits for what you
+  type next. The text colour key (A) and the highlight key (H) now colour the selection with
+  the colour shown under the letter, as in Word, instead of opening the system's colour
+  chooser and losing the selection; the arrow beside each opens the palette, and "More
+  colours…" opens the chooser. This holds in Tabula's floating window and its own window too.
+
+
+EARLIER, IN BUILD 1066
   In the writing rooms, the line under a room's header counts its rooms correctly and is in
   French when the desk is in French (the French Tutor no longer says "Five rooms in this
   workspace": it was counting its answers). Research Writing no longer says that lessons it

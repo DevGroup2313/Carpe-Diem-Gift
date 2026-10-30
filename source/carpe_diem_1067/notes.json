@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1067",
+ "stamp": "528171067",
+ "prev": "1066",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103004",
+ "en": "Tabula's ribbon does what it says. Choosing a size now gives that size (18 had made the\ntext 48 px, the largest there is), and with nothing selected the size waits for what you\ntype next. The text colour key (A) and the highlight key (H) now colour the selection with\nthe colour shown under the letter, as in Word, instead of opening the system's colour\nchooser and losing the selection; the arrow beside each opens the palette, and \"More\ncolours…\" opens the chooser. This holds in Tabula's floating window and its own window too.",
+ "web": "Tabula's ribbon does what it says: a size gives that size (18 had made the text 48 px), and the text colour and highlight keys colour the selection with the colour shown under them, as in Word.",
+ "ios": "Tabula's ribbon does what it says: a size gives that size (18 had made the text\n48 px), and the text colour and highlight keys colour the selection with the\ncolour shown under them, as in Word."
+}
