@@ -38,3 +38,10 @@ the engine's SHA-256 taken away. On GitHub: the Mac build opens a PDF with `open
 say `file: chapter.pdf opened`) and then a Word file while it is open (`handed to Tabula`); the Windows build checks the
 registry entries, starts the installed program with a PDF (`opened`), starts it again with a Word file (the second start
 must end, the open copy must take the file), and checks that uninstalling removes the entries.
+
+On GitHub's Windows the check failed twice with the page never asking at all, then passed with the page asking 5 s after
+the start (the PDF open a second later, the Word file of a second start taken by the open copy). The check force-stops
+the app just before; the web view's helper processes outlive a forced stop for a few seconds and hold its storage, and
+a start made inside that time can wait on them without its page loading. The check now waits for them to end. The page
+notes in the record when it starts asking ("file: - the page asks for files from desk"), and pywebview's own errors are
+written to the record.

@@ -225,6 +225,11 @@ jobs:
           if ($ow -contains $false) { Write-Error "The installer did not offer Carpe Diem under Open With."; exit 1 }
           "Open With's command: $((Get-ItemProperty 'HKCU:\Software\Classes\CarpeDiem.Tabula\shell\open\command').'(default)')"
           Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
+          # the web view's helper processes outlive a forced stop for a few seconds and hold its storage; a start made
+          # before they end can wait on them without its page ever loading (a stop from outside, not a person's Quit)
+          for ($k = 0; $k -lt 30; $k++) { $h = @(Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like '*CarpeDiem*' }); if ($h.Count -eq 0) { break }; Start-Sleep -Seconds 1 }
+          "The web view's helpers still running after the stop: $($h.Count)"
+          $h | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
           Start-Sleep -Seconds 3
           Remove-Item "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue
           # the runs above were stopped from outside, which the app counts as endings that did not finish
