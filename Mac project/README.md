@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1072, 30 October 2026.** The About panel in the app ends with
-"Build 1072 · 528171072". Finder's Get Info on the app shows
-version 1072.
+**Build 1073, 30 October 2026.** The About panel in the app ends with
+"Build 1073 · 528171073". Finder's Get Info on the app shows
+version 1073.
 
-## New in build 1072
+## New in build 1073
+
+Rooms in windows of their own, as asked. In a room's floating window, the window key now offers
+Side by side with Carpe Diem (the room in a window of its own beside Carpe Diem's: on the Mac as a
+tab, "Carpe Diem | Tabula" across the top; on Windows, Carpe Diem on the left half of the screen and
+the room on the right) and Its own window, on the Dock or on the taskbar. On the Mac, Tabula, Abacus,
+Imago, Scriba and Fontes are apps of their own, each with its own name and icon, in Applications,
+Carpe Diem Rooms; that choice puts the room's icon in the Dock, which opens it from there. On Windows
+each room's window has its own taskbar button, with its own icon and its name when the pointer rests
+on it; Pin to taskbar keeps it, and the rooms' shortcuts carry their own icons. At the taskbar's size
+the icons show the rooms' colours with no letters; Scriba and Fontes keep their symbols. Open With on
+a Word or PDF file says Tabula, with Tabula's icon, and the file opens in Tabula's own window.
+
+## Earlier, in build 1072
 
 Word and PDF files open in Tabula from the Finder and from Explorer. On the Mac, a .docx
 or .pdf shows Carpe Diem under Open With (and, once chosen in Get Info, opens with it by a

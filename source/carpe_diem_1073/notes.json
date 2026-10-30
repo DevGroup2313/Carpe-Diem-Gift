@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1073",
+ "stamp": "528171073",
+ "prev": "1072",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103010",
+ "en": "Rooms in windows of their own, as asked. In a room's floating window, the window key now offers\nSide by side with Carpe Diem (the room in a window of its own beside Carpe Diem's: on the Mac as a\ntab, \"Carpe Diem | Tabula\" across the top; on Windows, Carpe Diem on the left half of the screen and\nthe room on the right) and Its own window, on the Dock or on the taskbar. On the Mac, Tabula, Abacus,\nImago, Scriba and Fontes are apps of their own, each with its own name and icon, in Applications,\nCarpe Diem Rooms; that choice puts the room's icon in the Dock, which opens it from there. On Windows\neach room's window has its own taskbar button, with its own icon and its name when the pointer rests\non it; Pin to taskbar keeps it, and the rooms' shortcuts carry their own icons. At the taskbar's size\nthe icons show the rooms' colours with no letters; Scriba and Fontes keep their symbols. Open With on\na Word or PDF file says Tabula, with Tabula's icon, and the file opens in Tabula's own window.",
+ "web": "No change in the browser: build 1073 is for the Mac and Windows apps (the rooms in windows of their own, on the Dock and the taskbar, with their own icons).",
+ "ios": "No change on the iPhone and iPad: build 1073 is for the Mac and Windows apps\n(the rooms in windows of their own, on the Dock and the taskbar, with their own icons)."
+}

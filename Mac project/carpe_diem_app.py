@@ -491,17 +491,28 @@ class TabulaWindowApi:
     is the heaviest thing a secondary web view can be asked to do.
     """
 
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
+
     def __init__(self, host=None):
         self.win = None
         self.host = host
 
-    def open_app(self, which, base=None):
+    def open_app(self, which, base=None, mode="beside"):
         try:
             if self.host is not None:
-                return self.host.open_app(which, base)
+                return self.host.open_app(which, base, mode)
         except Exception:
             log_problem("TabulaWindowApi.open_app(%r)" % (which,))
         return False
+
+    def room_to_dock(self, which):
+        """Build 1073: the room as an app of its own, in the Dock."""
+        return room_to_dock(which)
 
     def broadcast_theme(self, dark):
         """Build 1059: a day or night change made in this window reaches the desk and every other window."""
@@ -562,6 +573,13 @@ class CarpeApi:
 
     APP_TITLES = {"tabula": "Tabula", "abacus": "Abacus", "slides": "Imago", "scriba": "Scriba", "fontes": "Fontes"}
     APP_COLORS = {"tabula": "#2A2622", "abacus": "#1E3D2C", "slides": "#7A2530", "scriba": "#22304A", "fontes": "#F1EBE1"}
+
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
 
     def __init__(self, app_url):
         import threading
@@ -670,15 +688,24 @@ class CarpeApi:
             pass
         return self._app_url
 
-    def open_app(self, which, base=None):
+    def room_to_dock(self, which):
+        """Build 1073: the room as an app of its own, in the Dock (asked by the page's "Its own window, on the Dock")."""
+        return room_to_dock(which)
+
+    def open_app(self, which, base=None, mode="beside"):
         """Open (or focus) a separate native window for the app. True on success;
-        {"ok": False, "why": "safety"} when this run offers no native windows (build 1059)."""
+        {"ok": False, "why": "safety"} when this run offers no native windows (build 1059).
+        Build 1073: mode "beside" puts the window beside Carpe Diem's, as a tab of the same window (the page's "Side by
+        side with Carpe Diem"); mode "own" keeps it a window of its own, apart from Carpe Diem's (the room's own app in
+        the Dock, and "Its own window, on the Dock")."""
         if which not in self.APP_TITLES:
             return False
         if _ROOM.get("off"):
             return {"ok": False, "why": "safety"}
+        mode = "own" if mode == "own" else "beside"
         with self._lock:
             if self._alive(which):
+                self._place(self._wins[which], mode)
                 return self.focus_app(which)
             if which in self._creating:
                 log_problem("open_app(%r): already opening, ignored" % (which,))
@@ -705,7 +732,10 @@ class CarpeApi:
                 win.events.closed += (lambda *a, w=which: self._wins.pop(w, None))
             except Exception:
                 pass
-            self._tab_beside_desk(win)
+            if mode == "own":
+                self._stand_apart(win)
+            else:
+                self._tab_beside_desk(win)
             return True
         except Exception:
             log_problem("open_app(%r)" % (which,))
@@ -715,7 +745,51 @@ class CarpeApi:
             with self._lock:
                 self._creating.discard(which)
 
-    def _tab_beside_desk(self, win):
+    def _place(self, win, mode):
+        """A room window already open moves to the place asked: into Carpe Diem's window as a tab, or out of it."""
+        if mode == "own":
+            self._stand_apart(win, now=True)
+        else:
+            self._tab_beside_desk(win, now=True)
+
+    def _stand_apart(self, win, now=False):
+        """Build 1073: a room's window of its own, never drawn into Carpe Diem's window as a tab (macOS joins windows
+        that share a tabbing name; this one keeps a name of its own, and leaves Carpe Diem's tabs if it was among them)."""
+        def apart(*_a):
+            try:
+                import AppKit
+                from PyObjCTools import AppHelper
+            except Exception:
+                log_problem("own window: AppKit", sys.exc_info())
+                return
+
+            def go():
+                try:
+                    room = getattr(win, "native", None)
+                    if room is None:
+                        return
+                    try:
+                        room.setTabbingIdentifier_("CarpeDiemRoom-" + str(win.title))
+                        room.setTabbingMode_(AppKit.NSWindowTabbingModeDisallowed)
+                    except Exception:
+                        pass
+                    group = room.tabGroup() if hasattr(room, "tabGroup") else None
+                    if group is not None and len(list(group.windows() or [])) > 1:
+                        room.moveTabToNewWindow_(None)
+                    room.makeKeyAndOrderFront_(None)
+                    AppKit.NSApp.activateIgnoringOtherApps_(True)
+                except Exception:
+                    log_problem("own window", sys.exc_info())
+            AppHelper.callAfter(go)
+        if now:
+            apart()
+            return
+        try:
+            win.events.shown += apart
+        except Exception:
+            log_problem("own window: no shown event", sys.exc_info())
+
+    def _tab_beside_desk(self, win, now=False):
         """Build 1061: a room's own window joins Carpe Diem's window as a tab ("Carpe Diem | Tabula" across the top),
         as macOS does by itself only while Carpe Diem fills the screen. Closing the tab closes the room's window."""
         def attach(*_a):
@@ -746,6 +820,9 @@ class CarpeApi:
                 except Exception:
                     log_problem("tab beside the desk", sys.exc_info())
             AppHelper.callAfter(go)
+        if now:
+            attach()
+            return
         try:
             win.events.shown += attach
         except Exception:
@@ -858,9 +935,17 @@ def _take_file(api, where):
         return None
 
 
+def files_wait_for_tabula(seconds=90.0):
+    """Build 1073: files that came with a request for Tabula's own window (Open With, Tabula) wait for that window to
+    take them, for a while at most; 0 lets Carpe Diem's window take them (Tabula's window cannot open this run)."""
+    import time
+    _OPENED["for_tabula"] = (time.time() + seconds) if seconds else 0
+
+
 def _take_file_now(api, where):
     import base64
     import math
+    import time
     import uuid
     if where not in ("desk", "tabula") or not _OPENED["queue"]:
         return None
@@ -872,6 +957,11 @@ def _take_file_now(api, where):
         if not _OPENED.get("held"):
             _OPENED["held"] = True
             log_note("file: waiting for Tabula's own window, which is open, to take it")
+        return None
+    if where == "desk" and _OPENED.get("for_tabula", 0) > time.time():
+        if not _OPENED.get("held_opening"):
+            _OPENED["held_opening"] = True
+            log_note("file: waiting for Tabula's own window, which is opening, to take it")
         return None
     try:
         path = _OPENED["queue"].pop(0)
@@ -887,7 +977,7 @@ def _take_file_now(api, where):
     key = uuid.uuid4().hex
     b64 = base64.b64encode(data).decode("ascii")
     _OPENED["parts"][key] = b64
-    log_note("file: %s handed to Tabula (%d bytes)" % (name, len(data)))
+    log_note("file: %s handed to Tabula (%d bytes) in %s" % (name, len(data), "its own window" if where == "tabula" else "Carpe Diem's window"))
     return {"key": key, "name": name, "parts": max(1, int(math.ceil(len(b64) / float(_PART))))}
 
 
@@ -901,6 +991,354 @@ def _file_part(key, i):
     if (i + 1) * _PART >= len(b64):
         _OPENED["parts"].pop(str(key), None)
     return piece
+
+# ---------------------------------------------------------------------------
+# Build 1073, at the owner's word: Tabula, Abacus, Imago, Scriba and Fontes are apps of their own, each with its own name
+# and icon, kept in ~/Applications/Carpe Diem Rooms, where the Dock, Launchpad and Spotlight find them. Each is a small
+# launcher made on this Mac (an AppleScript applet, by the Mac's own osacompile, signed for this Mac alone) that asks
+# Carpe Diem for its room in a window of its own, apart from Carpe Diem's window (carpediem://room/<room>), so the work
+# stays in one place. Tabula's is the one the Finder offers under Open With for Word and PDF files: it hands the file to
+# Carpe Diem, which opens it in Tabula's own window.
+# ---------------------------------------------------------------------------
+ROOM_NAMES = {"tabula": "Tabula", "abacus": "Abacus", "slides": "Imago", "scriba": "Scriba", "fontes": "Fontes"}
+ROOM_LINK = "carpediem://room/"
+OWN_BUNDLE_ID = "com.yannieforest.carpediem"
+# changes only when the room apps themselves change: a new Carpe Diem leaves them as they are, so the Dock keeps them
+ROOM_APP_KIND = "1073"
+_ROOMS_ASKED = {"queue": [], "early": None}
+_DESK = {"shown": False}
+
+
+def _rooms_sync():
+    import threading
+    if "lock" not in _ROOMS_ASKED:
+        _ROOMS_ASKED["lock"] = threading.Lock()
+        _ROOMS_ASKED["event"] = threading.Event()
+    return _ROOMS_ASKED["lock"], _ROOMS_ASKED["event"]
+
+
+def _room_from(text):
+    """'carpediem://room/tabula', or a room's name (tabula, imago...): the room's key, else None."""
+    low = str(text or "").strip().lower()
+    if low.startswith("carpediem:"):
+        low = low.split(":", 1)[1].lstrip("/")
+        if not low.startswith("room/"):
+            return None
+        low = low[5:]
+    low = low.strip("/").split("/")[0].split("?")[0].split("#")[0]
+    low = {"imago": "slides"}.get(low, low)
+    return low if low in ROOM_NAMES else None
+
+
+def rooms_dir():
+    return os.path.join(os.path.expanduser("~"), "Applications", "Carpe Diem Rooms")
+
+
+def room_app_path(which):
+    return os.path.join(rooms_dir(), ROOM_NAMES[which] + ".app")
+
+
+def _room_script(which, carpe):
+    """The launcher's AppleScript: Carpe Diem (the copy that made it, else any by its identity) opens the room; Tabula's
+    also hands on the Word and PDF files it is given."""
+    def q(t):
+        return '"' + str(t).replace("\\", "\\\\").replace('"', '\\"') + '"'
+    link = q(ROOM_LINK + which)
+    send = []
+    if carpe:
+        send += ['\ttry',
+                 '\t\tdo shell script "/bin/test -d " & quoted form of %s & " && /usr/bin/open -a " & quoted form of %s & " " & quoted form of what' % (q(carpe), q(carpe)),
+                 '\t\treturn',
+                 '\tend try']
+    send += ['\ttry',
+             '\t\tdo shell script "/usr/bin/open -b %s " & quoted form of what' % OWN_BUNDLE_ID,
+             '\ton error',
+             '\t\tif what starts with "carpediem:" then open location what',
+             '\tend try']
+    lines = ['on run', '\tsendToCarpeDiem(%s)' % link, 'end run', '',
+             'on reopen', '\tsendToCarpeDiem(%s)' % link, 'end reopen', '',
+             'on sendToCarpeDiem(what)'] + send + ['end sendToCarpeDiem']
+    if which == "tabula":
+        lines += ['', 'on open theFiles', '\tsendToCarpeDiem(%s)' % link, '\trepeat with f in theFiles',
+                  '\t\tsendToCarpeDiem(POSIX path of f)', '\tend repeat', 'end open']
+    return "\n".join(lines) + "\n"
+
+
+def _on_main_thread(fn, wait_s=20.0):
+    """fn on AppKit's main thread when the app's window loop runs (from another thread), else here."""
+    import threading
+    if threading.current_thread() is threading.main_thread():
+        return fn()
+    try:
+        from PyObjCTools import AppHelper
+    except Exception:
+        return fn()
+    done, out = threading.Event(), {}
+
+    def go():
+        try:
+            out["r"] = fn()
+        finally:
+            done.set()
+    AppHelper.callAfter(go)
+    done.wait(wait_s)
+    return out.get("r")
+
+
+def _make_room_app(which, force=False):
+    """The room's own app in ~/Applications/Carpe Diem Rooms, made, or brought up to date in place (the Dock keeps
+    pointing at it); its path, or None."""
+    import plistlib
+    import shutil
+    import subprocess
+    import tempfile
+    if sys.platform != "darwin" or which not in ROOM_NAMES:
+        return None
+    name = ROOM_NAMES[which]
+    dest = room_app_path(which)
+    carpe = _OWN_BUNDLE.get("path") or ""
+    if "/AppTranslocation/" in carpe:
+        carpe = ""   # a copy macOS runs from a hidden place for now: the launcher finds Carpe Diem by its identity
+    icon = resource_path(os.path.join("rooms", which + ".icns"))
+    try:
+        icon_size = os.path.getsize(icon)
+    except OSError:
+        log_note("room app: %s has no icon in this copy (%s)" % (name, icon))
+        return None
+    want = "%s|%s|%d" % (ROOM_APP_KIND, carpe, icon_size)
+    if not force:
+        try:
+            with open(os.path.join(dest, "Contents", "Info.plist"), "rb") as fh:
+                if plistlib.load(fh).get("CDRoomApp") == want:
+                    return dest
+        except Exception:
+            pass
+    work = tempfile.mkdtemp(prefix="carpe-room-")
+    try:
+        src = os.path.join(work, "room.applescript")
+        with open(src, "w", encoding="utf-8") as fh:
+            fh.write(_room_script(which, carpe))
+        made = os.path.join(work, name + ".app")
+        r = subprocess.run(["/usr/bin/osacompile", "-o", made, src], capture_output=True, text=True, timeout=120)
+        if r.returncode != 0 or not os.path.isdir(made):
+            log_note("room app: %s could not be made (osacompile: %s)" % (name, (r.stderr or r.stdout).strip()[:300]))
+            return None
+        res = os.path.join(made, "Contents", "Resources")
+        shutil.copyfile(icon, os.path.join(res, "room.icns"))
+        plist = os.path.join(made, "Contents", "Info.plist")
+        with open(plist, "rb") as fh:
+            info = plistlib.load(fh)
+        info.update({
+            "CFBundleIdentifier": "%s.room.%s" % (OWN_BUNDLE_ID, which),
+            "CFBundleName": name,
+            "CFBundleDisplayName": name,
+            "CFBundleIconFile": "room",
+            "CFBundleShortVersionString": ROOM_APP_KIND,
+            "CFBundleVersion": ROOM_APP_KIND,
+            "LSUIElement": True,
+            "NSHumanReadableCopyright": "Copyright (c) 2026 Yannie D. Forest. All rights reserved.",
+            "CDRoomApp": want,
+        })
+        info.pop("CFBundleIconName", None)
+        if which == "tabula":
+            # Open With offers Tabula for Word and PDF files; "Alternate": the owner chooses the default in Get Info
+            info["CFBundleDocumentTypes"] = [
+                {"CFBundleTypeName": "Word document", "CFBundleTypeRole": "Editor", "LSHandlerRank": "Alternate",
+                 "LSItemContentTypes": ["org.openxmlformats.wordprocessingml.document"]},
+                {"CFBundleTypeName": "PDF document", "CFBundleTypeRole": "Viewer", "LSHandlerRank": "Alternate",
+                 "LSItemContentTypes": ["com.adobe.pdf"]},
+            ]
+        else:
+            info.pop("CFBundleDocumentTypes", None)
+        with open(plist, "wb") as fh:
+            plistlib.dump(info, fh)
+        r = subprocess.run(["/usr/bin/codesign", "--force", "--sign", "-", "--timestamp=none", made],
+                           capture_output=True, text=True, timeout=120)
+        if r.returncode != 0:
+            log_note("room app: %s not signed (%s)" % (name, (r.stderr or r.stdout).strip()[:300]))
+        os.makedirs(rooms_dir(), exist_ok=True)
+        if os.path.isdir(dest):
+            # in place, so the Dock's item keeps finding it
+            shutil.rmtree(os.path.join(dest, "Contents"), ignore_errors=True)
+            shutil.move(os.path.join(made, "Contents"), os.path.join(dest, "Contents"))
+        else:
+            shutil.move(made, dest)
+        _room_app_icon(dest, os.path.join(dest, "Contents", "Resources", "room.icns"))
+        subprocess.run(["/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister",
+                        "-f", dest], capture_output=True, timeout=60)
+        log_note("room app: %s made (%s)" % (name, dest))
+        return dest
+    except Exception:
+        log_problem("room app: %s could not be made" % name)
+        return None
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def _room_app_icon(app, icns):
+    """The room's icon set as the app's own (as Finder's Get Info sets one), so macOS 26 shows it as drawn, never in a
+    grey square; the Dock, Launchpad and Open With show it too."""
+    def go():
+        try:
+            from AppKit import NSImage, NSWorkspace
+            img = NSImage.alloc().initWithContentsOfFile_(icns)
+            if img is None or not NSWorkspace.sharedWorkspace().setIcon_forFile_options_(img, app, 0):
+                log_note("room app: the icon of %s was not set as its own (its bundle's icon stays)" % os.path.basename(app))
+        except Exception:
+            log_note("room app: the icon of %s was not set as its own (%s)" % (os.path.basename(app), sys.exc_info()[1]))
+    try:
+        _on_main_thread(go)
+    except Exception:
+        log_note("room app: the icon of %s was not set as its own (%s)" % (os.path.basename(app), sys.exc_info()[1]))
+
+
+def make_room_apps(force=False):
+    """Every room's own app, made or brought up to date; how many are ready."""
+    n = sum(1 for w in ROOM_NAMES if _make_room_app(w, force))
+    log_note("room apps: %d of %d ready in %s" % (n, len(ROOM_NAMES), rooms_dir()))
+    return n
+
+
+def _make_room_apps_soon(delay_s=8.0):
+    """At start, once the window is up: the room apps, so the Finder offers Tabula under Open With from the first run."""
+    import threading
+    import time
+    if sys.platform != "darwin" or not _OWN_BUNDLE.get("path"):
+        return
+
+    def run():
+        time.sleep(delay_s)
+        try:
+            make_room_apps()
+        except Exception:
+            log_problem("room apps: not made")
+    threading.Thread(target=run, daemon=True).start()
+
+
+def _dock_items():
+    import plistlib
+    import subprocess
+    out = subprocess.run(["/usr/bin/defaults", "export", "com.apple.dock", "-"], capture_output=True, timeout=30).stdout
+    return plistlib.loads(out).get("persistent-apps", []) if out else []
+
+
+def _same_app(url, app):
+    from urllib.parse import unquote, urlparse
+    try:
+        u = urlparse(str(url or ""))
+        if u.scheme != "file":
+            return False
+        return os.path.realpath(unquote(u.path).rstrip("/")) == os.path.realpath(app.rstrip("/"))
+    except Exception:
+        return False
+
+
+def room_to_dock(which):
+    """The room's own app, made if need be and kept in the Dock (at the end of its apps), once. Asked by the page's
+    "Its own window, on the Dock"."""
+    import subprocess
+    from urllib.parse import quote
+    which = _room_from(which)
+    if not which:
+        return {"ok": False, "why": "no such room"}
+    if sys.platform != "darwin":
+        return {"ok": False, "why": "not a Mac"}
+    app = _make_room_app(which)
+    if not app or not os.path.isdir(app):
+        return {"ok": False, "why": "its app could not be made"}
+    try:
+        if any(_same_app(((t.get("tile-data") or {}).get("file-data") or {}).get("_CFURLString"), app) for t in _dock_items()):
+            log_note("room: %s is in the Dock already" % which)
+            return {"ok": True, "added": False, "app": app}
+        url = "file://" + quote(app.rstrip("/") + "/", safe="/")
+        entry = ("<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>%s</string>"
+                 "<key>_CFURLStringType</key><integer>15</integer></dict></dict></dict>"
+                 % url.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+        subprocess.run(["/usr/bin/defaults", "write", "com.apple.dock", "persistent-apps", "-array-add", entry],
+                       check=True, capture_output=True, timeout=30)
+        subprocess.run(["/usr/bin/killall", "Dock"], capture_output=True, timeout=30)
+        log_note("room: %s put in the Dock (%s)" % (which, app))
+        return {"ok": True, "added": True, "app": app}
+    except Exception:
+        log_problem("room: %s could not be put in the Dock" % which)
+        return {"ok": False, "why": "the Dock did not take it", "app": app}
+
+
+def rooms_asked(links, how="its own app"):
+    """Rooms asked for by their own apps (carpediem://room/<room>), opened in windows of their own as soon as Carpe
+    Diem's window has its address. When Carpe Diem was started for a room, its own window steps aside (minimised)."""
+    got = [w for w in (_room_from(x) for x in (links or [])) if w]
+    if not got:
+        return 0
+    lock, event = _rooms_sync()
+    with lock:
+        if _ROOMS_ASKED["early"] is None:
+            _ROOMS_ASKED["early"] = not _DESK["shown"]
+        _ROOMS_ASKED["queue"].extend(got)
+    if "tabula" in got:
+        files_wait_for_tabula()
+    for w in got:
+        log_note("room: %s asked by %s" % (w, how))
+    event.set()
+    return len(got)
+
+
+def _serve_asked_rooms(api, window):
+    import threading
+    import time
+    lock, event = _rooms_sync()
+    try:
+        window.events.shown += (lambda *a: _DESK.update(shown=True))
+    except Exception:
+        _DESK["shown"] = True
+
+    def ready():
+        try:
+            return window.events.loaded.is_set() and str(getattr(window, "real_url", "") or "").startswith("http")
+        except Exception:
+            return False
+
+    def run():
+        while True:
+            event.wait()
+            event.clear()
+            for _ in range(240):
+                if ready():
+                    break
+                time.sleep(0.5)
+            while True:
+                with lock:
+                    if not _ROOMS_ASKED["queue"]:
+                        break
+                    which = _ROOMS_ASKED["queue"].pop(0)
+                    early = bool(_ROOMS_ASKED.get("early"))
+                    _ROOMS_ASKED["early"] = False
+                try:
+                    opener = getattr(api, "open_app", None)
+                    ok = opener(which, getattr(window, "real_url", None), "own") if opener else {"ok": False, "why": "one window"}
+                except Exception:
+                    log_problem("room: %s could not open" % which)
+                    ok = False
+                if ok is True:
+                    log_note("room: %s opened in a window of its own" % which)
+                    if early:
+                        time.sleep(1.5)
+                        try:
+                            window.minimize()
+                        except Exception:
+                            pass
+                    continue
+                # no window of its own this run (the safety rule, or one window only): the room opens in Carpe Diem's
+                log_note("room: %s opens in Carpe Diem's window (%r)" % (which, ok))
+                if which == "tabula":
+                    files_wait_for_tabula(0)
+                try:
+                    window.run_js("try{if(typeof cdCloseDoor==='function')cdCloseDoor();openExt(%r);}catch(e){}" % which)
+                except Exception:
+                    log_problem("room: %s could not open in Carpe Diem's window" % which)
+    threading.Thread(target=run, daemon=True).start()
+
+
 
 def _no_store(start_response):
     """Build 1064, as The Forge 647: every answer from Carpe Diem's own address says it is not to be kept, so the web
@@ -1299,7 +1737,8 @@ def _clean_quit_ends_session():
 def _hear_opened_files():
     """Build 1072: a Word or PDF file opened with Carpe Diem while it is open comes from the Finder as an Apple event,
     which the app's delegate hears (pywebview's own delegate has no ear for it). One that starts the app arrives in
-    sys.argv instead (argv_emulation in carpe_diem.spec)."""
+    sys.argv instead (argv_emulation in carpe_diem.spec). Build 1073: so does a room asked for by its own app
+    (carpediem://room/tabula)."""
     try:
         from webview.platforms import cocoa
     except Exception:
@@ -1310,6 +1749,7 @@ def _hear_opened_files():
         def application_openURLs_(self, app, urls):
             try:
                 files_asked([str(u.path()) for u in urls if u.isFileURL()])
+                rooms_asked([str(u.absoluteString()) for u in urls if not u.isFileURL()])
             except Exception:
                 log_problem("files: the Finder's request could not be read")
 
@@ -1351,6 +1791,13 @@ class CarpeApiSingle:
     from the ↗ key of a floating window; a run that follows a bad ending while
     one was open offers none. CARPE_DIEM_NATIVE_WINDOWS=0 chooses this API.
     """
+
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
 
     def __init__(self, app_url):
         self._app_url = app_url
@@ -1644,7 +2091,25 @@ def show_seal_in_dock(picture):
             pass
 
 
+def _room_commands():
+    """Build 1073: `--make-room-apps` makes (or brings up to date) the rooms' own apps, `--room-to-dock <room>` keeps one
+    in the Dock; each ends at once, with no window (GitHub's build checks them this way)."""
+    args = sys.argv[1:]
+    if "--make-room-apps" in args:
+        _note_own_bundle()
+        n = make_room_apps(force="--force" in args)
+        print("room apps: %d of %d in %s" % (n, len(ROOM_NAMES), rooms_dir()))
+        sys.exit(0 if n == len(ROOM_NAMES) else 1)
+    if "--room-to-dock" in args:
+        _note_own_bundle()
+        i = args.index("--room-to-dock")
+        r = room_to_dock(args[i + 1] if i + 1 < len(args) else "")
+        print("room to Dock: %r" % (r,))
+        sys.exit(0 if r.get("ok") else 1)
+
+
 def main():
+    _room_commands()
     skip_server_name_lookup()
     app_html = find_app_html()
     if not app_html:
@@ -1662,6 +2127,7 @@ def main():
 
     _note_own_bundle()
     files_asked(sys.argv[1:])
+    rooms_asked([a for a in sys.argv[1:] if str(a).lower().startswith("carpediem:")], "its own app, at start")
     try:
         if not _older_copies_step_aside():
             return
@@ -1765,12 +2231,14 @@ def main():
         api.main_window = window
     except Exception:
         pass
+    _serve_asked_rooms(api, window)
     _check_page_build(window, app_html)
     _watch_for_newer_build(window, app_html)
     _clean_quit_ends_session()
     _hear_quit_please()
     _hear_opened_files()
     _hear_pywebview()
+    _make_room_apps_soon()
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).

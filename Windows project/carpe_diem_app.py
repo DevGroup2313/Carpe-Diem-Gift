@@ -431,17 +431,27 @@ class TabulaWindowApi:
     is the heaviest thing a secondary web view can be asked to do.
     """
 
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
     def __init__(self, host=None):
         self.win = None
         self.host = host
 
-    def open_app(self, which, base=None):
+    def open_app(self, which, base=None, mode="beside"):
         try:
             if self.host is not None:
-                return self.host.open_app(which, base)
+                return self.host.open_app(which, base, mode)
         except Exception:
             log_problem("TabulaWindowApi.open_app(%r)" % (which,))
         return False
+
+    def room_to_dock(self, which):
+        """Build 1073: the room kept on the taskbar (Windows leaves the pinning to the person; see room_to_dock)."""
+        return room_to_dock(which)
 
     def broadcast_theme(self, dark):
         """Build 1059: a day or night change made in this window reaches the desk and every other window."""
@@ -590,6 +600,12 @@ class CarpeApiSingle:
     one was open offers none. CARPE_DIEM_NATIVE_WINDOWS=0 chooses this API.
     """
 
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
     def __init__(self, app_url):
         self._app_url = app_url
         self.main_window = None
@@ -649,6 +665,12 @@ class CarpeApi:
     APP_TITLES = {"tabula": "Tabula", "abacus": "Abacus", "slides": "Imago", "scriba": "Scriba", "fontes": "Fontes"}
     APP_COLORS = {"tabula": "#2A2622", "abacus": "#1E3D2C", "slides": "#7A2530", "scriba": "#22304A", "fontes": "#F1EBE1"}
 
+
+    # Build 1073: pywebview lists the methods a page may call by walking every public attribute of this object, and
+    # followed main_window into the window's own platform objects (on Windows, .NET's AccessibilityObject.Bounds.Empty.
+    # Empty... without end), which held the window unanswering. What is not a request of the page is kept from it.
+    def __dir__(self):
+        return [n for n in object.__dir__(self) if n not in ("main_window", "host", "win", "server_name", "server_port")]
     def __init__(self, app_url):
         import threading
         self._app_url = app_url
@@ -743,20 +765,34 @@ class CarpeApi:
             pass
         return self._app_url
 
-    def open_app(self, which, base=None):
+    def room_to_dock(self, which):
+        """Build 1073: the room kept on the taskbar (asked by the page's "Its own window, on the taskbar")."""
+        return room_to_dock(which)
+
+    def open_app(self, which, base=None, mode="beside"):
         """Open (or focus) a separate native window for the app. True on success;
-        {"ok": False, "why": "safety"} when this run offers no native windows (build 1059)."""
+        {"ok": False, "why": "safety"} when this run offers no native windows (build 1059).
+        Build 1073: every room's window is the room's own on the taskbar (its own button, icon and name, which Pin to
+        taskbar keeps). Mode "beside" also sets it beside Carpe Diem: Carpe Diem on the left half of the screen, the
+        room on the right (the page's "Side by side with Carpe Diem"); mode "own" leaves it a window of its own (a
+        room's shortcut, and "Its own window, on the taskbar")."""
         if which not in self.APP_TITLES:
             return False
         if _ROOM.get("off"):
             return {"ok": False, "why": "safety"}
+        mode = "own" if mode == "own" else "beside"
         with self._lock:
-            if self._alive(which):
-                return self.focus_app(which)
-            if which in self._creating:
-                log_problem("open_app(%r): already opening, ignored" % (which,))
-                return False
-            self._creating.add(which)
+            alive = self._alive(which)
+            if not alive:
+                if which in self._creating:
+                    log_problem("open_app(%r): already opening, ignored" % (which,))
+                    return False
+                self._creating.add(which)
+        if alive:
+            # placed outside the lock: placing waits on the windows' own thread
+            if mode == "beside":
+                _side_by_side(self.main_window, self._wins.get(which))
+            return self.focus_app(which)
         try:
             import webview
             win_api = TabulaWindowApi(host=self)
@@ -778,6 +814,10 @@ class CarpeApi:
                 win.events.closed += (lambda *a, w=which: self._wins.pop(w, None))
             except Exception:
                 pass
+            try:
+                win.events.shown += (lambda *a, w=which, m=mode, rw=win: self._dress(w, rw, m))
+            except Exception:
+                log_problem("room %s: no shown event" % which)
             return True
         except Exception:
             log_problem("open_app(%r)" % (which,))
@@ -786,6 +826,12 @@ class CarpeApi:
         finally:
             with self._lock:
                 self._creating.discard(which)
+
+    def _dress(self, which, win, mode):
+        """Once the room's window shows: its own taskbar identity and icon, then its place."""
+        _room_identity(win, which)
+        if mode == "beside":
+            _side_by_side(self.main_window, win)
 
     # Backward compatible names kept for older builds of the app HTML.
     def carry_state(self):
@@ -894,9 +940,17 @@ def _take_file(api, where):
         return None
 
 
+def files_wait_for_tabula(seconds=90.0):
+    """Build 1073: files that came with a request for Tabula's own window (Open With, Tabula) wait for that window to
+    take them, for a while at most; 0 lets Carpe Diem's window take them (Tabula's window cannot open this run)."""
+    import time
+    _OPENED["for_tabula"] = (time.time() + seconds) if seconds else 0
+
+
 def _take_file_now(api, where):
     import base64
     import math
+    import time
     import uuid
     if where not in ("desk", "tabula") or not _OPENED["queue"]:
         return None
@@ -908,6 +962,11 @@ def _take_file_now(api, where):
         if not _OPENED.get("held"):
             _OPENED["held"] = True
             log_note("file: waiting for Tabula's own window, which is open, to take it")
+        return None
+    if where == "desk" and _OPENED.get("for_tabula", 0) > time.time():
+        if not _OPENED.get("held_opening"):
+            _OPENED["held_opening"] = True
+            log_note("file: waiting for Tabula's own window, which is opening, to take it")
         return None
     try:
         path = _OPENED["queue"].pop(0)
@@ -923,7 +982,7 @@ def _take_file_now(api, where):
     key = uuid.uuid4().hex
     b64 = base64.b64encode(data).decode("ascii")
     _OPENED["parts"][key] = b64
-    log_note("file: %s handed to Tabula (%d bytes)" % (name, len(data)))
+    log_note("file: %s handed to Tabula (%d bytes) in %s" % (name, len(data), "its own window" if where == "tabula" else "Carpe Diem's window"))
     return {"key": key, "name": name, "parts": max(1, int(math.ceil(len(b64) / float(_PART))))}
 
 
@@ -1647,6 +1706,10 @@ def _files_on_request():
             try:
                 if not os.path.isfile(path):
                     continue
+                for _ in range(12):
+                    if not os.path.isfile(_room_request_path()):
+                        break
+                    time.sleep(0.25)
                 taking = path + ".taking"
                 os.replace(path, taking)
                 with open(taking, "r", encoding="utf-8") as fh:
@@ -1851,6 +1914,246 @@ def _bring_window_forward(wait_s=30.0):
     return True
 
 
+# ---------------------------------------------------------------------------
+# Build 1073, at the owner's word: each room is its own on the taskbar. Its window carries the room's own identity
+# (com.yannieforest.carpediem.<room>, the one its Start menu and Desktop shortcuts carry), so it has a button of its
+# own, with the room's own icon (its colours at the taskbar's size; Scriba's and Fontes's symbols), and the room's name
+# shows when the pointer rests on it. Pin to taskbar on that button keeps the room there: Windows is told how to open it
+# again (Carpe Diem.exe --room <room>), under its name and icon. Microsoft, "Application User Model IDs" and
+# SHGetPropertyStoreForWindow; System.AppUserModel.ID, RelaunchCommand, RelaunchIconResource, RelaunchDisplayNameResource.
+# ---------------------------------------------------------------------------
+ROOM_NAMES = {"tabula": "Tabula", "abacus": "Abacus", "slides": "Imago", "scriba": "Scriba", "fontes": "Fontes"}
+_ROOM_ICONS = {}
+
+
+def room_app_id(which):
+    return "%s.%s" % (APP_USER_MODEL_ID, which)
+
+
+def _room_icon_file(which):
+    """The room's icon where it stays put: beside the installed program ({app}\\rooms), else a copy kept with Carpe
+    Diem's own files (%LOCALAPPDATA%\\CarpeDiem\\rooms), since a single-file program's own folder goes when it closes."""
+    import shutil
+    if getattr(sys, "frozen", False):
+        beside = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), "rooms", which + ".ico")
+        if os.path.isfile(beside):
+            return beside
+    src = resource_path(os.path.join("rooms", which + ".ico"))
+    if not os.path.isfile(src):
+        return None
+    try:
+        keep_dir = os.path.join(os.path.dirname(storage_dir() or os.path.join(os.path.expanduser("~"), "CarpeDiem", "storage")), "rooms")
+        os.makedirs(keep_dir, exist_ok=True)
+        keep = os.path.join(keep_dir, which + ".ico")
+        if not os.path.isfile(keep) or os.path.getsize(keep) != os.path.getsize(src):
+            shutil.copyfile(src, keep)
+        return keep
+    except Exception:
+        return src
+
+
+def _relaunch_command(which):
+    if getattr(sys, "frozen", False):
+        return '"%s" --room %s' % (os.path.abspath(sys.executable), which)
+    return '"%s" "%s" --room %s' % (os.path.abspath(sys.executable), os.path.abspath(__file__), which)
+
+
+def _hwnd(win):
+    try:
+        return int(win.native.Handle.ToInt64())
+    except Exception:
+        return 0
+
+
+def _on_form(win, fn):
+    """fn on the window's own thread (WindowsForms'), as pywebview does its own work there; else here."""
+    form = getattr(win, "native", None)
+    try:
+        from System import Func, Type
+        if form is not None and getattr(form, "InvokeRequired", False):
+            form.Invoke(Func[Type](fn))
+            return
+    except Exception:
+        log_problem("room window: its own thread was not reached")
+    fn()
+
+
+def _window_properties(hwnd, values):
+    """Sets the window's taskbar properties: values is [(pid, text or None)], in that order (None clears one)."""
+    import ctypes
+    from ctypes import wintypes
+
+    class GUID(ctypes.Structure):
+        _fields_ = [("a", wintypes.DWORD), ("b", wintypes.WORD), ("c", wintypes.WORD), ("d", ctypes.c_ubyte * 8)]
+
+    def guid(text):
+        import uuid
+        u = uuid.UUID(text)
+        g = GUID(u.time_low, u.time_mid, u.time_hi_version)
+        for i, x in enumerate(u.bytes[8:]):
+            g.d[i] = x
+        return g
+
+    class PROPERTYKEY(ctypes.Structure):
+        _fields_ = [("fmtid", GUID), ("pid", wintypes.DWORD)]
+
+    class PROPVARIANT(ctypes.Structure):
+        _fields_ = [("vt", ctypes.c_ushort), ("r1", ctypes.c_ushort), ("r2", ctypes.c_ushort), ("r3", ctypes.c_ushort),
+                    ("p", ctypes.c_void_p), ("p2", ctypes.c_void_p)]
+
+    shell32 = ctypes.WinDLL("shell32")
+    ole32 = ctypes.WinDLL("ole32")
+    ole32.CoInitializeEx(None, 2)   # the window's thread has COM already; this is only for a thread without it
+    iid = guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99")   # IPropertyStore
+    store = ctypes.c_void_p()
+    shell32.SHGetPropertyStoreForWindow.argtypes = (wintypes.HWND, ctypes.POINTER(GUID), ctypes.POINTER(ctypes.c_void_p))
+    hr = shell32.SHGetPropertyStoreForWindow(hwnd, ctypes.byref(iid), ctypes.byref(store))
+    if hr != 0 or not store.value:
+        raise OSError("SHGetPropertyStoreForWindow: 0x%08x" % (hr & 0xFFFFFFFF))
+    vtbl = ctypes.cast(ctypes.cast(store, ctypes.POINTER(ctypes.c_void_p))[0], ctypes.POINTER(ctypes.c_void_p))
+    set_value = ctypes.WINFUNCTYPE(ctypes.c_long, ctypes.c_void_p, ctypes.POINTER(PROPERTYKEY), ctypes.POINTER(PROPVARIANT))(vtbl[6])
+    release = ctypes.WINFUNCTYPE(ctypes.c_ulong, ctypes.c_void_p)(vtbl[2])
+    fmt = guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3")   # System.AppUserModel.*
+    try:
+        for pid, text in values:
+            pv = PROPVARIANT()
+            keep = None
+            if text is not None:
+                keep = ctypes.create_unicode_buffer(text)
+                pv.vt = 31   # VT_LPWSTR
+                pv.p = ctypes.cast(keep, ctypes.c_void_p)
+            hr = set_value(store, ctypes.byref(PROPERTYKEY(fmt, pid)), ctypes.byref(pv))
+            if hr != 0:
+                raise OSError("SetValue %d: 0x%08x" % (pid, hr & 0xFFFFFFFF))
+    finally:
+        release(store)
+
+
+def _window_icon(win, hwnd, path):
+    """The room's icon on its window, at the sizes the taskbar and the title bar use (up to 40 px: the room's colours,
+    with no letter), set through WindowsForms so it stays."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.WinDLL("user32")
+    try:
+        user32.GetDpiForWindow.argtypes = (wintypes.HWND,)
+        dpi = user32.GetDpiForWindow(hwnd) or 96
+        size = min(int(user32.GetSystemMetricsForDpi(11, dpi)), 40)   # SM_CXICON
+    except Exception:
+        size = min(int(user32.GetSystemMetrics(11) or 32), 40)
+    try:
+        from System.Drawing import Icon, Size
+        win.native.Icon = Icon(path, Size(size, size))
+        return
+    except Exception:
+        log_note("room window: the icon went by WM_SETICON (%s)" % (sys.exc_info()[1],))
+    user32.LoadImageW.restype = ctypes.c_void_p
+    user32.LoadImageW.argtypes = (ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_uint, ctypes.c_int, ctypes.c_int, ctypes.c_uint)
+    user32.SendMessageW.argtypes = (ctypes.c_void_p, ctypes.c_uint, ctypes.c_size_t, ctypes.c_void_p)
+    small = int(user32.GetSystemMetrics(49) or 16)   # SM_CXSMICON
+    for kind, px in ((0, small), (1, size)):          # ICON_SMALL, ICON_BIG
+        h = user32.LoadImageW(None, path, 1, px, px, 0x10)   # IMAGE_ICON, LR_LOADFROMFILE
+        if h:
+            _ROOM_ICONS[(hwnd, kind)] = h   # kept while the window lives
+            user32.SendMessageW(hwnd, 0x0080, kind, h)   # WM_SETICON
+
+
+def _room_identity(win, which):
+    """The room's own taskbar button, icon and name, and how Windows opens it again from a pin."""
+    if not sys.platform.startswith("win") or which not in ROOM_NAMES:
+        return False
+    icon = _room_icon_file(which)
+    done = {"ok": False}
+
+    def go():
+        hwnd = _hwnd(win)
+        if not hwnd:
+            log_note("room %s: its window has no handle yet; it shares Carpe Diem's taskbar button" % which)
+            return
+        try:
+            values = [(2, _relaunch_command(which)), (4, ROOM_NAMES[which])]
+            if icon:
+                values.append((3, icon + ",0"))
+            values.append((5, room_app_id(which)))   # the identity last, once Windows knows how to open it again
+            _window_properties(hwnd, values)
+            if icon:
+                _window_icon(win, hwnd, icon)
+            done["ok"] = True
+        except Exception:
+            log_problem("room %s: its own taskbar button was not set" % which)
+    _on_form(win, go)
+    if done["ok"]:
+        log_note("room %s: a taskbar button of its own (%s), with its own icon" % (which, room_app_id(which)))
+    return done["ok"]
+
+
+def _side_by_side(desk, room):
+    """Carpe Diem's window on the left half of its screen's work area, the room's on the right, both whole (the
+    invisible edges Windows draws around a window are allowed for), the room in front."""
+    import ctypes
+    from ctypes import wintypes
+    if not sys.platform.startswith("win") or desk is None or room is None:
+        return False
+    user32 = ctypes.WinDLL("user32")
+    dwm = ctypes.WinDLL("dwmapi")
+    for f in ("IsIconic", "IsZoomed", "SetForegroundWindow"):
+        getattr(user32, f).argtypes = (wintypes.HWND,)
+    user32.ShowWindow.argtypes = (wintypes.HWND, ctypes.c_int)
+    user32.GetWindowRect.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.RECT))
+    dwm.DwmGetWindowAttribute.argtypes = (wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD)
+
+    class MONITORINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT), ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+    user32.MonitorFromWindow.restype = ctypes.c_void_p
+    user32.MonitorFromWindow.argtypes = (wintypes.HWND, wintypes.DWORD)
+    user32.GetMonitorInfoW.argtypes = (ctypes.c_void_p, ctypes.POINTER(MONITORINFO))
+    user32.SetWindowPos.argtypes = (wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT)
+    out = {"ok": False}
+
+    def place(hwnd, x, y, w, h):
+        if user32.IsIconic(hwnd) or user32.IsZoomed(hwnd):
+            user32.ShowWindow(hwnd, 9)   # SW_RESTORE
+        outer, seen = wintypes.RECT(), wintypes.RECT()
+        user32.GetWindowRect(hwnd, ctypes.byref(outer))
+        if dwm.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(seen), ctypes.sizeof(seen)) != 0:   # extended frame bounds
+            seen = outer
+        l, t = seen.left - outer.left, seen.top - outer.top
+        r, b = outer.right - seen.right, outer.bottom - seen.bottom
+        user32.SetWindowPos(hwnd, None, x - l, y - t, w + l + r, h + t + b, 0x0004 | 0x0010)   # no z-order, no activate
+
+    def go():
+        hd, hr = _hwnd(desk), _hwnd(room)
+        if not hd or not hr:
+            return
+        try:
+            mi = MONITORINFO()
+            mi.cbSize = ctypes.sizeof(MONITORINFO)
+            if not user32.GetMonitorInfoW(user32.MonitorFromWindow(hd, 2), ctypes.byref(mi)):   # nearest monitor
+                return
+            wk = mi.rcWork
+            half = (wk.right - wk.left) // 2
+            place(hd, wk.left, wk.top, half, wk.bottom - wk.top)
+            place(hr, wk.left + half, wk.top, wk.right - wk.left - half, wk.bottom - wk.top)
+            user32.SetForegroundWindow(hr)
+            out["ok"] = True
+        except Exception:
+            log_problem("side by side: the windows were not placed")
+    _on_form(room, go)
+    if out["ok"]:
+        log_note("side by side: Carpe Diem on the left, %s on the right" % getattr(room, "title", "the room"))
+    return out["ok"]
+
+
+def room_to_dock(which):
+    """Windows keeps the taskbar's pins for the person: no program may pin itself there. The room's window has a button
+    of its own (its name and icon), and Pin to taskbar on it keeps the room there, opening it again in its own window;
+    the page says so."""
+    which = {"imago": "slides"}.get(str(which or "").lower(), str(which or "").lower())
+    if which not in ROOM_NAMES:
+        return {"ok": False, "why": "no such room"}
+    return {"ok": True, "pin": "by hand", "name": ROOM_NAMES[which]}
+
+
 def _rooms_on_request(api, window, first=None):
     """A room asked for by a Start menu shortcut opens in its own window: the one this start was asked for once the
     desk has loaded, and any asked for later by a second start (left in open-room.txt) as it comes."""
@@ -1869,22 +2172,34 @@ def _rooms_on_request(api, window, first=None):
         except Exception:
             return None
 
-    def open_room(which):
+    def open_room(which, aside=False):
         try:
-            ok = api.open_app(which, base())
-            log_problem("room %s asked by a shortcut: %s" % (which, "opened" if ok is True else repr(ok)))
+            ok = api.open_app(which, base(), "own")
+            log_note("room %s asked by a shortcut: %s" % (which, "opened in a window of its own" if ok is True else repr(ok)))
+            if ok is not True and which == "tabula":
+                files_wait_for_tabula(0)
+            if ok is True and aside:
+                # started for the room alone: Carpe Diem's own window steps aside, to the taskbar
+                time.sleep(2.0)
+                try:
+                    window.minimize()
+                except Exception:
+                    pass
         except Exception:
             log_problem("room %s asked by a shortcut could not open" % which, sys.exc_info())
 
     def run():
         log_note("rooms: listening for a room asked by a shortcut (%s)" % path)
         if first:
-            for _ in range(240):
-                if base():
-                    break
-                time.sleep(0.5)
-            time.sleep(2.0)
-            open_room(first)
+            # build 1073: as soon as Carpe Diem's page has loaded. It waited for an address beginning http://127.0.0.1,
+            # which Carpe Diem's window on Windows never has (it reads its page from the file), so a room's shortcut
+            # used while Carpe Diem was closed opened the room only after two minutes
+            try:
+                window.events.loaded.wait(120)
+            except Exception:
+                time.sleep(10)
+            time.sleep(1.5)
+            open_room(first, aside=True)
         while True:
             time.sleep(0.8)
             try:
@@ -1895,6 +2210,8 @@ def _rooms_on_request(api, window, first=None):
                 os.remove(path)
                 log_note("rooms: a shortcut asked for %r" % which)
                 if which in ROOMS:
+                    if which == "tabula":
+                        files_wait_for_tabula()
                     open_room(which)
             except Exception:
                 log_problem("room request: could not be read")
@@ -2081,6 +2398,8 @@ def main():
     except Exception:
         log_problem("care: the page's loading could not be heard")
     if isinstance(api, CarpeApi):
+        if _room == "tabula":
+            files_wait_for_tabula()   # Open With, Tabula: the file opens in Tabula's own window
         _rooms_on_request(api, window, _room)
     _files_on_request()
     _hear_pywebview()

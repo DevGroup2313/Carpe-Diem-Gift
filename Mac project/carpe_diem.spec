@@ -55,7 +55,9 @@ a = Analysis(
     pathex=[],
     binaries=extra_binaries,
     # the app itself travels inside the bundle
-    datas=extra_datas + [('carpe_diem.html', '.'), ('carpe_carry.py', '.'), ('carpe_diem.icns', '.'), ('carpe_diem.png', '.')],
+    # build 1073: and each room's own icon, for the rooms' own apps the app makes on the Mac
+    datas=extra_datas + [('carpe_diem.html', '.'), ('carpe_carry.py', '.'), ('carpe_diem.icns', '.'), ('carpe_diem.png', '.'),
+                         ('rooms/*.icns', 'rooms')],
     # Named outright because PyInstaller cannot see them: pywebview chooses its
     # backend while running, so nothing in the source imports these by name.
     # Left out, the app builds cleanly and then cannot draw a window. Any that
@@ -119,13 +121,12 @@ if sys.platform == 'darwin':
             'NSHighResolutionCapable': True,
             'LSMinimumSystemVersion': '11.0',
 
-            # Build 1072: Word and PDF files offer Carpe Diem under Open With, and open in Tabula. "Alternate": it
-            # never takes over as the default; the owner chooses that in Get Info (Open with, Change All).
-            'CFBundleDocumentTypes': [
-                {'CFBundleTypeName': 'Word document', 'CFBundleTypeRole': 'Editor', 'LSHandlerRank': 'Alternate',
-                 'LSItemContentTypes': ['org.openxmlformats.wordprocessingml.document']},
-                {'CFBundleTypeName': 'PDF document', 'CFBundleTypeRole': 'Viewer', 'LSHandlerRank': 'Alternate',
-                 'LSItemContentTypes': ['com.adobe.pdf']},
+            # Build 1073: Word and PDF files offer Tabula under Open With (the owner saw only "Carpe Diem" there in
+            # 1072): Tabula's own app, which Carpe Diem makes in ~/Applications/Carpe Diem Rooms, declares them and
+            # hands each file here. Carpe Diem answers the rooms' own apps at carpediem://room/<room>.
+            'CFBundleURLTypes': [
+                {'CFBundleURLName': 'com.yannieforest.carpediem.room', 'CFBundleTypeRole': 'Viewer',
+                 'CFBundleURLSchemes': ['carpediem']},
             ],
 
             # REQUIRED, not optional. macOS terminates an app the instant it

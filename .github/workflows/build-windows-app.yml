@@ -175,6 +175,15 @@ jobs:
             if (-not (Test-Path $rl)) { Write-Error "The Start menu has no shortcut for $r"; exit 1 }
           }
           "Start menu: Carpe Diem and its five rooms."
+          # build 1073: each room's shortcut carries the room's own icon, installed beside the program
+          $sh = New-Object -ComObject WScript.Shell
+          foreach ($r in @(@('Tabula', 'tabula'), @('Abacus', 'abacus'), @('Imago', 'slides'), @('Scriba', 'scriba'), @('Fontes', 'fontes'))) {
+            $icon = $sh.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) "$($r[0]).lnk")).IconLocation
+            "$($r[0]): $icon"
+            if ($icon -notlike "*\rooms\$($r[1]).ico*") { Write-Error "$($r[0])'s shortcut does not carry its own icon."; exit 1 }
+            if (-not (Test-Path "$app\rooms\$($r[1]).ico")) { Write-Error "$($r[1]).ico was not installed."; exit 1 }
+          }
+          "Each room's shortcut carries its own icon."
           $p = Start-Process -FilePath "$app\Carpe Diem.exe" -PassThru
           Start-Sleep -Seconds 25
           $alive = -not $p.HasExited
@@ -204,6 +213,12 @@ jobs:
           if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "room|copy|care|windows" | ForEach-Object { $_.Line } } else { "(no record beside the program)" }
           if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut: opened" -Quiet -ErrorAction SilentlyContinue)) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "Tabula's shortcut did not open its window in the open copy."; exit 1 }
           "Tabula's shortcut opened Tabula's window in the open copy."
+          # build 1073: Tabula's window is Tabula's own on the taskbar: its own button, icon and name
+          $own = $false
+          for ($k = 0; $k -lt 30 -and -not $own; $k++) { Start-Sleep -Seconds 1; $own = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula: a taskbar button of its own" -SimpleMatch -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "taskbar|room window" | ForEach-Object { $_.Line }
+          if (-not $own) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "Tabula's window did not get a taskbar button of its own."; exit 1 }
+          "Tabula's window has a taskbar button of its own, with Tabula's icon."
           # build 1065: a newer build started while an older one is open takes its place, and does not merely bring the
           # older one forward (a portable copy can be started beside an installed one); the build noted as open is made
           # an older one here
@@ -248,6 +263,38 @@ jobs:
           Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.docx|second start" | ForEach-Object { $_.Line }
           if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A Word file opened while Carpe Diem was open did not reach Tabula."; exit 1 }
           "A Word file opened while Carpe Diem was open reached Tabula in the open copy."
+          # build 1073: Open With says Tabula, and Explorer's command opens the file in Tabula's own window
+          $cmd = (Get-ItemProperty 'HKCU:\Software\Classes\CarpeDiem.Tabula\shell\open\command').'(default)'
+          $nm = (Get-ItemProperty 'HKCU:\Software\Classes\CarpeDiem.Tabula\shell\open').FriendlyAppName
+          "Open With: $nm; command: $cmd"
+          if ($nm -ne 'Tabula' -or $cmd -notmatch '--room tabula') { Write-Error "Open With does not name Tabula or open its own window."; exit 1 }
+          $t = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room', 'tabula', ('"' + (Join-Path $F 'chapter.pdf') + '"') -PassThru
+          if (-not $t.WaitForExit(40000)) { Stop-Process -Id $t.Id -Force; Write-Error "Open With's start did not end: two copies would be open."; exit 1 }
+          $ok = $false
+          for ($k = 0; $k -lt 90 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.pdf handed to Tabula \(\d+ bytes\) in its own window" -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.pdf|room tabula" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A PDF opened with Tabula did not reach Tabula's own window."; exit 1 }
+          "A PDF opened with Tabula went to Tabula's own window."
+          if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
+          # build 1073: a room's shortcut while Carpe Diem is closed: Carpe Diem starts, and the room opens in a window of its
+          # own, with its own taskbar button, as soon as Carpe Diem's page has loaded (from 1063 to 1072 it waited two minutes)
+          Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
+          for ($k = 0; $k -lt 30; $k++) { $h = @(Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like '*CarpeDiem*' }); if ($h.Count -eq 0) { break }; Start-Sleep -Seconds 1 }
+          $h | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+          Start-Sleep -Seconds 3
+          Remove-Item "$app\carpe_diem_crash.log", (Join-Path $store "carpe_session.flag"), (Join-Path $store "carpe_room.flag") -ErrorAction SilentlyContinue
+          $t0 = Get-Date
+          $a = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room', 'abacus' -PassThru
+          $ok = $false
+          for ($k = 0; $k -lt 120 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room abacus asked by a shortcut: opened in a window of its own" -SimpleMatch -Quiet -ErrorAction SilentlyContinue) }
+          $secs = [int]((Get-Date) - $t0).TotalSeconds
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "room|taskbar" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "Abacus's shortcut did not open Abacus in its own window when Carpe Diem was closed."; exit 1 }
+          if ($secs -gt 75) { Write-Error "Abacus's shortcut took $secs seconds to open Abacus."; exit 1 }
+          $own = $false
+          for ($k = 0; $k -lt 30 -and -not $own; $k++) { Start-Sleep -Seconds 1; $own = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room abacus: a taskbar button of its own" -SimpleMatch -Quiet -ErrorAction SilentlyContinue) }
+          if (-not $own) { Write-Error "Abacus's window did not get a taskbar button of its own."; exit 1 }
+          "Abacus's shortcut started Carpe Diem and opened Abacus in its own window, with its own taskbar button, after $secs seconds."
           if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
           Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2

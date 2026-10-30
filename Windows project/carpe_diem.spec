@@ -61,7 +61,8 @@ a = Analysis(
     ['carpe_diem_app.py'],
     pathex=[],
     binaries=extra_binaries,
-    datas=[('carpe_diem.html', '.'), ('carpe_diem.ico', '.'), ('carpe_diem.png', '.')] + extra_datas,
+    # build 1073: each room's own icon, for its window and taskbar button
+    datas=[('carpe_diem.html', '.'), ('carpe_diem.ico', '.'), ('carpe_diem.png', '.'), ('rooms/*.ico', 'rooms')] + extra_datas,
     # Named outright because PyInstaller cannot see them: pywebview picks its
     # backend at run time, so nothing in the source imports these by name and
     # the analyser leaves them out. Missing, the exe builds cleanly and then

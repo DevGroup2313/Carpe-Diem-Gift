@@ -177,15 +177,16 @@ jobs:
           kill $B; sleep 3; rm -f "$LOG"
 
       - name: Open a PDF and a Word file with it, as the Finder does
-        # build 1072: Carpe Diem is offered for .docx and .pdf under Open With; a file opened with it goes to Tabula,
-        # when it starts the app (the file arrives in the program's arguments) and when the app is already open (the
-        # Finder's Apple event, heard by the app's delegate). The page reports back how each one went.
+        # build 1072: a file opened with Carpe Diem goes to Tabula, when it starts the app (the file arrives in the
+        # program's arguments) and when the app is already open (the Finder's Apple event, heard by the app's delegate).
+        # The page reports back how each one went. Build 1073: the Finder offers Tabula's own app under Open With (the
+        # next step), which hands the file here.
         run: |
           cd "$PROJ"
           APPDIR="$PWD/dist/Carpe Diem.app"
           LOG="$APPDIR/Contents/MacOS/carpe_diem_crash.log"
           rm -f "$LOG" "$HOME/carpe_diem_crash.log" "$HOME/Library/Application Support/CarpeDiem/carpe_session.flag"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleDocumentTypes" "$APPDIR/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes" "$APPDIR/Contents/Info.plist"
           /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APPDIR" || true
           F="$GITHUB_WORKSPACE/.github/test-files"
           rec() { cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; }
@@ -202,6 +203,59 @@ jobs:
           echo "A Word file opened while Carpe Diem was open reached Tabula."
           if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
           stop; sleep 3; rm -f "$LOG"
+
+      - name: The rooms as apps of their own, Tabula under Open With, and the Dock
+        # build 1073: Carpe Diem makes Tabula, Abacus, Imago, Scriba and Fontes as apps of their own, each with its own
+        # name and icon, in ~/Applications/Carpe Diem Rooms. Tabula's is offered under Open With for Word and PDF files
+        # (Carpe Diem itself no longer is). Each opens its room in a window of its own (carpediem://room/<room>), Carpe
+        # Diem closed or open, and one can be kept in the Dock.
+        run: |
+          cd "$PROJ"
+          APPDIR="$PWD/dist/Carpe Diem.app"
+          EXE="$APPDIR/Contents/MacOS/Carpe Diem"
+          LOG="$APPDIR/Contents/MacOS/carpe_diem_crash.log"
+          ROOMS="$HOME/Applications/Carpe Diem Rooms"
+          F="$GITHUB_WORKSPACE/.github/test-files"
+          STORE="$HOME/Library/Application Support/CarpeDiem"
+          rec() { cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; }
+          stop() { pkill -f "Carpe Diem.app/Contents/MacOS/Carpe Diem" 2>/dev/null || true; }
+          rm -f "$LOG" "$HOME/carpe_diem_crash.log" "$STORE/carpe_session.flag" "$STORE/carpe_room.flag"
+          "$EXE" --make-room-apps
+          for r in Tabula Abacus Imago Scriba Fontes; do
+            if [ ! -d "$ROOMS/$r.app" ]; then echo "::error::Carpe Diem did not make $r.app"; rec | tail -30; exit 1; fi
+            if [ ! -f "$ROOMS/$r.app/Contents/Resources/room.icns" ]; then echo "::error::$r.app has no icon of its own"; exit 1; fi
+            echo "$r.app: $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$ROOMS/$r.app/Contents/Info.plist"), named $(/usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$ROOMS/$r.app/Contents/Info.plist"), icon $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconFile' "$ROOMS/$r.app/Contents/Info.plist"); custom icon: $([ -f "$ROOMS/$r.app/Icon"$'\r' ] && echo yes || echo no)"
+            codesign -dv "$ROOMS/$r.app" 2>&1 | grep -E "^Identifier|^Signature" || true
+          done
+          /usr/libexec/PlistBuddy -c "Print :CFBundleDocumentTypes" "$ROOMS/Tabula.app/Contents/Info.plist"
+          # the Finder's Open With for a Word file and a PDF: Tabula, not Carpe Diem
+          for f in chapter.docx chapter.pdf; do
+            W=$(osascript -l JavaScript -e 'ObjC.import("AppKit"); var u = $.NSWorkspace.sharedWorkspace.URLsForApplicationsToOpenURL($.NSURL.fileURLWithPath("'"$F/$f"'")); var o = []; for (var i = 0; i < u.count; i++) o.push(u.objectAtIndex(i).path.js); o.join("\n")')
+            echo "Open With for $f:"; echo "$W" | sed 's/^/  /'
+            if ! echo "$W" | grep -q "Carpe Diem Rooms/Tabula.app"; then echo "::error::Open With does not offer Tabula for $f"; exit 1; fi
+            if echo "$W" | grep -q "/Carpe Diem.app"; then echo "::error::Open With still offers Carpe Diem itself for $f"; exit 1; fi
+          done
+          # Abacus's own app while Carpe Diem is closed: Carpe Diem starts, and Abacus opens in a window of its own
+          open "$ROOMS/Abacus.app"
+          T=0; until rec | grep -q "room: abacus opened in a window of its own" || [ $T -ge 150 ]; do sleep 3; T=$((T+3)); done
+          rec | grep -E "room" || true
+          if ! rec | grep -q "room: abacus opened in a window of its own"; then echo "::error::Abacus's own app did not open Abacus in a window of its own"; rec | tail -40; stop; exit 1; fi
+          echo "Abacus's own app started Carpe Diem and opened Abacus in a window of its own after $T seconds."
+          # a Word file opened with Tabula while Carpe Diem is open: Tabula opens in a window of its own and takes it
+          open -a "$ROOMS/Tabula.app" "$F/chapter.docx"
+          T=0; until rec | grep -q "file: chapter.docx handed to Tabula .* in its own window" || [ $T -ge 120 ]; do sleep 2; T=$((T+2)); done
+          rec | grep -E "room: tabula|chapter.docx" || true
+          if ! rec | grep -q "file: chapter.docx handed to Tabula .* in its own window"; then echo "::error::a Word file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
+          echo "A Word file opened with Tabula went to Tabula's own window after $T seconds."
+          if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
+          stop; sleep 3
+          # kept in the Dock, once however often it is asked
+          "$EXE" --room-to-dock fontes
+          "$EXE" --room-to-dock fontes
+          n=$(defaults read com.apple.dock persistent-apps | grep -c "Carpe%20Diem%20Rooms/Fontes.app" || true)
+          if [ "$n" != "1" ]; then echo "::error::Fontes is in the Dock $n times, not once"; defaults read com.apple.dock persistent-apps | tail -30; exit 1; fi
+          echo "Fontes's own app is in the Dock, once."
+          rm -f "$LOG" "$STORE/carpe_session.flag" "$STORE/carpe_room.flag"
 
       - name: Keep the screenshots with this run
         if: always()

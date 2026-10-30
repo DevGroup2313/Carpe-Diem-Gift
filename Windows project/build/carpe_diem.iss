@@ -21,7 +21,7 @@
 ; The AppId never changes, so every build installs over the one before and keeps one entry in Settings, Apps.
 
 #ifndef AppVersion
-  #define AppVersion "1072"
+  #define AppVersion "1073"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist_installed\Carpe Diem"
@@ -78,36 +78,44 @@ Type: files; Name: "{localappdata}\CarpeDiem\storage\carpe_room.flag"
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; build 1073: each room's own icon, for its shortcuts, its taskbar button and Open With
+Source: "..\rooms\*.ico"; DestDir: "{app}\rooms"; Flags: ignoreversion
 
 [Icons]
+; build 1073: each room's shortcut carries the room's own icon and its own taskbar identity (the one its window carries),
+; so a pinned room and its open window are one button, with the room's name and icon
 Name: "{userprograms}\Carpe Diem"; Filename: "{app}\Carpe Diem.exe"; WorkingDir: "{app}"; Comment: "Carpe Diem, build {#AppVersion}"; AppUserModelID: "com.yannieforest.carpediem"
 Name: "{userdesktop}\Carpe Diem"; Filename: "{app}\Carpe Diem.exe"; WorkingDir: "{app}"; Comment: "Carpe Diem, build {#AppVersion}"; Tasks: desktopicon; AppUserModelID: "com.yannieforest.carpediem"
-Name: "{userprograms}\Tabula"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room tabula"; WorkingDir: "{app}"; Comment: "Tabula, Carpe Diem's writing room, in a window of its own"
-Name: "{userprograms}\Abacus"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room abacus"; WorkingDir: "{app}"; Comment: "Abacus, Carpe Diem's room for figures, in a window of its own"
-Name: "{userprograms}\Imago"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room slides"; WorkingDir: "{app}"; Comment: "Imago, Carpe Diem's room for presentations, in a window of its own"
-Name: "{userprograms}\Scriba"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room scriba"; WorkingDir: "{app}"; Comment: "Scriba, Carpe Diem's room for recordings, in a window of its own"
-Name: "{userprograms}\Fontes"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room fontes"; WorkingDir: "{app}"; Comment: "Fontes, Carpe Diem's room for sources, in a window of its own"
-Name: "{userdesktop}\Tabula"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room tabula"; WorkingDir: "{app}"; Comment: "Tabula, in Carpe Diem"; Tasks: roomsdesktop
-Name: "{userdesktop}\Abacus"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room abacus"; WorkingDir: "{app}"; Comment: "Abacus, in Carpe Diem"; Tasks: roomsdesktop
-Name: "{userdesktop}\Imago"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room slides"; WorkingDir: "{app}"; Comment: "Imago, in Carpe Diem"; Tasks: roomsdesktop
-Name: "{userdesktop}\Scriba"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room scriba"; WorkingDir: "{app}"; Comment: "Scriba, in Carpe Diem"; Tasks: roomsdesktop
-Name: "{userdesktop}\Fontes"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room fontes"; WorkingDir: "{app}"; Comment: "Fontes, in Carpe Diem"; Tasks: roomsdesktop
+Name: "{userprograms}\Tabula"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room tabula"; WorkingDir: "{app}"; Comment: "Tabula, Carpe Diem's writing room, in a window of its own"; IconFilename: "{app}\rooms\tabula.ico"; AppUserModelID: "com.yannieforest.carpediem.tabula"
+Name: "{userprograms}\Abacus"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room abacus"; WorkingDir: "{app}"; Comment: "Abacus, Carpe Diem's room for figures, in a window of its own"; IconFilename: "{app}\rooms\abacus.ico"; AppUserModelID: "com.yannieforest.carpediem.abacus"
+Name: "{userprograms}\Imago"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room slides"; WorkingDir: "{app}"; Comment: "Imago, Carpe Diem's room for presentations, in a window of its own"; IconFilename: "{app}\rooms\slides.ico"; AppUserModelID: "com.yannieforest.carpediem.slides"
+Name: "{userprograms}\Scriba"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room scriba"; WorkingDir: "{app}"; Comment: "Scriba, Carpe Diem's room for recordings, in a window of its own"; IconFilename: "{app}\rooms\scriba.ico"; AppUserModelID: "com.yannieforest.carpediem.scriba"
+Name: "{userprograms}\Fontes"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room fontes"; WorkingDir: "{app}"; Comment: "Fontes, Carpe Diem's room for sources, in a window of its own"; IconFilename: "{app}\rooms\fontes.ico"; AppUserModelID: "com.yannieforest.carpediem.fontes"
+Name: "{userdesktop}\Tabula"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room tabula"; WorkingDir: "{app}"; Comment: "Tabula, in Carpe Diem"; IconFilename: "{app}\rooms\tabula.ico"; AppUserModelID: "com.yannieforest.carpediem.tabula"; Tasks: roomsdesktop
+Name: "{userdesktop}\Abacus"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room abacus"; WorkingDir: "{app}"; Comment: "Abacus, in Carpe Diem"; IconFilename: "{app}\rooms\abacus.ico"; AppUserModelID: "com.yannieforest.carpediem.abacus"; Tasks: roomsdesktop
+Name: "{userdesktop}\Imago"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room slides"; WorkingDir: "{app}"; Comment: "Imago, in Carpe Diem"; IconFilename: "{app}\rooms\slides.ico"; AppUserModelID: "com.yannieforest.carpediem.slides"; Tasks: roomsdesktop
+Name: "{userdesktop}\Scriba"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room scriba"; WorkingDir: "{app}"; Comment: "Scriba, in Carpe Diem"; IconFilename: "{app}\rooms\scriba.ico"; AppUserModelID: "com.yannieforest.carpediem.scriba"; Tasks: roomsdesktop
+Name: "{userdesktop}\Fontes"; Filename: "{app}\Carpe Diem.exe"; Parameters: "--room fontes"; WorkingDir: "{app}"; Comment: "Fontes, in Carpe Diem"; IconFilename: "{app}\rooms\fontes.ico"; AppUserModelID: "com.yannieforest.carpediem.fontes"; Tasks: roomsdesktop
 
 [Registry]
-; build 1072: Word and PDF files offer "Tabula (Carpe Diem)" under Open With, and open in Tabula. Only Open With: the
-; default program for each stays as it is unless you choose Carpe Diem there ("Always use this app"). For this user
-; only, and taken away on uninstall.
+; build 1072: Word and PDF files offer Tabula under Open With, and open in Tabula. Only Open With: the default program
+; for each stays as it is unless you choose Tabula there ("Always use this app"). For this user only, and taken away on
+; uninstall. Build 1073: under Tabula's own name and icon, and the file opens in Tabula's own window.
 Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula"; ValueType: string; ValueName: ""; ValueData: "Document for Tabula"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Document for Tabula"
-Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\Carpe Diem.exe,0"
-Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula (Carpe Diem)"
-Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\rooms\tabula.ico,0"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\Application"; ValueType: string; ValueName: "ApplicationName"; ValueData: "Tabula"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\Application"; ValueType: string; ValueName: "ApplicationIcon"; ValueData: "{app}\rooms\tabula.ico,0"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\Application"; ValueType: string; ValueName: "ApplicationCompany"; ValueData: "Yannie D. Forest"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula"
+Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" --room tabula ""%1"""
 Root: HKA; Subkey: "Software\Classes\.docx\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula (Carpe Diem)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\rooms\tabula.ico,0"
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".docx"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".pdf"; ValueData: ""
-Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" --room tabula ""%1"""
 
 [Run]
 Filename: "{app}\Carpe Diem.exe"; Description: "Open Carpe Diem now"; Flags: nowait postinstall skipifsilent

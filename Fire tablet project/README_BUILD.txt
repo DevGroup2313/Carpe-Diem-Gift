@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1072, 30 October 2026. The About panel inside the app ends with
-"Build 1072 · 528171072".
-The app's own version is 1072 too; Android usually shows it on the
+Build 1073, 30 October 2026. The About panel inside the app ends with
+"Build 1073 · 528171073".
+The app's own version is 1073 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,12 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1072
+NEW IN BUILD 1073
+  No change on the Fire tablet: build 1073 is for the Mac and Windows apps (the rooms in
+  windows of their own, on the Dock and the taskbar, with their own icons).
+
+
+EARLIER, IN BUILD 1072
   Word and PDF files open in Tabula from the Finder and from Explorer. On the Mac, a .docx
   or .pdf shows Carpe Diem under Open With (and, once chosen in Get Info, opens with it by a
   double click); on Windows the installer adds Tabula (Carpe Diem) to Open With for both.
