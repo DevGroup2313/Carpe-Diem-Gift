@@ -1,4 +1,4 @@
-"""t_backup_host.py PROGRAM.py: build 1074's backups in a Mac or Windows program, run for real in a home of its own.
+"""t_backup_host.py PROGRAM.py: the backups in a Mac or Windows program (since build 1074), run for real in a home of its own.
 
 The places (Documents, and the cloud folders a Mac and a Windows computer have, by their labels, never an address);
 a backup written in pieces, one piece sent twice, one out of turn, one broken and sent again; the name taken only at
@@ -10,6 +10,8 @@ spec = importlib.util.spec_from_file_location("cdprog", sys.argv[1])
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 home = tempfile.mkdtemp()
+# the computer's own variables, given back before the last part, which looks at this very computer as it is (1075)
+SAVED = {k: os.environ.get(k) for k in ("HOME", "USERPROFILE", "OneDriveCommercial", "LOCALAPPDATA")}
 os.environ["HOME"] = home
 os.environ["USERPROFILE"] = home
 m.crash_log_path = lambda: os.path.join(home, "log.txt")
@@ -125,6 +127,11 @@ assert seen[0][:2] == ["open", "-R"] and seen[1][:2] == ["explorer", "/select,"]
 print("log:", open(os.path.join(home, "log.txt")).read().strip().splitlines()[-3:])
 
 # --- this very computer, as it is (no stand-ins): its places, and a backup kept in its own Documents and taken away
+for k, v in SAVED.items():
+    if v is None:
+        os.environ.pop(k, None)
+    else:
+        os.environ[k] = v
 m._bk_documents = real_docs
 print("this computer's places:", [x["label"] for x in m.backup_places()])
 rr = m.backup_begin(None, "documents", "carpe-diem-backup-check-%d.json" % os.getpid())

@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1074, 30 October 2026. The About panel inside the app ends with
-"Build 1074 · 528171074".
-The app's own version is 1074 too; Android usually shows it on the
+Build 1075, 30 October 2026. The About panel inside the app ends with
+"Build 1075 · 528171075".
+The app's own version is 1075 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,19 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1074
+NEW IN BUILD 1075
+  Candidatus's Overview is redesigned, as approved: the next step with its time and size, Begin with the Clepsydra,
+  Break it into smaller steps, Another step and Done; today's energy (Low is the app's own low-energy day, so short steps
+  come first); where you left off, with Resume; Now, Next and Later, Now holding three at most, moved by keys or by
+  dragging; the road to the offer; rings for the Proposal, Applications, Funding and Visa; what was done this week;
+  thoughts parked for later; and five guides at hand, a model email to a potential supervisor among them. Home's
+  Overview has the same makeover: today with its parts of the day, the day's energy with the next task on the Agenda,
+  Ascensus, reading and streak, French, and the proposal with its next step. Cream, light blue, sage and butter cards
+  in Carpe Diem's blue and gold, by day and by night, in English and in French. The backup sheet now names the study in
+  every edition and Tabula's large documents.
+
+
+EARLIER, IN BUILD 1074
   The loading page is the Forge's and Ingenium's own: Carpe Diem's seal in a ring that turns, its name, how much of
   the page is painted, and Refresh and Keep waiting when it is slow, in Carpe Diem's blue and gold, by day and by night.
   Backups: Back up now keeps all your work (the study, Tabula's documents, Abacus, Imago, Scriba's notes and recordings,
