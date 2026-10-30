@@ -7,10 +7,22 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1068, 30 October 2026.** The About panel in the app ends with
-"Build 1068 · 528171068".
+**Build 1069, 30 October 2026.** The About panel in the app ends with
+"Build 1069 · 528171069".
 
-## New in build 1068
+## New in build 1069
+
+Tabula opens Word documents whole, by either key. The Word key on the Home ribbon used an
+older reader that left out tables, images and footnotes; it now uses the same full reader
+as File, Open, and asks before replacing the page only when the page holds writing. A
+footnote's number no longer comes in as a superscript inside a superscript (too small, too
+high, and pushing its line apart), and lists whose bullets or numbers come from Word's
+List Bullet or List Number styles now arrive as lists. Save .docx offers the document's
+own name. Tested with a 100,000-word dissertation with 310 footnotes in the Chicago
+manner: it opens in about two seconds, a footnote added near the start renumbers all the
+others, and it saves back to Word with every note in place.
+
+## Earlier, in build 1068
 
 Abacus types as Excel does. One click on a cell (or the Name Box) chooses it, and typing
 replaces what it holds; until now the text went in beside what was there ("Item" and

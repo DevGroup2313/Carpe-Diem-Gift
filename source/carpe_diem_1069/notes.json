@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1069",
+ "stamp": "528171069",
+ "prev": "1068",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103006",
+ "en": "Tabula opens Word documents whole, by either key. The Word key on the Home ribbon used an\nolder reader that left out tables, images and footnotes; it now uses the same full reader\nas File, Open, and asks before replacing the page only when the page holds writing. A\nfootnote's number no longer comes in as a superscript inside a superscript (too small, too\nhigh, and pushing its line apart), and lists whose bullets or numbers come from Word's\nList Bullet or List Number styles now arrive as lists. Save .docx offers the document's\nown name. Tested with a 100,000-word dissertation with 310 footnotes in the Chicago\nmanner: it opens in about two seconds, a footnote added near the start renumbers all the\nothers, and it saves back to Word with every note in place.",
+ "web": "Tabula opens Word documents whole by either key: tables, footnotes (with numbers drawn properly) and lists made with Word's list styles all arrive. Tested with a 100,000-word dissertation with 310 footnotes.",
+ "ios": "Tabula opens Word documents whole by either key: tables, footnotes and lists\nmade with Word's list styles all arrive. Tested with a 100,000-word dissertation\nwith 310 footnotes."
+}
