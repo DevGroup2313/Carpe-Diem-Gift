@@ -1,0 +1,96 @@
+<style id="cd-eval-css">
+.cd-eval-mark{position:fixed;left:12px;bottom:10px;z-index:2147482000;max-width:min(72vw,560px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;
+  font:600 11px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.01em;color:#173f57;background:rgba(255,253,247,.94);
+  border:1px solid rgba(169,128,58,.45);border-radius:999px;padding:5px 11px;box-shadow:0 1px 0 rgba(16,42,58,.08)}
+.cd-eval-mark:focus-visible{outline:2px solid #1B6B93;outline-offset:2px}
+body[data-theme="night"] .cd-eval-mark{background:rgba(27,32,39,.94);color:#e8eef4;border-color:rgba(201,162,74,.4)}
+.cd-eval-wrap{position:fixed;inset:0;z-index:2147483300;background:rgba(16,30,40,.42);display:flex;align-items:center;justify-content:center;padding:18px}
+.cd-eval-wrap.cd-eval-ended{background:#f6f1e6}
+.cd-eval-card{width:min(580px,94vw);max-height:90vh;overflow:auto;box-sizing:border-box;background:#fffdf7;color:#1d2a35;border:1px solid rgba(169,128,58,.45);border-radius:16px;
+  padding:22px 24px;box-shadow:0 3px 0 rgba(16,42,58,.12),0 18px 44px rgba(16,42,58,.22);font:400 13.5px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.cd-eval-card h2{margin:0 0 4px;font:600 20px/1.25 Georgia,"Times New Roman",serif;color:#173f57}
+.cd-eval-card .cd-eval-sub{margin:0 0 12px;color:rgba(23,63,87,.8)}
+.cd-eval-card ul{margin:8px 0 12px;padding-left:20px}
+.cd-eval-card li{margin:3px 0}
+.cd-eval-card .cd-eval-small{font-size:12px;color:rgba(29,42,53,.72);margin:10px 0 0}
+.cd-eval-card .cd-eval-keys{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.cd-eval-card button{font:600 13.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;padding:10px 18px;border-radius:999px;cursor:pointer;border:1px solid #1B6B93;background:#1B6B93;color:#fff;box-shadow:0 2px 0 #124c69}
+.cd-eval-card button:focus-visible{outline:2px solid #1B6B93;outline-offset:2px}
+body[data-theme="night"] .cd-eval-card{background:#1b2027;color:#e8eef4;border-color:rgba(201,162,74,.4)}
+body[data-theme="night"] .cd-eval-card h2{color:#e8eef4}
+body[data-theme="night"] .cd-eval-card .cd-eval-sub,body[data-theme="night"] .cd-eval-card .cd-eval-small{color:rgba(232,238,244,.75)}
+</style>
+<script id="cd-eval">
+(function () {
+  'use strict';
+  var E = /*CD_EVAL*/{};
+  window.CD_EVAL = { kind: E.kind, copy: E.copy };
+  try { document.documentElement.setAttribute('data-cd-copy', E.copy || ''); } catch (e) {}
+  function fr() {
+    try { if (typeof state !== 'undefined' && state && state.lang) return state.lang === 'fr'; } catch (e) {}
+    try { var st = JSON.parse(localStorage.getItem('carpe_diem_offline_v1') || 'null'); if (st && st.lang) return st.lang === 'fr'; } catch (e) {}
+    return /^fr\b/i.test(navigator.language || '');
+  }
+  function T(en, f) { return fr() ? f : en; }
+  function esc(t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function day(iso) {
+    try { return new Date(iso + 'T12:00:00').toLocaleDateString(fr() ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return iso; }
+  }
+  var committee = E.kind === 'committee';
+  var ended = !!(E.until && Date.now() > new Date(E.until + 'T23:59:59').getTime());
+  var OK = 'cd_eval_terms_' + (E.copy || 'sample');
+
+  function terms(first) {
+    var old = document.getElementById('cd-eval-terms'); if (old) old.remove();
+    var w = document.createElement('div'); w.id = 'cd-eval-terms'; w.className = 'cd-eval-wrap' + (ended ? ' cd-eval-ended' : '');
+    w.setAttribute('role', 'dialog'); w.setAttribute('aria-modal', 'true'); w.setAttribute('aria-labelledby', 'cd-eval-t');
+    var lent = committee ? (E['for'] ? T('Lent to ', 'Prêtée à ') + '<b>' + esc(E['for']) + '</b>' : T('Lent to a committee', 'Prêtée à un comité')) + T(' for evaluation', ' pour évaluation') : T('A public sample of Carpe Diem', 'Un échantillon public de Carpe Diem');
+    var html = '<div class="cd-eval-card"><h2 id="cd-eval-t">' + (ended ? T('This evaluation copy has ended', 'Cette copie d’évaluation a pris fin') : committee ? T('An evaluation copy of Carpe Diem', 'Une copie d’évaluation de Carpe Diem') : T('Carpe Diem, public sample', 'Carpe Diem, échantillon public')) + '</h2>'
+      + '<p class="cd-eval-sub">' + lent + (E.copy && committee ? ' · ' + esc(E.copy) : '') + '</p>';
+    if (ended) {
+      html += '<p>' + T('Its permission ended on ', 'Son autorisation a pris fin le ') + esc(day(E.until)) + T('. To ask for further access, please write to the author.', '. Pour demander un nouvel accès, veuillez écrire à l’auteur.') + '</p>';
+    } else {
+      html += '<p>' + T('Carpe Diem is the sole original work of Yannie D. Forest, who holds every right to it. © 2026 Yannie D. Forest. All rights reserved.',
+        'Carpe Diem est l’œuvre originale de Yannie D. Forest, seul titulaire de tous les droits. © 2026 Yannie D. Forest. Tous droits réservés.') + '</p>'
+        + '<p>' + (committee ? T('This copy may be opened and tried by the panel it is lent to, for one purpose: to assess Carpe Diem. No other licence is granted.',
+          'Cette copie peut être ouverte et essayée par le comité auquel elle est prêtée, dans un seul but : évaluer Carpe Diem. Aucune autre licence n’est accordée.')
+          : T('This sample may be tried here, for one purpose: to see what Carpe Diem does. No other licence is granted.', 'Cet échantillon peut être essayé ici, dans un seul but : voir ce que fait Carpe Diem. Aucune autre licence n’est accordée.')) + '</p>'
+        + '<ul><li>' + T('Do not copy, share, publish or pass on this copy, or any part of it.', 'Ne copiez, ne partagez, ne publiez ni ne transmettez cette copie, ni aucune de ses parties.') + '</li>'
+        + '<li>' + T('Do not change it, take it apart, study its code to reuse it, or use it to make any other work.', 'Ne la modifiez pas, ne la démontez pas, n’étudiez pas son code pour le réutiliser, et ne vous en servez pas pour créer une autre œuvre.') + '</li>'
+        + '<li>' + T('The permission ends whenever the author says so', 'L’autorisation prend fin dès que l’auteur le dit') + (E.until ? T(', and in any case on ', ', et en tout cas le ') + esc(day(E.until)) : '') + '.</li></ul>'
+        + '<p class="cd-eval-small">' + T('Whatever you write here stays on this device; nothing is sent anywhere. Copies are marked, so each can be traced to the one it was lent to.',
+          'Ce que vous écrivez ici reste sur cet appareil ; rien n’est envoyé nulle part. Les copies sont marquées, si bien que chacune peut être rattachée à qui elle a été prêtée.') + '</p>';
+    }
+    html += ended ? '</div>' : '<div class="cd-eval-keys"><button type="button">' + (first ? T('I understand', 'Je comprends') : T('Close', 'Fermer')) + '</button></div></div>';
+    w.innerHTML = html;
+    (document.body || document.documentElement).appendChild(w);
+    var b = w.querySelector('button');
+    if (b) {
+      b.onclick = function () { if (first) { try { localStorage.setItem(OK, String(Date.now())); } catch (e) {} } w.remove(); };
+      try { b.focus(); } catch (e) {}
+    }
+  }
+  function mark() {
+    if (document.getElementById('cd-eval-mark')) return;
+    var m = document.createElement('div'); m.id = 'cd-eval-mark'; m.className = 'cd-eval-mark';
+    m.setAttribute('role', 'button'); m.setAttribute('tabindex', '0');
+    function text() {
+      return committee ? T('Evaluation copy', 'Copie d’évaluation') + (E['for'] ? T(' · for ', ' · pour ') + E['for'] : '') + (E.copy ? ' · ' + E.copy : '')
+        : T('Public sample · © 2026 Yannie D. Forest · All rights reserved', 'Échantillon public · © 2026 Yannie D. Forest · Tous droits réservés');
+    }
+    m.textContent = text();
+    m.title = T('The terms of this copy', 'Les conditions de cette copie');
+    m.onclick = function () { terms(false); };
+    m.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); terms(false); } };
+    document.body.appendChild(m);
+    setInterval(function () { var t = text(); if (m.textContent !== t) m.textContent = t; if (!m.isConnected) document.body.appendChild(m); }, 4000);
+  }
+  function start() {
+    mark();
+    if (ended) { terms(false); return; }
+    var seen = null; try { seen = localStorage.getItem(OK); } catch (e) {}
+    if (committee && !seen) terms(true);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>

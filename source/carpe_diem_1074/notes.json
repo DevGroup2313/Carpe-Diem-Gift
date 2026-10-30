@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1074",
+ "stamp": "528171074",
+ "prev": "1073",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103011",
+ "en": "The loading page is the Forge's and Ingenium's own: Carpe Diem's seal in a ring that turns, its name, how much of\nthe page is painted, and Refresh and Keep waiting when it is slow, in Carpe Diem's blue and gold, by day and by night.\nBackups: Back up now keeps all your work (the study, Tabula's documents, Abacus, Imago, Scriba's notes and recordings,\nFontes, the Forge's files) in one compressed file, sealed with a passphrase if you wish (AES-256); the app writes it in\nDocuments, Carpe Diem, Backups or in a cloud folder it finds (iCloud Drive, OneDrive, Google Drive, Dropbox, Box,\nalways sealed there), in pieces, each tried three times, with the progress shown. Every day... keeps one backup a day,\nthe last ten. Restore keeps a copy of your work first, then Merge or Replace. A failure says why, with Try again, Save\nanother way and Reload Carpe Diem. The mini Forge now speaks Carpe Diem's language itself, so in French its menus and\nkeys no longer flicker between English and French; its app menu offers Another app beside Carpe Diem. The notes' menu\nand keys are in French in French mode, in a room's own window too.",
+ "web": "The loading page is the Forge's and Ingenium's own, Carpe Diem's seal in a turning ring; backups are compressed, sealed with a passphrase if you wish, with their progress shown and Restore keeping a copy of your work first; the mini Forge in French no longer flickers and offers Another app; the notes' menu is in French.",
+ "ios": "The loading page is the Forge's and Ingenium's own: Carpe Diem's seal in a turning ring, in Carpe Diem's colours.\nBackups are compressed and can be sealed with a passphrase (AES-256), with their progress shown; Restore keeps a copy\nof your work first. The mini Forge in French no longer flickers between English and French, and offers Another app.\nThe notes' menu and keys are in French in French mode."
+}

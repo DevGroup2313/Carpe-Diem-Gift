@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1073, 30 October 2026.** The About panel in the app ends with
-"Build 1073 · 528171073". Finder's Get Info on the app shows
-version 1073.
+**Build 1074, 30 October 2026.** The About panel in the app ends with
+"Build 1074 · 528171074". Finder's Get Info on the app shows
+version 1074.
 
-## New in build 1073
+## New in build 1074
+
+The loading page is the Forge's and Ingenium's own: Carpe Diem's seal in a ring that turns, its name, how much of
+the page is painted, and Refresh and Keep waiting when it is slow, in Carpe Diem's blue and gold, by day and by night.
+Backups: Back up now keeps all your work (the study, Tabula's documents, Abacus, Imago, Scriba's notes and recordings,
+Fontes, the Forge's files) in one compressed file, sealed with a passphrase if you wish (AES-256); the app writes it in
+Documents, Carpe Diem, Backups or in a cloud folder it finds (iCloud Drive, OneDrive, Google Drive, Dropbox, Box,
+always sealed there), in pieces, each tried three times, with the progress shown. Every day... keeps one backup a day,
+the last ten. Restore keeps a copy of your work first, then Merge or Replace. A failure says why, with Try again, Save
+another way and Reload Carpe Diem. The mini Forge now speaks Carpe Diem's language itself, so in French its menus and
+keys no longer flicker between English and French; its app menu offers Another app beside Carpe Diem. The notes' menu
+and keys are in French in French mode, in a room's own window too.
+
+## Earlier, in build 1073
 
 Rooms in windows of their own, as asked. In a room's floating window, the window key now offers
 Side by side with Carpe Diem (the room in a window of its own beside Carpe Diem's: on the Mac as a

@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1073, 30 October 2026. The About panel inside the app ends with
-"Build 1073 · 528171073".
-The app's own version is 1073 too; Android usually shows it on the
+Build 1074, 30 October 2026. The About panel inside the app ends with
+"Build 1074 · 528171074".
+The app's own version is 1074 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,20 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1073
+NEW IN BUILD 1074
+  The loading page is the Forge's and Ingenium's own: Carpe Diem's seal in a ring that turns, its name, how much of
+  the page is painted, and Refresh and Keep waiting when it is slow, in Carpe Diem's blue and gold, by day and by night.
+  Backups: Back up now keeps all your work (the study, Tabula's documents, Abacus, Imago, Scriba's notes and recordings,
+  Fontes, the Forge's files) in one compressed file, sealed with a passphrase if you wish (AES-256); the app writes it in
+  Documents, Carpe Diem, Backups or in a cloud folder it finds (iCloud Drive, OneDrive, Google Drive, Dropbox, Box,
+  always sealed there), in pieces, each tried three times, with the progress shown. Every day... keeps one backup a day,
+  the last ten. Restore keeps a copy of your work first, then Merge or Replace. A failure says why, with Try again, Save
+  another way and Reload Carpe Diem. The mini Forge now speaks Carpe Diem's language itself, so in French its menus and
+  keys no longer flicker between English and French; its app menu offers Another app beside Carpe Diem. The notes' menu
+  and keys are in French in French mode, in a room's own window too.
+
+
+EARLIER, IN BUILD 1073
   No change on the Fire tablet: build 1073 is for the Mac and Windows apps (the rooms in
   windows of their own, on the Dock and the taskbar, with their own icons).
 

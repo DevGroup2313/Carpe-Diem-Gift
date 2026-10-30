@@ -1,0 +1,317 @@
+# ===========================================================================================================
+# Build 1074: backups, kept in pieces.
+# The page's Backup sheet gathers the work, compresses it, seals it when asked (AES-256, from a passphrase that never
+# leaves the page) and hands it here in pieces of 768 KB, each tried three times. A backup is written under a hidden
+# name and given its own name only when its last piece is on the disk, so one that stops part way leaves nothing that
+# looks like a backup. The places are Documents > Carpe Diem > Backups and each cloud folder found on this computer;
+# the page is given a label for each, never a path (a cloud folder's path can carry the account's address).
+# ===========================================================================================================
+_BK = {"lock": None, "open": {}, "done": {}, "name": None}
+
+
+def _bk_init():
+    import re, threading
+    if _BK["lock"] is None:
+        _BK["lock"] = threading.Lock()
+        _BK["name"] = re.compile(r"^carpe-diem-[A-Za-z0-9-]+(\.cdbackup|\.json\.gz|\.json)$")
+
+
+def _bk_documents():
+    """The person's Documents folder (on Windows the one the system names, which OneDrive may have moved)."""
+    import os
+    if sys.platform.startswith("win"):
+        try:
+            import ctypes
+            buf = ctypes.create_unicode_buffer(1024)
+            if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf) == 0 and buf.value:
+                return buf.value
+        except Exception:
+            pass
+    return os.path.join(os.path.expanduser("~"), "Documents")
+
+
+def _bk_clouds():
+    """Each cloud folder found on this computer, as (label, folder); two of a kind are told apart by a number."""
+    import json, os
+    home = os.path.expanduser("~")
+    found = []
+
+    def add(label, path):
+        try:
+            if path and os.path.isdir(path):
+                real = os.path.realpath(path)
+                if all(os.path.realpath(p) != real for _, p in found):
+                    found.append((label, path))
+        except Exception:
+            pass
+    if sys.platform == "darwin":
+        add("iCloud Drive", os.path.join(home, "Library", "Mobile Documents", "com~apple~CloudDocs"))
+        cs = os.path.join(home, "Library", "CloudStorage")
+        try:
+            names = sorted(os.listdir(cs)) if os.path.isdir(cs) else []
+        except Exception:
+            names = []
+        for n in names:
+            p = os.path.join(cs, n)
+            if n.startswith("OneDrive"):
+                org = n[len("OneDrive"):].lstrip("-").strip()
+                add("OneDrive" + ("" if org in ("", "Personal") else " (" + org + ")"), p)
+            elif n.startswith("GoogleDrive"):
+                md = os.path.join(p, "My Drive")
+                add("Google Drive", md if os.path.isdir(md) else p)
+            elif n.startswith("Dropbox"):
+                add("Dropbox", p)
+            elif n.startswith("Box"):
+                add("Box", p)
+        add("Dropbox", os.path.join(home, "Dropbox"))
+    elif sys.platform.startswith("win"):
+        for var in ("OneDriveConsumer", "OneDriveCommercial", "OneDrive"):
+            v = os.environ.get(var)
+            if v:
+                base = os.path.basename(v.rstrip("\\/"))
+                org = base[len("OneDrive"):].lstrip(" -").strip() if base.startswith("OneDrive") else ""
+                add("OneDrive" + (" (" + org + ")" if org and org != "Personal" else ""), v)
+        add("iCloud Drive", os.path.join(home, "iCloudDrive"))
+        for d in "GHIJK":
+            if os.path.isdir(d + ":\\My Drive"):
+                add("Google Drive", d + ":\\My Drive")
+                break
+        add("Google Drive", os.path.join(home, "Google Drive"))
+        for f in (os.path.join(os.environ.get("LOCALAPPDATA", ""), "Dropbox", "info.json"),
+                  os.path.join(os.environ.get("APPDATA", ""), "Dropbox", "info.json")):
+            try:
+                with open(f, encoding="utf-8") as fh:
+                    info = json.load(fh)
+                for k in ("personal", "business"):
+                    if (info.get(k) or {}).get("path"):
+                        add("Dropbox", info[k]["path"])
+            except Exception:
+                pass
+        add("Dropbox", os.path.join(home, "Dropbox"))
+        add("Box", os.path.join(home, "Box"))
+    seen, out = {}, []
+    for label, path in found:
+        seen[label] = seen.get(label, 0) + 1
+        out.append((label if seen[label] == 1 else "%s %d" % (label, seen[label]), path))
+    return out
+
+
+def _bk_places():
+    import os
+    out = [{"id": "documents", "label": "Documents › Carpe Diem › Backups", "cloud": False,
+            "dir": os.path.join(_bk_documents(), "Carpe Diem", "Backups")}]
+    for label, path in _bk_clouds():
+        out.append({"id": "cloud:" + label, "label": label + " › Carpe Diem Backups", "cloud": True,
+                    "dir": os.path.join(path, "Carpe Diem Backups")})
+    return out
+
+
+def backup_places():
+    """The places offered to the page: an id and a label each, never a path."""
+    try:
+        return [{"id": p["id"], "label": p["label"], "cloud": p["cloud"]} for p in _bk_places()]
+    except Exception:
+        log_note("backup: the places could not be listed")
+        return [{"id": "documents", "label": "Documents › Carpe Diem › Backups", "cloud": False}]
+
+
+def _bk_unique(path):
+    import os
+    if not os.path.exists(path):
+        return path
+    folder, name = os.path.split(path)
+    for ext in (".json.gz", ".cdbackup", ".json"):
+        if name.endswith(ext):
+            stem = name[:-len(ext)]
+            break
+    else:
+        stem, ext = os.path.splitext(name)
+    for n in range(2, 1000):
+        p = os.path.join(folder, "%s-%d%s" % (stem, n, ext))
+        if not os.path.exists(p):
+            return p
+    return path
+
+
+def _bk_sweep(folder):
+    """Hidden pieces of a backup that stopped more than a day ago are taken away."""
+    import os, time
+    try:
+        for n in os.listdir(folder):
+            if n.startswith(".carpe-diem-") and n.endswith(".partial"):
+                p = os.path.join(folder, n)
+                if time.time() - os.path.getmtime(p) > 86400:
+                    os.remove(p)
+    except Exception:
+        pass
+
+
+def backup_begin(win, place, name):
+    """A backup begins: its place ("ask" is a save dialog), its name (carpe-diem-...); a key for its pieces."""
+    import os, secrets
+    _bk_init()
+    name = str(name or "")
+    if not _BK["name"].match(name):
+        return {"error": "That is not a backup's name."}
+    if place == "ask":
+        try:
+            import webview
+            w = win
+            if w is None:
+                ws = [x for x in (getattr(webview, "windows", None) or []) if x is not None]
+                w = ws[0] if ws else None
+            if w is None:
+                return {"error": "No window to ask where."}
+            start = os.path.join(_bk_documents(), "Carpe Diem", "Backups")
+            try:
+                os.makedirs(start, exist_ok=True)
+            except Exception:
+                start = _bk_documents()
+            res = w.create_file_dialog(webview.SAVE_DIALOG, directory=start, save_filename=name)
+            if not res:
+                return {"cancelled": True}
+            final = res if isinstance(res, str) else res[0]
+        except Exception:
+            log_note("backup: the save dialog could not be shown")
+            return {"error": "The save dialog could not be shown."}
+    else:
+        p = [x for x in _bk_places() if x["id"] == place]
+        if not p:
+            return {"error": "That place is not on this computer now."}
+        try:
+            os.makedirs(p[0]["dir"], exist_ok=True)
+        except Exception:
+            log_note("backup: the folder for %s could not be made" % p[0]["label"])
+            return {"error": "The folder could not be made in " + p[0]["label"] + "."}
+        final = _bk_unique(os.path.join(p[0]["dir"], name))
+    folder = os.path.dirname(final)
+    tmp = os.path.join(folder, "." + os.path.basename(final) + ".partial")
+    try:
+        fh = open(tmp, "wb")
+    except Exception:
+        log_note("backup: could not write in the chosen folder")
+        return {"error": "Carpe Diem cannot write in that folder."}
+    import threading
+    key = secrets.token_hex(12)
+    with _BK["lock"]:
+        _BK["open"][key] = {"final": final, "tmp": tmp, "fh": fh, "next": 0, "pos": 0, "lock": threading.Lock()}
+    _bk_sweep(folder)
+    return {"key": key}
+
+
+def backup_part(key, i, data_b64):
+    """One piece, in its turn. A piece asked again after it arrived (its answer was lost) is taken as done; a piece
+    that failed part way is written again from where the last good one ended."""
+    import base64
+    _bk_init()
+    with _BK["lock"]:
+        rec = _BK["open"].get(key)
+    if not rec:
+        return False
+    try:
+        i = int(i)
+    except Exception:
+        return False
+    with rec["lock"]:
+        if i < rec["next"]:
+            return True
+        if i != rec["next"]:
+            return False
+        try:
+            raw = base64.b64decode(data_b64 or "", validate=True)
+            fh = rec["fh"]
+            fh.seek(rec["pos"])
+            fh.truncate()
+            fh.write(raw)
+            fh.flush()
+            rec["pos"] += len(raw)
+            rec["next"] += 1
+            return True
+        except Exception:
+            log_note("backup: piece %d was not written" % i)
+            return False
+
+
+def backup_end(key, keep=0, prefix=""):
+    """The last piece is on the disk: the backup takes its name. Daily ones beyond the number kept go."""
+    import os, secrets
+    _bk_init()
+    with _BK["lock"]:
+        rec = _BK["open"].pop(key, None)
+    if not rec:
+        return {"ok": False, "error": "That backup was not begun."}
+    fh = rec["fh"]
+    try:
+        fh.flush()
+        os.fsync(fh.fileno())
+        fh.close()
+        os.replace(rec["tmp"], rec["final"])
+    except Exception:
+        try:
+            fh.close()
+        except Exception:
+            pass
+        try:
+            os.remove(rec["tmp"])
+        except Exception:
+            pass
+        log_note("backup: could not be finished on the disk")
+        return {"ok": False, "error": "The backup could not be finished on the disk."}
+    try:
+        keep = int(keep or 0)
+    except Exception:
+        keep = 0
+    if keep > 0 and str(prefix or "").startswith("carpe-diem-auto-"):
+        try:
+            folder = os.path.dirname(rec["final"])
+            mine = sorted(n for n in os.listdir(folder) if n.startswith(prefix) and _BK["name"].match(n))
+            for n in mine[:-keep]:
+                os.remove(os.path.join(folder, n))
+        except Exception:
+            log_note("backup: older daily backups could not be cleared")
+    token = secrets.token_hex(12)
+    with _BK["lock"]:
+        _BK["done"][token] = rec["final"]
+    log_note("backup: kept, %d bytes" % rec["pos"])
+    return {"ok": True, "token": token, "name": os.path.basename(rec["final"]), "size": rec["pos"]}
+
+
+def backup_abort(key):
+    import os
+    _bk_init()
+    with _BK["lock"]:
+        rec = _BK["open"].pop(key, None)
+    if not rec:
+        return False
+    try:
+        rec["fh"].close()
+    except Exception:
+        pass
+    try:
+        os.remove(rec["tmp"])
+    except Exception:
+        pass
+    return True
+
+
+def backup_reveal(token):
+    """Show a backup just kept, selected, in the Finder or in File Explorer."""
+    import os, subprocess
+    _bk_init()
+    with _BK["lock"]:
+        path = _BK["done"].get(token)
+    if not path or not os.path.exists(path):
+        return False
+    try:
+        if sys.platform == "darwin":
+            subprocess.Popen(["open", "-R", path])
+        elif sys.platform.startswith("win"):
+            subprocess.Popen(["explorer", "/select,", os.path.normpath(path)])
+        else:
+            subprocess.Popen(["xdg-open", os.path.dirname(path)])
+        return True
+    except Exception:
+        log_note("backup: could not be shown")
+        return False
+
+

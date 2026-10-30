@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Carpe Diem</title>
+<style>
+:root{--bg:#f6f1e6;--card:#fffdf7;--ink:#173f57;--soft:rgba(23,63,87,.72);--accent:#1B6B93;--rim:rgba(169,128,58,.45);--bad:#9a3b2e}
+@media (prefers-color-scheme:dark){:root{--bg:#111820;--card:#1b2027;--ink:#e8eef4;--soft:rgba(232,238,244,.72);--rim:rgba(201,162,74,.4);--bad:#e59a8b}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+main{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.card{width:min(440px,100%);background:var(--card);border:1px solid var(--rim);border-radius:20px;padding:30px 28px 22px;text-align:center;
+  box-shadow:0 3px 0 rgba(16,42,58,.1),0 22px 50px rgba(16,42,58,.18)}
+.seal{width:120px;height:120px;border-radius:50%;display:block;margin:0 auto 10px;filter:drop-shadow(0 6px 10px rgba(16,42,58,.22))}
+h1{margin:0;font:600 34px/1.1 Georgia,"Times New Roman",serif;letter-spacing:.01em}
+.date{margin:6px 0 0;font:600 11px/1 Georgia,serif;letter-spacing:.32em;color:#a9803a}
+.sub{margin:14px 0 18px;color:var(--soft);font-style:italic;font-family:Georgia,serif}
+label{display:block;text-align:left;font-weight:600;font-size:13px;margin:0 0 6px}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--rim);background:transparent;color:var(--ink);font:600 17px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.hint{margin:6px 0 0;text-align:left;font-size:12.5px;color:var(--soft)}
+button{margin-top:16px;width:100%;padding:12px 18px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:600 15px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;cursor:pointer;box-shadow:0 2px 0 #124c69}
+button:disabled{opacity:.6;cursor:default}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.say{min-height:1.5em;margin:12px 0 0;font-size:13.5px}
+.say.bad{color:var(--bad)}
+.foot{margin:18px 0 0;font-size:11.5px;line-height:1.5;color:var(--soft)}
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <img class="seal" alt="" src="data:image/png;base64,%SEAL%">
+    <h1>Carpe Diem</h1>
+    <p class="date">XVI·AVGVSTI·MMXXVI</p>
+    <p class="sub" id="sub"></p>
+    <form id="form" autocomplete="off">
+      <label for="code" id="lab"></label>
+      <input id="code" name="code" spellcheck="false" autocapitalize="characters" autocomplete="off" inputmode="text">
+      <p class="hint" id="hint"></p>
+      <button type="submit" id="go"></button>
+    </form>
+    <p class="say" id="say" role="status" aria-live="polite"></p>
+    <p class="foot" id="foot"></p>
+  </div>
+</main>
+<script type="application/octet-stream" id="cd-lock-data">%PAYLOAD%</script>
+<script>
+(function () {
+  'use strict';
+  var fr = /^fr\b/i.test(navigator.language || '');
+  function T(en, f) { return fr ? f : en; }
+  var WHO = %WHO_JS%, COPY = %COPY_JS%, UNTIL = %UNTIL_JS%, KEEP = 'cd_lock_' + COPY;
+  function $(id) { return document.getElementById(id); }
+  function norm(c) { return String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function day(iso) { try { return new Date(iso + 'T12:00:00').toLocaleDateString(fr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return iso; } }
+  document.documentElement.lang = fr ? 'fr' : 'en';
+  $('sub').textContent = WHO ? T('A demonstration lent for evaluation to ', 'Une démonstration prêtée pour évaluation à ') + WHO : T('A demonstration lent for evaluation', 'Une démonstration prêtée pour évaluation');
+  $('lab').textContent = T('Access code', 'Code d’accès');
+  $('hint').textContent = T('You were given it with this copy.', 'Il vous a été remis avec cette copie.');
+  $('go').textContent = T('Open', 'Ouvrir');
+  $('foot').textContent = T('© 2026 Yannie D. Forest. All rights reserved. Lent for evaluation only: not to be copied, changed or passed on. Copy ', '© 2026 Yannie D. Forest. Tous droits réservés. Prêtée pour évaluation seulement : ni copie, ni modification, ni transmission. Copie ') + COPY + '.';
+  function say(t, bad) { var s = $('say'); s.textContent = t || ''; s.className = 'say' + (bad ? ' bad' : ''); }
+  function data() { var b = atob($('cd-lock-data').textContent.replace(/\s+/g, '')), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  function open(code) {
+    if (!(window.crypto && crypto.subtle && typeof TextEncoder === 'function')) return Promise.reject(new Error('old'));
+    if (typeof DecompressionStream !== 'function') return Promise.reject(new Error('old'));
+    var u = data(), head = u.slice(0, 37), iter = u[5] * 16777216 + (u[6] << 16) + (u[7] << 8) + u[8];
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(norm(code)), 'PBKDF2', false, ['deriveKey']).then(function (k) {
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: u.slice(9, 25), iterations: iter, hash: 'SHA-256' }, k, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    }).then(function (key) {
+      return crypto.subtle.decrypt({ name: 'AES-GCM', iv: u.slice(25, 37), additionalData: head }, key, u.subarray(37)).then(null, function () { var e = new Error('code'); e.code = 'code'; throw e; });
+    }).then(function (pt) {
+      return new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    });
+  }
+  function show(html, code) {
+    try { localStorage.setItem(KEEP, norm(code)); } catch (e) {}
+    document.open(); document.write(html); document.close();
+  }
+  function busy(on) { $('go').disabled = !!on; $('code').disabled = !!on; if (on) say(T('Opening… a few seconds.', 'Ouverture… quelques secondes.')); }
+  function failed(e) {
+    busy(false);
+    if (e && e.code === 'code') { say(T('That code does not open this copy.', 'Ce code n’ouvre pas cette copie.'), true); try { $('code').select(); } catch (x) {} return; }
+    if (e && e.message === 'old') { say(T('Please open this file in a current browser: Chrome, Edge, Firefox or Safari.', 'Veuillez ouvrir ce fichier dans un navigateur récent : Chrome, Edge, Firefox ou Safari.'), true); return; }
+    say(T('It could not be opened here: ', 'Elle n’a pas pu s’ouvrir ici : ') + ((e && e.message) || e), true);
+  }
+  if (UNTIL && Date.now() > new Date(UNTIL + 'T23:59:59').getTime()) {
+    $('form').hidden = true;
+    say(T('This evaluation copy ended on ', 'Cette copie d’évaluation a pris fin le ') + day(UNTIL) + T('. To ask for further access, please write to the author.', '. Pour demander un nouvel accès, veuillez écrire à l’auteur.'), true);
+    return;
+  }
+  $('form').onsubmit = function (ev) {
+    ev.preventDefault();
+    var code = $('code').value;
+    if (norm(code).length < 6) { say(T('Please type the access code.', 'Veuillez saisir le code d’accès.'), true); return; }
+    busy(true);
+    open(code).then(function (html) { show(html, code); }, failed);
+  };
+  var kept = null; try { kept = localStorage.getItem(KEEP); } catch (e) {}
+  if (kept) {
+    busy(true);
+    open(kept).then(function (html) { show(html, kept); }, function () { try { localStorage.removeItem(KEEP); } catch (e) {} busy(false); say(''); try { $('code').focus(); } catch (x) {} });
+  } else { try { $('code').focus(); } catch (e) {} }
+})();
+</script>
+</body>
+</html>

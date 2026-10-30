@@ -1,0 +1,8 @@
+{
+ "name": "carpe-diem-evaluation",
+ "private": true,
+ "description": "Evaluation copies of Carpe Diem's demonstrations",
+ "dependencies": {
+  "terser": "5.31.6"
+ }
+}

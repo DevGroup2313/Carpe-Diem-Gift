@@ -65,6 +65,15 @@ jobs:
           python -c "import carpe_diem_app as a; r = a.read_clipboard(); print(r); assert 'copied outside the app' in r['text']"
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      - name: Keep a backup as the page does
+        # build 1074: the page's Backup sheet hands the app a backup in pieces of 768 KB; the app keeps it in Documents
+        # (the folder Windows names, which OneDrive may have moved), Carpe Diem, Backups, or in a cloud folder it finds,
+        # and gives it its name only when its last piece is on the disk. Checked with the program itself, on real Windows.
+        run: |
+          Set-Location $env:PROJ
+          python "$env:GITHUB_WORKSPACE\.github\test-files\t_backup_host.py" carpe_diem_app.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
       - name: Build Carpe Diem.exe
         run: |
           Set-Location $env:PROJ
