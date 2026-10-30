@@ -198,8 +198,9 @@ jobs:
           "Copies of Carpe Diem running after a second start: $n"
           if ($n -ne 1) { Write-Error "Expected one copy of Carpe Diem, found $n."; exit 1 }
           $seen = $false
-          for ($k = 0; $k -lt 40 -and -not $seen; $k++) { Start-Sleep -Seconds 1; $seen = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut" -Quiet -ErrorAction SilentlyContinue) }
+          for ($k = 0; $k -lt 60 -and -not $seen; $k++) { Start-Sleep -Seconds 1; $seen = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut" -Quiet -ErrorAction SilentlyContinue) }
           "Room request left for the open copy: $(Test-Path (Join-Path $env:LOCALAPPDATA 'CarpeDiem\open-room.txt')) (it is taken away once read)"
+          Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | ForEach-Object { "Open copy $($_.Id): window answering: $($_.Responding); title: '$($_.MainWindowTitle)'; threads: $($_.Threads.Count)" }
           if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "room|copy|care|windows" | ForEach-Object { $_.Line } } else { "(no record beside the program)" }
           if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut: opened" -Quiet -ErrorAction SilentlyContinue)) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "Tabula's shortcut did not open its window in the open copy."; exit 1 }
           "Tabula's shortcut opened Tabula's window in the open copy."

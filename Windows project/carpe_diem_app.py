@@ -1696,6 +1696,7 @@ def _rooms_on_request(api, window, first=None):
             log_problem("room %s asked by a shortcut could not open" % which, sys.exc_info())
 
     def run():
+        log_note("rooms: listening for a room asked by a shortcut (%s)" % path)
         if first:
             for _ in range(240):
                 if base():
@@ -1711,6 +1712,7 @@ def _rooms_on_request(api, window, first=None):
                 with open(path, "r", encoding="utf-8") as fh:
                     which = fh.read().strip().lower()
                 os.remove(path)
+                log_note("rooms: a shortcut asked for %r" % which)
                 if which in ROOMS:
                     open_room(which)
             except Exception:
