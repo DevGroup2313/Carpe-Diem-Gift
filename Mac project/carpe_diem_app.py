@@ -1014,15 +1014,23 @@ def _older_copies_step_aside():
             where = "?"
         log_note("another Carpe Diem is open (process %d, %s): it is asked to quit, as Quit in its Dock menu does"
                  % (pid, where))
-        try:
-            a.terminate()
-        except Exception:
-            pass
-    end = time.time() + 25
-    while time.time() < end:
-        if not [pid for (_a, pid) in others if _pid_alive(pid)] and _address_free(CARPE_PORT):
+        _ask_to_quit(pid)
+    asked_old = False
+    start = time.time()
+    while time.time() < start + 25:
+        alive = [(a, pid) for (a, pid) in others if _pid_alive(pid)]
+        if not alive and _address_free(CARPE_PORT):
             log_note("the other Carpe Diem has closed; this one opens")
             return True
+        if alive and not asked_old and time.time() > start + 3:
+            # a copy from before 1065 does not hear Carpe Diem's own word: it is asked as the Dock's Quit asks, with
+            # Apple's quit event (the Mac may ask the owner to allow it)
+            asked_old = True
+            for a, pid in alive:
+                try:
+                    a.terminate()
+                except Exception:
+                    pass
         time.sleep(0.25)
     log_note("the other Carpe Diem did not close; this start ends rather than show its page")
     tell_user(
@@ -1031,6 +1039,39 @@ def _older_copies_step_aside():
         "(or press Command-Q). Then open Carpe Diem again.\n\n"
         "This keeps you from seeing an earlier build's page.")
     return False
+
+
+_QUIT_ASK = "com.yannieforest.carpediem.quit-please"
+
+
+def _ask_to_quit(pid):
+    """Build 1065: Carpe Diem's own word to another copy (a notification of the Mac's own, which needs no permission,
+    as an Apple event sent to another app can)."""
+    try:
+        from Foundation import NSDistributedNotificationCenter
+        NSDistributedNotificationCenter.defaultCenter().postNotificationName_object_userInfo_deliverImmediately_(
+            _QUIT_ASK, str(pid), None, True)
+    except Exception:
+        log_note("another copy: the word to quit could not be sent (%s)" % (sys.exc_info()[1],))
+
+
+def _hear_quit_please():
+    """Build 1065: when a newer start asks this copy to quit, it quits as Quit does (the page keeps its work)."""
+    try:
+        from Foundation import NSDistributedNotificationCenter
+
+        def heard(_n):
+            log_note("quit: a newer start of Carpe Diem asked this copy to quit; it quits as Quit does")
+            try:
+                from AppKit import NSApplication
+                NSApplication.sharedApplication().terminate_(None)
+            except Exception:
+                log_note("quit: could not quit by itself (%s)" % (sys.exc_info()[1],))
+        tok = NSDistributedNotificationCenter.defaultCenter().addObserverForName_object_queue_usingBlock_(
+            _QUIT_ASK, str(os.getpid()), None, heard)
+        _QUIT_WATCH.append(tok)
+    except Exception:
+        log_note("quit: the word from a newer start could not be listened for (%s)" % (sys.exc_info()[1],))
 
 
 def _watch_for_newer_build(window, app_html):
@@ -1550,6 +1591,7 @@ def main():
     _check_page_build(window, app_html)
     _watch_for_newer_build(window, app_html)
     _clean_quit_ends_session()
+    _hear_quit_please()
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).
