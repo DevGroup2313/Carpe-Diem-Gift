@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1064, 30 October 2026. The About panel inside the app ends with
-"Build 1064 · 528171064".
-The app's own version is 1064 too; Android usually shows it on the
+Build 1065, 30 October 2026. The About panel inside the app ends with
+"Build 1065 · 528171065".
+The app's own version is 1065 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,24 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1064
+NEW IN BUILD 1065
+  Refresh is back where it belongs: the first row of the Display panel, as in Ingenium and
+  The Forge, drawn like the panel's other rows; the top bar keeps Display, Guide and About.
+  It refreshes at once, saving the work of every open room first.
+
+  The door rings again. A touch while the page was still opening was taken for the day's
+  first touch, so the chime rang under the loading page and the door opened in silence.
+  Now the chime waits for the door.
+
+  On a Mac, an earlier Carpe Diem left open can no longer stand in for the new one: a new
+  start asks it to quit, as Quit does (its work is kept), and opens in its place; and a
+  Carpe Diem that is open when a newer one is put in its place offers to restart into it.
+  Quitting with Command-Q now counts as a clean ending (two Quits in a row could make the
+  next start open in the browser). On Windows, a newer copy started beside an older open
+  one takes its place the same way.
+
+
+EARLIER, IN BUILD 1064
   The Mac app shows the build that is installed. After an update, the Mac's web view
   could keep showing the page of an earlier build (1059, for the owner, after installing
   1062 and 1063), because the app's own address served its page without saying it must not

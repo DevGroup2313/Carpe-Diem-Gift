@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1065",
+ "stamp": "528171065",
+ "prev": "1064",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103002",
+ "en": "Refresh is back where it belongs: the first row of the Display panel, as in Ingenium and\nThe Forge, drawn like the panel's other rows; the top bar keeps Display, Guide and About.\nIt refreshes at once, saving the work of every open room first.\n\nThe door rings again. A touch while the page was still opening was taken for the day's\nfirst touch, so the chime rang under the loading page and the door opened in silence.\nNow the chime waits for the door.\n\nOn a Mac, an earlier Carpe Diem left open can no longer stand in for the new one: a new\nstart asks it to quit, as Quit does (its work is kept), and opens in its place; and a\nCarpe Diem that is open when a newer one is put in its place offers to restart into it.\nQuitting with Command-Q now counts as a clean ending (two Quits in a row could make the\nnext start open in the browser). On Windows, a newer copy started beside an older open\none takes its place the same way.",
+ "web": "Refresh is the first row of the Display panel again, as in Ingenium and The Forge, and the door rings again when you open it: a touch while the page was still opening no longer uses up the day's chime.",
+ "ios": "Refresh is the first row of the Display panel again, as in Ingenium and The\nForge, and the door rings again when you open it."
+}

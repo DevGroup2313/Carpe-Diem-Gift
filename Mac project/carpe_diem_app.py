@@ -594,6 +594,10 @@ class CarpeApi:
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
 
+    def restart_into_new_build(self):
+        """Build 1065: quit, then open the newer Carpe Diem now in this one's place (asked by the page's card)."""
+        return _restart_into_new_build()
+
     def close_app(self, which):
         """Close a native studio window, so the desk bar's cross can reach it.
         Without this the cross could only ever close a desk frame, which is why it
@@ -916,6 +920,202 @@ def _check_page_build(window, app_html):
     except Exception:
         pass
 
+
+_OWN_BUNDLE = {"path": ""}
+
+
+def _note_own_bundle():
+    """This app's bundle (…/Carpe Diem.app) when it runs as one, read once at start: after Finder puts a newer Carpe
+    Diem in its place, the same path names the newer one."""
+    try:
+        from Foundation import NSBundle
+        p = str(NSBundle.mainBundle().bundlePath() or "")
+        _OWN_BUNDLE["path"] = p if p.endswith(".app") else ""
+    except Exception:
+        _OWN_BUNDLE["path"] = ""
+    return _OWN_BUNDLE["path"]
+
+
+def _pid_alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except Exception:
+        return True
+
+
+def _address_free(port):
+    """True when nothing listens at 127.0.0.1:port."""
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(("127.0.0.1", port))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
+def _address_holders(port):
+    """The processes listening at 127.0.0.1:port (lsof is on every Mac)."""
+    import subprocess
+    try:
+        out = subprocess.run(["/usr/sbin/lsof", "-nP", "-t", "-iTCP:%d" % port, "-sTCP:LISTEN"],
+                             capture_output=True, text=True, timeout=10).stdout
+        return [int(x) for x in out.split() if x.strip().isdigit() and int(x) != os.getpid()]
+    except Exception:
+        return []
+
+
+def _older_copies_step_aside():
+    """Build 1065. The owner saw 1059 after installing 1062 and 1063. A Carpe Diem left open keeps Carpe Diem's own
+    address (127.0.0.1:42049), so a newly installed one starting beside it would show the open one's page. Every other
+    Carpe Diem that is running is asked to quit, as Quit in its Dock menu asks (its page keeps the work as it closes),
+    and this start waits until the address is free. If one will not quit, this start says so and ends, rather than
+    show another build's page. Returns False when this start should end."""
+    if sys.platform != "darwin":
+        return True
+    try:
+        from AppKit import NSRunningApplication
+        from Foundation import NSBundle
+        bid = str(NSBundle.mainBundle().bundleIdentifier() or "")
+    except Exception:
+        return True
+    others = []
+    if bid.startswith("com.yannieforest.carpediem"):
+        for a in list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(bid) or []):
+            try:
+                pid = int(a.processIdentifier())
+            except Exception:
+                continue
+            if pid > 0 and pid != os.getpid():
+                others.append((a, pid))
+    if not others and _address_free(CARPE_PORT):
+        return True
+    if not others:
+        # held by a Carpe Diem that is not this kind of app (one run from its folder, say): asked the same way
+        for pid in _address_holders(CARPE_PORT):
+            a = NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
+            name = str(a.localizedName() or "") if a is not None else ""
+            if a is not None and "Carpe" in name:
+                others.append((a, pid))
+        if not others:
+            log_note("Carpe Diem's address is held by a program that is not Carpe Diem; this start goes on")
+            return True
+    import time
+    for a, pid in others:
+        try:
+            where = str(a.bundleURL().path()) if a.bundleURL() is not None else "?"
+        except Exception:
+            where = "?"
+        log_note("another Carpe Diem is open (process %d, %s): it is asked to quit, as Quit in its Dock menu does"
+                 % (pid, where))
+        try:
+            a.terminate()
+        except Exception:
+            pass
+    end = time.time() + 25
+    while time.time() < end:
+        if not [pid for (_a, pid) in others if _pid_alive(pid)] and _address_free(CARPE_PORT):
+            log_note("the other Carpe Diem has closed; this one opens")
+            return True
+        time.sleep(0.25)
+    log_note("the other Carpe Diem did not close; this start ends rather than show its page")
+    tell_user(
+        "Another Carpe Diem is still open, and it did not close when asked.\n\n"
+        "Quit it first: click its window, then choose Carpe Diem > Quit Carpe Diem\n"
+        "(or press Command-Q). Then open Carpe Diem again.\n\n"
+        "This keeps you from seeing an earlier build's page.")
+    return False
+
+
+def _watch_for_newer_build(window, app_html):
+    """Build 1065. When a newer Carpe Diem is put where this one was opened from while this one is open (Finder's
+    Replace), opening Carpe Diem can bring this copy forward instead of starting the newer one, so the window would go
+    on showing this build. Once a minute this copy looks at the page now in its place; when it is a newer build, the
+    page offers to start again into it (the work stays)."""
+    import json
+    import threading
+    import time
+    try:
+        started = int((_page_build(app_html).split(" ") or ["0"])[0] or 0)
+    except Exception:
+        started = 0
+    if not started or not _OWN_BUNDLE.get("path"):
+        return
+
+    def look():
+        seen, told = None, 0
+        while True:
+            time.sleep(60)
+            try:
+                st = os.stat(app_html)
+                sig = (st.st_mtime, st.st_size, st.st_ino)
+            except Exception:
+                continue
+            if sig == seen:
+                continue
+            seen = sig
+            try:
+                now = int((_page_build(app_html).split(" ") or ["0"])[0] or 0)
+            except Exception:
+                continue
+            if now > started and now != told:
+                told = now
+                log_note("a newer Carpe Diem (build %d) is in this one's place; the page offers to start it" % now)
+                try:
+                    window.evaluate_js("window.cdNewBuildInstalled && window.cdNewBuildInstalled(%s)" % json.dumps(str(now)))
+                except Exception:
+                    pass
+    threading.Thread(target=look, name="carpe-newer-build", daemon=True).start()
+
+
+def _restart_into_new_build():
+    """Build 1065: quit as Quit does, and open the Carpe Diem now in this one's place once this one has gone."""
+    import subprocess
+    bundle = _OWN_BUNDLE.get("path") or ""
+    if not bundle or not os.path.isdir(bundle):
+        return False
+    script = ('i=0; while kill -0 %d 2>/dev/null && [ $i -lt 150 ]; do sleep 0.2; i=$((i+1)); done; '
+              'exec /usr/bin/open "$0"') % os.getpid()
+    try:
+        subprocess.Popen(["/bin/sh", "-c", script, bundle], start_new_session=True, close_fds=True,
+                         stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        log_problem("restart: the newer build could not be asked to open", sys.exc_info())
+        return False
+    log_note("restart: this build quits so that the newer one opens")
+    try:
+        from AppKit import NSApplication
+        from PyObjCTools import AppHelper
+        AppHelper.callAfter(lambda: NSApplication.sharedApplication().terminate_(None))
+    except Exception:
+        log_problem("restart: could not quit by itself", sys.exc_info())
+        return False
+    return True
+
+
+_QUIT_WATCH = []
+
+
+def _clean_quit_ends_session():
+    """Build 1065: Quit (Command-Q, Quit in the Dock, a restart into a newer build, or shutting the Mac down) ends the
+    app inside the window system, without coming back to main(), so the run was never marked as ended cleanly; two
+    Quits in a row looked like two crashes and the third start opened in the browser. The clean ending is now noted
+    as the app goes."""
+    try:
+        from Foundation import NSNotificationCenter
+        tok = NSNotificationCenter.defaultCenter().addObserverForName_object_queue_usingBlock_(
+            "NSApplicationWillTerminateNotification", None, None, lambda _n: _end_session())
+        _QUIT_WATCH.append(tok)
+    except Exception:
+        log_note("quit: a clean Quit could not be heard (%s)" % (sys.exc_info()[1],))
+
+
 def _make_window(webview, api, app_html):
     """The main window, in one place so its creation can be guarded."""
     _guard_local_server()
@@ -972,6 +1172,10 @@ class CarpeApiSingle:
 
     def save_file(self, name, mime, data_b64):
         return save_bytes(None, name, mime, data_b64)
+
+    def restart_into_new_build(self):
+        """Build 1065: quit, then open the newer Carpe Diem now in this one's place (asked by the page's card)."""
+        return _restart_into_new_build()
 
     def carry_state(self):
         """Build 1050: whether the work kept at the old address still has to come across (asked by the page)."""
@@ -1239,6 +1443,12 @@ def main():
         )
         sys.exit(1)
 
+    _note_own_bundle()
+    try:
+        if not _older_copies_step_aside():
+            return
+    except Exception:
+        log_note("another copy: the check failed (%s); this start goes on" % (sys.exc_info()[1],))
     try:
         _forget_old_pages(app_html)
     except Exception:
@@ -1338,6 +1548,8 @@ def main():
     except Exception:
         pass
     _check_page_build(window, app_html)
+    _watch_for_newer_build(window, app_html)
+    _clean_quit_ends_session()
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).

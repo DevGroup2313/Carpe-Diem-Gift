@@ -180,14 +180,17 @@ jobs:
           $alive = -not $p.HasExited
           if (-not $alive) { "EXITED EARLY with code $($p.ExitCode)"; if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" }; exit 1 }
           "The installed Carpe Diem is running."
-          # build 1064: the page goes out not to be kept, and it is this build's page
+          # build 1065: on Windows the window reads its page from the installed file (no address serves it, so no
+          # cache of an address can hold an earlier build); the installed page is this build's, and the program noted
+          # this build's first start, when it empties the web view's cache of pages
           $want = ((Select-String -Path "$env:PROJ\BUILD_INFO.txt" -Pattern '^Pass:').Line -replace '[^0-9]', '')
-          $r = Invoke-WebRequest -Uri 'http://127.0.0.1:42049/carpe_diem.html' -UseBasicParsing -TimeoutSec 30
-          "Cache-Control: $($r.Headers['Cache-Control']) | ETag: $($r.Headers['ETag']) | Last-Modified: $($r.Headers['Last-Modified'])"
-          if ("$($r.Headers['Cache-Control'])" -notmatch 'no-store') { Write-Error "The page is not served no-store."; exit 1 }
-          if ($r.Headers['ETag'] -or $r.Headers['Last-Modified']) { Write-Error "The page still carries a validator a cache keeps."; exit 1 }
-          if ($r.Content -notmatch ('pass:"' + $want + '"')) { Write-Error "The served page is not build $want."; exit 1 }
-          "The page is build $want, served no-store."
+          $page = Get-ChildItem -Path $app -Recurse -Filter 'carpe_diem.html' -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $page) { Write-Error "The installed program has no page."; exit 1 }
+          if (-not (Select-String -Path $page.FullName -Pattern ('pass:"' + $want + '"') -SimpleMatch -Quiet)) { Write-Error "The installed page is not build $want."; exit 1 }
+          $noted = Get-Content (Join-Path $env:LOCALAPPDATA "CarpeDiem\page_build.txt") -ErrorAction SilentlyContinue
+          "The build the program noted: $noted"
+          if ("$noted" -notmatch ('^' + $want + ' ')) { Write-Error "The program did not note build $want's first start."; exit 1 }
+          "The installed page is build $want, read from the installed file."
           # one copy at a time: a second start, here asking for Tabula, hands the room to the open copy and ends at once
           $q = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room','tabula' -PassThru
           if (-not $q.WaitForExit(40000)) { Stop-Process -Id $q.Id -Force; Write-Error "A second start did not end: two copies would be open."; exit 1 }
@@ -198,6 +201,20 @@ jobs:
           if (Test-Path "$app\carpe_diem_crash.log") { Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "room|copy|care" | ForEach-Object { $_.Line } }
           if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "room tabula asked by a shortcut: opened" -Quiet -ErrorAction SilentlyContinue)) { Write-Error "Tabula's shortcut did not open its window in the open copy."; exit 1 }
           "Tabula's shortcut opened Tabula's window in the open copy."
+          # build 1065: a newer build started while an older one is open takes its place, and does not merely bring the
+          # older one forward (a portable copy can be started beside an installed one); the build noted as open is made
+          # an older one here
+          $first = @(Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
+          Set-Content -Path (Join-Path $env:LOCALAPPDATA "CarpeDiem\page_build.txt") -Value "1000 0" -NoNewline
+          $z = Start-Process -FilePath "$app\Carpe Diem.exe" -PassThru
+          Start-Sleep -Seconds 30
+          $now = @(Get-Process -Name 'Carpe Diem' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
+          "Open before: $($first -join ', '); open after: $($now -join ', '); the newer start: $($z.Id)"
+          if ($z.HasExited) { Write-Error "The newer start ended instead of taking the older one's place."; exit 1 }
+          foreach ($f in $first) { if ($now -contains $f) { Write-Error "The older copy ($f) is still open."; exit 1 } }
+          Get-Content "$app\carpe_diem_crash.log" | Select-String -Pattern "another build|other build" | ForEach-Object { $_.Line }
+          if (-not (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "the other build has closed" -SimpleMatch -Quiet)) { Write-Error "The record does not say the older copy closed."; exit 1 }
+          "A newer build took the older one's place."
           Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
           Start-Sleep -Seconds 2
           $u = Start-Process -FilePath "$app\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -PassThru -Wait

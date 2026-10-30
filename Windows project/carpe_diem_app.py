@@ -1517,6 +1517,8 @@ def _another_copy_is_open(room=None):
     except Exception:
         log_problem("single copy: no guard on this PC; opening as usual")
         return False
+    if _open_copy_is_another_build() and _close_the_open_copy(kernel32):
+        return False
     if room:
         try:
             with open(_room_request_path(), "w", encoding="utf-8") as fh:
@@ -1534,32 +1536,82 @@ def _another_copy_is_open(room=None):
 _single_instance = []
 
 
+def _open_copy_is_another_build():
+    """Build 1065: whether the open copy is another build than this one. The build last started is noted when it
+    starts (page_build.txt, before this copy notes its own), so a newer portable Carpe Diem started while an older one
+    is open sees the older one's build there."""
+    try:
+        mine = (_page_build(find_app_html() or "").split(" ") or [""])[0]
+        store = storage_dir()
+        with open(os.path.join(os.path.dirname(store), "page_build.txt"), encoding="utf-8") as fh:
+            theirs = (fh.read().strip().split(" ") or [""])[0]
+        return bool(mine and theirs and mine != theirs)
+    except Exception:
+        return False
+
+
+def _close_the_open_copy(kernel32, wait_s=25.0):
+    """Build 1065: the open copy is another build, so bringing it forward would show that build. It is asked to close,
+    as its window's close button asks (its page keeps the work as it closes), and this copy takes its place once it
+    has gone. True when this copy now holds the single-copy name; one that will not close is brought forward instead."""
+    import ctypes
+    import time
+    from ctypes import wintypes
+    hwnd = _open_copy_window(ctypes.WinDLL("user32", use_last_error=True))
+    if not hwnd:
+        return False
+    log_note("another build of Carpe Diem is open: it is asked to close, and this build takes its place")
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    user32.PostMessageW.argtypes = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
+    user32.PostMessageW(hwnd, 0x0010, 0, 0)   # WM_CLOSE
+    end = time.monotonic() + wait_s
+    while time.monotonic() < end:
+        time.sleep(0.25)
+        handle = kernel32.CreateMutexW(None, False, SINGLE_INSTANCE_NAME)
+        err = ctypes.get_last_error()
+        if handle and err != 183:
+            _single_instance.append(handle)
+            log_note("the other build has closed; this one opens")
+            return True
+        if handle:
+            kernel32.CloseHandle(handle)
+    log_note("the other build did not close; it is brought forward instead")
+    return False
+
+
+def _open_copy_window(user32):
+    """The open copy's main window, found by its title (its own window class only: pywebview's WindowsForms window, or
+    one of its message boxes), or None."""
+    import ctypes
+    from ctypes import wintypes
+    user32.FindWindowExW.argtypes = (wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR)
+    user32.FindWindowExW.restype = wintypes.HWND
+    user32.GetClassNameW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    after = None
+    for _ in range(64):
+        hwnd = user32.FindWindowExW(None, after, None, WINDOW_TITLE)
+        if not hwnd:
+            return None
+        name = ctypes.create_unicode_buffer(256)
+        user32.GetClassNameW(hwnd, name, 256)
+        if name.value.startswith("WindowsForms") or name.value == "#32770":
+            return hwnd
+        after = hwnd
+    return None
+
+
 def _bring_window_forward(wait_s=30.0):
-    """Find the open copy's window by its title (its own window class only: pywebview's WindowsForms window, or one of its
-    message boxes) and bring it forward: restored if minimised, otherwise shown as it is."""
+    """Find the open copy's window and bring it forward: restored if minimised, otherwise shown as it is."""
     import ctypes
     import time
     from ctypes import wintypes
     user32 = ctypes.WinDLL("user32", use_last_error=True)
-    user32.FindWindowExW.argtypes = (wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR)
-    user32.FindWindowExW.restype = wintypes.HWND
-    user32.GetClassNameW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
     user32.IsIconic.argtypes = (wintypes.HWND,)
     user32.ShowWindow.argtypes = (wintypes.HWND, ctypes.c_int)
     user32.SetForegroundWindow.argtypes = (wintypes.HWND,)
 
     def find():
-        after = None
-        for _ in range(64):
-            hwnd = user32.FindWindowExW(None, after, None, WINDOW_TITLE)
-            if not hwnd:
-                return None
-            name = ctypes.create_unicode_buffer(256)
-            user32.GetClassNameW(hwnd, name, 256)
-            if name.value.startswith("WindowsForms") or name.value == "#32770":
-                return hwnd
-            after = hwnd
-        return None
+        return _open_copy_window(user32)
 
     end = time.monotonic() + wait_s
     hwnd = find()

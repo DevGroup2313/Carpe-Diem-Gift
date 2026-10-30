@@ -146,6 +146,36 @@ jobs:
           done
           rm -f "$LOG"
 
+      - name: Open it again while it is open
+        # build 1065: a Carpe Diem left open keeps the app's own address, so a newly installed one beside it would show
+        # the open one's page (the owner saw 1059 after installing 1062 and 1063). A second start asks the open one to
+        # quit, as Quit in its Dock menu does, and then serves the page itself.
+        run: |
+          cd "$PROJ"
+          APP="dist/Carpe Diem.app/Contents/MacOS/Carpe Diem"
+          LOG="dist/Carpe Diem.app/Contents/MacOS/carpe_diem_crash.log"
+          rm -f "$LOG" "$HOME/carpe_diem_crash.log"
+          # the runs above were stopped from outside, which the app counts as endings that did not finish
+          rm -f "$HOME/Library/Application Support/CarpeDiem/carpe_session.flag"
+          "$APP" > "$RUNNER_TEMP/first.txt" 2>&1 &
+          A=$!
+          T=0; until [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:42049/carpe_diem.html || true)" = "200" ] || [ $T -ge 60 ]; do sleep 2; T=$((T+2)); done
+          echo "The first Carpe Diem (process $A) answers after $T seconds."
+          sleep 5
+          "$APP" > "$RUNNER_TEMP/second.txt" 2>&1 &
+          B=$!
+          T=0; while kill -0 $A 2>/dev/null && [ $T -lt 45 ]; do sleep 1; T=$((T+1)); done
+          cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null | grep -E "another Carpe Diem|has closed|did not close" || true
+          if kill -0 $A 2>/dev/null; then echo "::error::the open Carpe Diem did not quit when a second one started"; kill $A $B 2>/dev/null; exit 1; fi
+          echo "The open Carpe Diem quit $T seconds after the second start."
+          T=0; CODE=000
+          while [ $T -lt 60 ]; do CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:42049/carpe_diem.html || true); [ "$CODE" = "200" ] && break; sleep 2; T=$((T+2)); done
+          HOLDER=$(lsof -nP -t -iTCP:42049 -sTCP:LISTEN 2>/dev/null | head -n 1)
+          echo "The address answers $CODE, served by process $HOLDER; the second start is process $B."
+          if [ "$HOLDER" != "$B" ]; then echo "::error::the page is not served by the second start"; kill $B 2>/dev/null; exit 1; fi
+          if grep -q "Traceback" "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; then cat "$LOG" "$HOME/carpe_diem_crash.log" 2>/dev/null; echo "a fault was recorded"; kill $B; exit 1; fi
+          kill $B; sleep 3; rm -f "$LOG"
+
       - name: Keep the screenshots with this run
         if: always()
         uses: actions/upload-artifact@v6
