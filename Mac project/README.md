@@ -7,11 +7,22 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1065, 30 October 2026.** The About panel in the app ends with
-"Build 1065 · 528171065". Finder's Get Info on the app shows
-version 1065.
+**Build 1066, 30 October 2026.** The About panel in the app ends with
+"Build 1066 · 528171066". Finder's Get Info on the app shows
+version 1066.
 
-## New in build 1065
+## New in build 1066
+
+In the writing rooms, the line under a room's header counts its rooms correctly and is in
+French when the desk is in French (the French Tutor no longer says "Five rooms in this
+workspace": it was counting its answers). Research Writing no longer says that lessons it
+already holds are still being added. The rooms otherwise keep their look.
+
+Mac: a new start asks an earlier Carpe Diem that is still open to quit in Carpe Diem's
+own way, which needs no permission, and opens in its place. Windows: a newer copy started
+beside another build finds that build's windows by their program and takes its place.
+
+## Earlier, in build 1065
 
 Refresh is back where it belongs: the first row of the Display panel, as in Ingenium and
 The Forge, drawn like the panel's other rows; the top bar keeps Display, Guide and About.

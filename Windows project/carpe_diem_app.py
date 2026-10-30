@@ -1551,19 +1551,23 @@ def _open_copy_is_another_build():
 
 
 def _close_the_open_copy(kernel32, wait_s=25.0):
-    """Build 1065: the open copy is another build, so bringing it forward would show that build. It is asked to close,
-    as its window's close button asks (its page keeps the work as it closes), and this copy takes its place once it
-    has gone. True when this copy now holds the single-copy name; one that will not close is brought forward instead."""
+    """Build 1065: the open copy is another build, so bringing it forward would show that build. Each of its windows is
+    asked to close, its rooms first, as their close buttons ask (the page keeps its work as it closes), and this copy
+    takes its place once it has gone. True when this copy now holds the single-copy name; one that will not close is
+    brought forward instead."""
     import ctypes
     import time
     from ctypes import wintypes
-    hwnd = _open_copy_window(ctypes.WinDLL("user32", use_last_error=True))
-    if not hwnd:
+    wins = _open_copy_windows()
+    if not wins:
         return False
-    log_note("another build of Carpe Diem is open: it is asked to close, and this build takes its place")
+    log_note("another build of Carpe Diem is open (%s): it is asked to close, and this build takes its place"
+             % ", ".join(repr(t) for (_h, t, _p) in wins))
     user32 = ctypes.WinDLL("user32", use_last_error=True)
     user32.PostMessageW.argtypes = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
-    user32.PostMessageW(hwnd, 0x0010, 0, 0)   # WM_CLOSE
+    for hwnd, _t, _p in reversed(wins):
+        user32.PostMessageW(hwnd, 0x0010, 0, 0)   # WM_CLOSE
+        time.sleep(0.3)
     end = time.monotonic() + wait_s
     while time.monotonic() < end:
         time.sleep(0.25)
@@ -1579,25 +1583,66 @@ def _close_the_open_copy(kernel32, wait_s=25.0):
     return False
 
 
-def _open_copy_window(user32):
-    """The open copy's main window, found by its title (its own window class only: pywebview's WindowsForms window, or
-    one of its message boxes), or None."""
+def _open_copy_windows():
+    """The windows of another running Carpe Diem (a process whose program is Carpe Diem.exe, never this one): pywebview's
+    WindowsForms windows that are shown, and its message boxes, the main window first. Found by their program, not by
+    their title, which the page and the rooms change."""
     import ctypes
     from ctypes import wintypes
-    user32.FindWindowExW.argtypes = (wintypes.HWND, wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR)
-    user32.FindWindowExW.restype = wintypes.HWND
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.QueryFullProcessImageNameW.argtypes = (wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD))
+    kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    user32.GetWindowThreadProcessId.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
     user32.GetClassNameW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
-    after = None
-    for _ in range(64):
-        hwnd = user32.FindWindowExW(None, after, None, WINDOW_TITLE)
-        if not hwnd:
-            return None
-        name = ctypes.create_unicode_buffer(256)
-        user32.GetClassNameW(hwnd, name, 256)
-        if name.value.startswith("WindowsForms") or name.value == "#32770":
-            return hwnd
-        after = hwnd
-    return None
+    user32.GetWindowTextW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    user32.IsWindowVisible.argtypes = (wintypes.HWND,)
+    me, names, found = os.getpid(), {}, []
+
+    def program(pid):
+        if pid not in names:
+            name = ""
+            h = kernel32.OpenProcess(0x1000, False, pid)   # PROCESS_QUERY_LIMITED_INFORMATION
+            if h:
+                buf, n = ctypes.create_unicode_buffer(1024), wintypes.DWORD(1024)
+                if kernel32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(n)):
+                    name = os.path.basename(buf.value).lower()
+                kernel32.CloseHandle(h)
+            names[pid] = name
+        return names[pid]
+
+    proc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    def each(hwnd, _l):
+        try:
+            pid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if pid.value and pid.value != me and program(pid.value) == "carpe diem.exe":
+                cls = ctypes.create_unicode_buffer(256)
+                user32.GetClassNameW(hwnd, cls, 256)
+                if (cls.value.startswith("WindowsForms") and user32.IsWindowVisible(hwnd)) or cls.value == "#32770":
+                    title = ctypes.create_unicode_buffer(512)
+                    user32.GetWindowTextW(hwnd, title, 512)
+                    found.append((hwnd, title.value, pid.value))
+        except Exception:
+            pass
+        return True
+    cb = proc(each)
+    user32.EnumWindows.argtypes = (proc, wintypes.LPARAM)
+    user32.EnumWindows(cb, 0)
+    found.sort(key=lambda w: 0 if w[1].startswith(WINDOW_TITLE) else 1)
+    return found
+
+
+def _open_copy_window(user32=None):
+    """The open copy's main window (or, failing that, one of its windows), or None."""
+    try:
+        wins = _open_copy_windows()
+    except Exception:
+        return None
+    return wins[0][0] if wins else None
 
 
 def _bring_window_forward(wait_s=30.0):

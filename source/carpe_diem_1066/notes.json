@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1066",
+ "stamp": "528171066",
+ "prev": "1065",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103003",
+ "en": "In the writing rooms, the line under a room's header counts its rooms correctly and is in\nFrench when the desk is in French (the French Tutor no longer says \"Five rooms in this\nworkspace\": it was counting its answers). Research Writing no longer says that lessons it\nalready holds are still being added. The rooms otherwise keep their look.\n\nMac: a new start asks an earlier Carpe Diem that is still open to quit in Carpe Diem's\nown way, which needs no permission, and opens in its place. Windows: a newer copy started\nbeside another build finds that build's windows by their program and takes its place.",
+ "web": "In the writing rooms, the line under a room's header counts its rooms correctly, in English or French, and Research Writing no longer announces lessons it already holds.",
+ "ios": "In the writing rooms, the line under a room's header counts its rooms correctly,\nin English or French, and Research Writing no longer announces lessons it\nalready holds."
+}
