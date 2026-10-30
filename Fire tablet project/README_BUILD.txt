@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1069, 30 October 2026. The About panel inside the app ends with
-"Build 1069 · 528171069".
-The app's own version is 1069 too; Android usually shows it on the
+Build 1070, 30 October 2026. The About panel inside the app ends with
+"Build 1070 · 528171070".
+The app's own version is 1070 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,19 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1069
+NEW IN BUILD 1070
+  A lighter, quicker app. With nothing touched, the moving decorations (the glitter and
+  glow on the app keys, the seal, the bell, the dots) kept the processor painting about half
+  of every second, and went on moving behind Tabula where no one can see them. Each now has
+  a drawing layer of its own and looks the same, and whatever cannot be seen (Home behind
+  an open app or a room, a key behind a panel or past the edge) holds still until it can be
+  seen again. Two older helpers that kept waking each other to rewrite the top bar's fold key
+  now write only a change. Measured: idle painting falls by about 97 per cent, the page's
+  own idle work by more than half, and typing in a 100,000-word document with 310 footnotes
+  is about 40 per cent quicker.
+
+
+EARLIER, IN BUILD 1069
   Tabula opens Word documents whole, by either key. The Word key on the Home ribbon used an
   older reader that left out tables, images and footnotes; it now uses the same full reader
   as File, Open, and asks before replacing the page only when the page holds writing. A

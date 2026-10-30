@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1070",
+ "stamp": "528171070",
+ "prev": "1069",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103007",
+ "en": "A lighter, quicker app. With nothing touched, the moving decorations (the glitter and\nglow on the app keys, the seal, the bell, the dots) kept the processor painting about half\nof every second, and went on moving behind Tabula where no one can see them. Each now has\na drawing layer of its own and looks the same, and whatever cannot be seen (Home behind\nan open app or a room, a key behind a panel or past the edge) holds still until it can be\nseen again. Two older helpers that kept waking each other to rewrite the top bar's fold key\nnow write only a change. Measured: idle painting falls by about 97 per cent, the page's\nown idle work by more than half, and typing in a 100,000-word document with 310 footnotes\nis about 40 per cent quicker.",
+ "web": "A lighter, quicker app: the moving decorations look the same but cost almost nothing, and hold still where they cannot be seen. Idle painting falls by about 97 per cent; typing in a very long document is about 40 per cent quicker.",
+ "ios": "A lighter, quicker app: the moving decorations look the same but cost almost\nnothing, and hold still where they cannot be seen. Typing in a very long\ndocument is about 40 per cent quicker."
+}
