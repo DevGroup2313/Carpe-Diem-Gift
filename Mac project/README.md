@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1070, 30 October 2026.** The About panel in the app ends with
-"Build 1070 · 528171070". Finder's Get Info on the app shows
-version 1070.
+**Build 1071, 30 October 2026.** The About panel in the app ends with
+"Build 1071 · 528171071". Finder's Get Info on the app shows
+version 1071.
 
-## New in build 1070
+## New in build 1071
+
+Tabula opens a PDF as a document to write in. File, Open (or a PDF dropped on Tabula)
+brings its words in: paragraphs, headings, centred lines, lists, bold and italic, and
+footnotes, whose raised numbers in the text are matched with the notes at the page feet
+and become Tabula's own footnotes. Words broken by a hyphen at a line's end are made
+whole; running heads and page numbers are left out; a PDF that holds only pictures of its
+pages says so, and a long one can be stopped. Tested with a 253-page dissertation: about
+two seconds, all 310 footnotes in place, and saved back to Word with all 310. The PDF
+reader is fetched once, the first time, and used only if it matches its published
+fingerprint. Mended: Fill a PDF refused every PDF ("This is a PDF. Tabula writes .docx
+documents"); it opens them again.
+
+## Earlier, in build 1070
 
 A lighter, quicker app. With nothing touched, the moving decorations (the glitter and
 glow on the app keys, the seal, the bell, the dots) kept the processor painting about half

@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1070, 30 October 2026. The About panel inside the app ends with
-"Build 1070 · 528171070".
-The app's own version is 1070 too; Android usually shows it on the
+Build 1071, 30 October 2026. The About panel inside the app ends with
+"Build 1071 · 528171071".
+The app's own version is 1071 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,20 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1070
+NEW IN BUILD 1071
+  Tabula opens a PDF as a document to write in. File, Open (or a PDF dropped on Tabula)
+  brings its words in: paragraphs, headings, centred lines, lists, bold and italic, and
+  footnotes, whose raised numbers in the text are matched with the notes at the page feet
+  and become Tabula's own footnotes. Words broken by a hyphen at a line's end are made
+  whole; running heads and page numbers are left out; a PDF that holds only pictures of its
+  pages says so, and a long one can be stopped. Tested with a 253-page dissertation: about
+  two seconds, all 310 footnotes in place, and saved back to Word with all 310. The PDF
+  reader is fetched once, the first time, and used only if it matches its published
+  fingerprint. Mended: Fill a PDF refused every PDF ("This is a PDF. Tabula writes .docx
+  documents"); it opens them again.
+
+
+EARLIER, IN BUILD 1070
   A lighter, quicker app. With nothing touched, the moving decorations (the glitter and
   glow on the app keys, the seal, the bell, the dots) kept the processor painting about half
   of every second, and went on moving behind Tabula where no one can see them. Each now has

@@ -40,8 +40,8 @@ claimed by the author, and their licences do not extend to Carpe Diem.
    distributing the apps it packages), and, on the Mac, PyObjC (MIT).
 
 3. Downloaded once, only when first asked for, and then kept on the device:
-   Scriba's speech tools and the PDF reader it uses for slides. They are not
-   part of the distributed file. Transformers.js (Apache License 2.0) and
+   Scriba's speech tools, and the PDF reader that Scriba uses for slides and
+   Tabula for opening PDFs. They are not part of the distributed file. Transformers.js (Apache License 2.0) and
    ONNX Runtime Web (MIT) run the models; the speech models are Moonshine
    and Whisper (each published under the MIT licence); speakers are told
    apart with pyannote segmentation 3.0 (MIT) and WeSpeaker ResNet34

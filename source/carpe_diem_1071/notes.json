@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-30",
+ "pass": "1071",
+ "stamp": "528171071",
+ "prev": "1070",
+ "when": "30 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103008",
+ "en": "Tabula opens a PDF as a document to write in. File, Open (or a PDF dropped on Tabula)\nbrings its words in: paragraphs, headings, centred lines, lists, bold and italic, and\nfootnotes, whose raised numbers in the text are matched with the notes at the page feet\nand become Tabula's own footnotes. Words broken by a hyphen at a line's end are made\nwhole; running heads and page numbers are left out; a PDF that holds only pictures of its\npages says so, and a long one can be stopped. Tested with a 253-page dissertation: about\ntwo seconds, all 310 footnotes in place, and saved back to Word with all 310. The PDF\nreader is fetched once, the first time, and used only if it matches its published\nfingerprint. Mended: Fill a PDF refused every PDF (\"This is a PDF. Tabula writes .docx\ndocuments\"); it opens them again.",
+ "web": "Tabula opens a PDF as a document to write in: paragraphs, headings, lists, bold and italic, and its footnotes as Tabula's own (tested with a 253-page dissertation and its 310 footnotes). Fill a PDF opens PDFs again.",
+ "ios": "Tabula opens a PDF as a document to write in: paragraphs, headings, lists,\nbold and italic, and its footnotes as Tabula's own. Fill a PDF opens PDFs again."
+}

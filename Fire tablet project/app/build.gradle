@@ -18,7 +18,7 @@ android {
         // updates, and this one never goes backwards, whichever repository
         // or computer builds it.
         versionCode ((int) ((System.currentTimeMillis() - 1735689600000L) / 60000L))
-        versionName '1070'
+        versionName '1071'
 
         // Build 1046: the tablet's writing model (llama.cpp), built for 64-bit
         // ARM tablets; 32-bit tablets get a small placeholder so the app still
