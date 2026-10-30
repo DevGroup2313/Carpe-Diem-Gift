@@ -199,11 +199,20 @@ jobs:
           if [ -f "dist/Carpe Diem.app/Icon"$'\r' ]; then echo "seal: the Icon file is in the bundle"; else echo "seal: NO Icon file in the bundle"; fi
 
       - name: Pack the app
-        # --sequesterRsrc keeps the custom icon (its resource fork and the Finder flag) in the zip
+        # --sequesterRsrc keeps the custom icon (its resource fork and the Finder flag) in the zip.
+        # build 1067: the zip opens as a folder named for its build ("Carpe Diem 1067"), so a download is never taken
+        # for an earlier one left in Downloads under the same name
         run: |
           cd "$PROJ/dist"
-          ditto -c -k --sequesterRsrc --keepParent "Carpe Diem.app" "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
+          PASS=$(grep -m1 '^Pass:' ../BUILD_INFO.txt | tr -dc '0-9')
+          DIR="Carpe Diem $PASS"
+          rm -rf pack && mkdir -p "pack/$DIR"
+          ditto "Carpe Diem.app" "pack/$DIR/Carpe Diem.app"
+          printf 'Carpe Diem, build %s\n\n1. If Carpe Diem is open, quit it: Carpe Diem menu, Quit Carpe Diem (or Command-Q).\n2. Drag Carpe Diem.app from this folder into Applications, and choose Replace.\n3. Open Carpe Diem. The About panel ends with "Build %s".\n\nYour work is kept by the Mac, not by the app, so replacing the app never touches it.\n' "$PASS" "$PASS" > "pack/$DIR/How to install.txt"
+          cd pack
+          ditto -c -k --sequesterRsrc --keepParent "$DIR" "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
           ls -la "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip"
+          unzip -l "$GITHUB_WORKSPACE/Carpe-Diem-Mac.zip" | grep -E "How to install|Contents/Info.plist$" | head -3
 
       - name: Keep the app with this run
         uses: actions/upload-artifact@v6
@@ -220,7 +229,7 @@ jobs:
           TAG=carpe-diem-mac
           PASS=$(grep -m1 '^Pass:' "$PROJ/BUILD_INFO.txt" | tr -dc '0-9')
           NOTES="Carpe Diem for Mac, build ${PASS}. One app for Intel and Apple silicon Macs. Built $(date -u '+%d %B %Y, %H:%M UTC') from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA:0:7}.
-          Unzip, drag Carpe Diem.app to Applications, then follow the READ ME for the first open."
+          The zip opens as the folder \"Carpe Diem ${PASS}\". Quit Carpe Diem if it is open, then drag Carpe Diem.app from that folder into Applications and choose Replace. The About panel then ends with \"Build ${PASS}\"."
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" Carpe-Diem-Mac.zip --clobber
             gh release edit "$TAG" --notes "$NOTES"

@@ -1077,8 +1077,9 @@ def _hear_quit_please():
 def _watch_for_newer_build(window, app_html):
     """Build 1065. When a newer Carpe Diem is put where this one was opened from while this one is open (Finder's
     Replace), opening Carpe Diem can bring this copy forward instead of starting the newer one, so the window would go
-    on showing this build. Once a minute this copy looks at the page now in its place; when it is a newer build, the
-    page offers to start again into it (the work stays)."""
+    on showing this build. This copy looks at the page now in its place whenever it is brought forward (from 1068: at
+    once, so the offer is there as the window comes up) and once a minute; when it is a newer build, the page offers to
+    start again into it (the work stays)."""
     import json
     import threading
     import time
@@ -1088,31 +1089,45 @@ def _watch_for_newer_build(window, app_html):
         started = 0
     if not started or not _OWN_BUNDLE.get("path"):
         return
+    lock = threading.Lock()
+    st8 = {"seen": None, "told": 0}
 
-    def look():
-        seen, told = None, 0
-        while True:
-            time.sleep(60)
+    def check_once():
+        with lock:
             try:
                 st = os.stat(app_html)
                 sig = (st.st_mtime, st.st_size, st.st_ino)
             except Exception:
-                continue
-            if sig == seen:
-                continue
-            seen = sig
+                return
+            if sig == st8["seen"]:
+                return
+            st8["seen"] = sig
             try:
                 now = int((_page_build(app_html).split(" ") or ["0"])[0] or 0)
             except Exception:
-                continue
-            if now > started and now != told:
-                told = now
-                log_note("a newer Carpe Diem (build %d) is in this one's place; the page offers to start it" % now)
-                try:
-                    window.evaluate_js("window.cdNewBuildInstalled && window.cdNewBuildInstalled(%s)" % json.dumps(str(now)))
-                except Exception:
-                    pass
-    threading.Thread(target=look, name="carpe-newer-build", daemon=True).start()
+                return
+            if now <= started or now == st8["told"]:
+                return
+            st8["told"] = now
+        log_note("a newer Carpe Diem (build %d) is in this one's place; the page offers to start it" % now)
+        try:
+            window.evaluate_js("window.cdNewBuildInstalled && window.cdNewBuildInstalled(%s)" % json.dumps(str(now)))
+        except Exception:
+            pass
+
+    def every_minute():
+        while True:
+            time.sleep(60)
+            check_once()
+    threading.Thread(target=every_minute, name="carpe-newer-build", daemon=True).start()
+    try:
+        from Foundation import NSNotificationCenter
+        tok = NSNotificationCenter.defaultCenter().addObserverForName_object_queue_usingBlock_(
+            "NSApplicationDidBecomeActiveNotification", None, None,
+            lambda _n: threading.Thread(target=check_once, name="carpe-newer-build-now", daemon=True).start())
+        _QUIT_WATCH.append(tok)
+    except Exception:
+        log_note("newer build: coming forward could not be heard (%s)" % (sys.exc_info()[1],))
 
 
 def _restart_into_new_build():
