@@ -115,11 +115,12 @@ JS = r'''<script id="cd-1072-host-open">
   // the app keeps a file it was asked to open (Open With in the Finder or in Explorer) until this page asks for it: Carpe
   // Diem's own window asks, or Tabula's own window when one is open; the app answers which may take it
   var where = (function () { try { return (typeof cdAppWindowWhich === 'function' && cdAppWindowWhich()) || 'desk'; } catch (e) { return 'desk'; } })();
-  var busy = false;
+  var busy = false, told = false;
   function ask() {
     var a = null;
     try { a = window.pywebview && window.pywebview.api; } catch (e) {}
     if (busy || !a || typeof a.take_file !== 'function' || (where !== 'desk' && where !== 'tabula')) return;
+    if (!told) { told = true; report('-', 'the page asks for files from ' + where); }
     busy = true;
     function free() { busy = false; }
     Promise.resolve(a.take_file(where)).then(function (t) {

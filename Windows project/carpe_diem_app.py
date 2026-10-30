@@ -854,6 +854,26 @@ def _openable(path):
         return False
 
 
+def _hear_pywebview():
+    """Build 1072: pywebview's own errors (a request from the page that failed inside it, say) are written to the record,
+    where they can be read; otherwise they go to a console a windowed app does not have."""
+    import logging
+
+    class ToRecord(logging.Handler):
+        def emit(self, rec):
+            try:
+                msg = str(self.format(rec)).replace("Traceback", "trace")
+                log_note("pywebview: " + msg[:1500])
+            except Exception:
+                pass
+    try:
+        h = ToRecord()
+        h.setLevel(logging.ERROR)
+        logging.getLogger("pywebview").addHandler(h)
+    except Exception:
+        pass
+
+
 def files_asked(paths):
     """Word and PDF files to hand to Tabula as soon as the page can take them."""
     got = [os.path.abspath(p) for p in (paths or []) if _openable(p)]
@@ -867,6 +887,14 @@ def _take_file(api, where):
     """The page asks for a file waiting to open (it asks every second or so). Tabula's own window takes it when one is
     open, else Carpe Diem's window. The bytes wait here, in pieces the page fetches one at a time (file_part): a long
     PDF is many megabytes. Nothing here calls into the page, so nothing here can wait on a page that is not ready."""
+    try:
+        return _take_file_now(api, where)
+    except Exception:
+        log_problem("file: the page's request for a file failed")
+        return None
+
+
+def _take_file_now(api, where):
     import base64
     import math
     import uuid
@@ -877,6 +905,9 @@ def _take_file(api, where):
     except Exception:
         tabula_open = False
     if where == "desk" and tabula_open:
+        if not _OPENED.get("held"):
+            _OPENED["held"] = True
+            log_note("file: waiting for Tabula's own window, which is open, to take it")
         return None
     try:
         path = _OPENED["queue"].pop(0)
@@ -2052,6 +2083,7 @@ def main():
     if isinstance(api, CarpeApi):
         _rooms_on_request(api, window, _room)
     _files_on_request()
+    _hear_pywebview()
 
     # gui=None lets pywebview pick the best native backend for the platform
     # (Edge WebView2 on Windows, WKWebView on macOS, WebKitGTK/Qt on Linux).
