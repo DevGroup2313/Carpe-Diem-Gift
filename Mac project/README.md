@@ -7,11 +7,23 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1075, 30 October 2026.** The About panel in the app ends with
-"Build 1075 · 528171075". Finder's Get Info on the app shows
-version 1075.
+**Build 1076, 31 October 2026.** The About panel in the app ends with
+"Build 1076 · 528171076". Finder's Get Info on the app shows
+version 1076.
 
-## New in build 1075
+## New in build 1076
+
+Candidatus's Applications, Proposal, Milestones and Citations are redesigned like its Overview. Applications: the
+three buckets as raised tiles, each programme a card with its checklist ring, opening on its status, deadlines,
+notes, pros and cons and checklist. Proposal: the proposal's card with its ring, the title as a key, the workshop's
+keys, and each section a card with its ring, opening on its parts, mark, workshop and notes. Milestones: the road of
+dated milestones standing up, a date key on each, funding and visa as checklists. Citations: a card for each
+reference, and the form for a new one. Every key on the new pages now stands raised on its edge, rises under the
+pointer and sinks when pressed, as the rest of the app's keys do; the cards lift; nothing that can be pressed is
+flat; the cards pop in, the rings, bars and roads fill in, a finished step bows out and a new one arrives. At a
+phone's width every key keeps clear of the dock at the right edge.
+
+## Earlier, in build 1075
 
 Candidatus's Overview is redesigned, as approved: the next step with its time and size, Begin with the Clepsydra,
 Break it into smaller steps, Another step and Done; today's energy (Low is the app's own low-energy day, so short steps

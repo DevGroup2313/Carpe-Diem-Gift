@@ -1,0 +1,12 @@
+{
+ "date": "2026-10-31",
+ "pass": "1076",
+ "stamp": "528171076",
+ "prev": "1075",
+ "when": "31 October 2026",
+ "prev_when": "30 October 2026",
+ "ios_version": "2026103101",
+ "en": "Candidatus's Applications, Proposal, Milestones and Citations are redesigned like its Overview. Applications: the\nthree buckets as raised tiles, each programme a card with its checklist ring, opening on its status, deadlines,\nnotes, pros and cons and checklist. Proposal: the proposal's card with its ring, the title as a key, the workshop's\nkeys, and each section a card with its ring, opening on its parts, mark, workshop and notes. Milestones: the road of\ndated milestones standing up, a date key on each, funding and visa as checklists. Citations: a card for each\nreference, and the form for a new one. Every key on the new pages now stands raised on its edge, rises under the\npointer and sinks when pressed, as the rest of the app's keys do; the cards lift; nothing that can be pressed is\nflat; the cards pop in, the rings, bars and roads fill in, a finished step bows out and a new one arrives. At a\nphone's width every key keeps clear of the dock at the right edge.",
+ "web": "The Home overview now has the app's raised 3D feel: its keys rise under the pointer and sink when pressed, its cards lift, and its rings and bars fill in, by day and by night.",
+ "ios": "Candidatus's Applications, Proposal, Milestones and Citations are redesigned like its Overview. Every key on the\nnew pages stands raised and sinks when pressed, the cards lift, and the rings, bars and roads fill in. At a\nphone's width every key keeps clear of the dock."
+}
