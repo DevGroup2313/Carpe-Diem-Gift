@@ -7,11 +7,23 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1077, 31 October 2026.** The About panel in the app ends with
-"Build 1077 · 528171077". Finder's Get Info on the app shows
-version 1077.
+**Build 1078, 31 October 2026.** The About panel in the app ends with
+"Build 1078 · 528171078". Finder's Get Info on the app shows
+version 1078.
 
-## New in build 1077
+## New in build 1078
+
+Home's tabs are the Forge's: Home and Overview sit, compact and sized to their words, at the left of the Backup
+key's row. Offline by design is a cream card with its lock key, in its own words. How Candidatus works is redesigned
+and at the top of the Overview: the four rooms as keys that open them, Milestones marked Start here; Fold away keeps it
+as one line. Assessments and Ascensus are redesigned in the Overview's look, with the Forge's tabs: Assessments with
+How marks work at the top, the overall and proposal cards, and Quizzes, Seminars and Records as cards with keys sized
+to their words; Records and Marks as calm lists, without raised lines. Ascensus with its rank card, the fire as a
+switch, the labours with their boxes, Tips and Swap, Doctorate mode, the Examen, a card for each course and the Record.
+Ascensus's courses are numbered I to XIII: Dissertatio keeps Course V, The Press becomes Course VI and each course after
+it moves one on, with every mention of their numbers. The Curriculum and the seal behind Home are unchanged.
+
+## Earlier, in build 1077
 
 The Librarian's and Magister's conversations have their new look, as approved: Ingenium's chat in Carpe Diem's
 colours, the Librarian in cream and gold, Magister in blue, in three looks chosen from the ⋯ menu and kept (Carpe Diem:

@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1077, 31 October 2026. The About panel inside the app ends with
-"Build 1077 · 528171077".
-The app's own version is 1077 too; Android usually shows it on the
+Build 1078, 31 October 2026. The About panel inside the app ends with
+"Build 1078 · 528171078".
+The app's own version is 1078 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,19 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1077
+NEW IN BUILD 1078
+  Home's tabs are the Forge's: Home and Overview sit, compact and sized to their words, at the left of the Backup
+  key's row. Offline by design is a cream card with its lock key, in its own words. How Candidatus works is redesigned
+  and at the top of the Overview: the four rooms as keys that open them, Milestones marked Start here; Fold away keeps it
+  as one line. Assessments and Ascensus are redesigned in the Overview's look, with the Forge's tabs: Assessments with
+  How marks work at the top, the overall and proposal cards, and Quizzes, Seminars and Records as cards with keys sized
+  to their words; Records and Marks as calm lists, without raised lines. Ascensus with its rank card, the fire as a
+  switch, the labours with their boxes, Tips and Swap, Doctorate mode, the Examen, a card for each course and the Record.
+  Ascensus's courses are numbered I to XIII: Dissertatio keeps Course V, The Press becomes Course VI and each course after
+  it moves one on, with every mention of their numbers. The Curriculum and the seal behind Home are unchanged.
+
+
+EARLIER, IN BUILD 1077
   The Librarian's and Magister's conversations have their new look, as approved: Ingenium's chat in Carpe Diem's
   colours, the Librarian in cream and gold, Magister in blue, in three looks chosen from the ⋯ menu and kept (Carpe Diem:
   the conversation in its raised card, each message raised; Soft: quieter messages; Clean: flat and open, like a page),

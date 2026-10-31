@@ -1,0 +1,151 @@
+/* 1078 · Assessments and Ascensus in the design the owner approved (31 October 2026): the Overview's cream, light blue,
+   sage and butter cards, the app's raised keys, the Forge's compact tabs; keys sized to their words. */
+
+/* the Forge's tabs */
+.cdx .cdt-pill{display:inline-flex !important;width:auto !important;gap:2px !important;padding:2px !important;border-radius:12px !important;background:#eef1f4 !important;
+  border:1px solid rgba(10,30,46,.12) !important;box-shadow:inset 0 -1.5px 0 rgba(10,30,46,.14),0 2px 0 rgba(10,30,46,.30),0 4px 4px rgba(10,30,46,.20),0 9px 11px rgba(10,30,46,.15) !important;
+  margin:0 !important;flex-wrap:wrap;max-width:100%}
+.cdx .cdt-pill > button{all:unset;box-sizing:border-box;border-radius:9px !important;padding:5px 15px !important;font:600 12.5px/1.35 var(--cd-ui) !important;color:#39424c !important;cursor:pointer;
+  background:transparent !important;box-shadow:none !important;border:0 !important;transform:none !important;min-height:0 !important;transition:background-color .15s,color .15s}
+.cdx .cdt-pill > button:hover{background:rgba(23,87,122,.07) !important;color:#17577a !important}
+.cdx .cdt-pill > button[aria-selected="true"]{background:rgba(23,87,122,.14) !important;color:#17577a !important;font-weight:700 !important}
+.cdx .cdt-pill > button:focus-visible{outline:2px solid var(--cx-blue) !important;outline-offset:1px}
+body[data-theme="night"] .cdx .cdt-pill{background:rgba(255,255,255,.06) !important;border-color:rgba(255,255,255,.10) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -2px 0 rgba(0,0,0,.5),0 2px 0 rgba(0,0,0,.8),0 4px 5px rgba(0,0,0,.6),0 9px 14px rgba(0,0,0,.45) !important}
+body[data-theme="night"] .cdx .cdt-pill > button{color:#b9c4cd !important}
+body[data-theme="night"] .cdx .cdt-pill > button:hover{background:rgba(91,174,219,.10) !important;color:#5BAEDB !important}
+body[data-theme="night"] .cdx .cdt-pill > button[aria-selected="true"]{background:rgba(91,174,219,.18) !important;color:#5BAEDB !important}
+body.mode-folio .cdx .cdt-pill > button[aria-selected="true"]{background:rgba(201,162,74,.22) !important;color:var(--accent) !important}
+.cdz-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:2px 0 4px}
+.cdz-top > .tabula-btn{margin-left:auto}
+
+/* how it works, folded or open */
+.cdz-how{padding:12px 16px}
+.cdz-how-top{display:flex;align-items:center;gap:12px}
+.cdz-how-badge{flex:0 0 auto;width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:15px;background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest)}
+.cdz-how-line{flex:1;min-width:0;color:var(--cx-soft);font-size:13px}
+.cdz-how-line b{color:var(--cx-ink);font:600 14px/1.3 var(--cd-serif);margin-right:6px}
+.cdz-how-body{margin:10px 2px 2px;color:var(--cx-soft);font-size:13px;line-height:1.6}
+
+/* figures */
+.cdz-big{display:flex;align-items:center;gap:16px}
+.cdz-big .n{font:600 30px/1 var(--cd-serif);color:var(--cx-ink)}
+.cdz-big .n small{font:500 13px/1.35 var(--cd-ui);color:var(--cx-faint);display:block;margin-top:5px}
+.cdz-mini{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.cdz-mini > div{font-size:11.5px;color:var(--cx-faint);min-width:0}
+.cdz-mini b{display:block;font:600 12.5px/1.2 var(--cd-ui);color:var(--cx-ink);margin-bottom:2px}
+.cdz-badge{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:18px;background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest);line-height:1}
+.cdz-badge svg{max-width:22px;max-height:22px}
+.cdz-head{display:flex;align-items:flex-start;gap:14px}
+.cdz-head > .grow{flex:1;min-width:0}
+.cdz-tipline .cd-tip-line{margin-top:8px}
+
+/* Assessments: the marks, as rows */
+.cdz-mark{display:grid;grid-template-columns:36px 92px minmax(0,1fr) 150px 52px 44px 92px;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;
+  background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest);margin:0 0 10px}
+.cdz-mark .cdz-badge{width:32px;height:32px;font-size:15px}
+.cdz-mark .k{font:700 10.5px/1.2 var(--cd-ui);letter-spacing:.12em;color:var(--cx-blue);white-space:nowrap}
+.cdz-mark .t{font-weight:600;color:var(--cx-ink);min-width:0}
+.cdz-mark .c{font:600 12px/1 ui-monospace,Menlo,monospace;color:var(--cx-faint);text-align:right}
+.cdz-mark .g{font:600 16px/1 var(--cd-serif);text-align:center;color:var(--cx-ink)}
+.cdz-mark .g.hi{color:var(--cx-blue)}
+.cdz-mark .b{font-size:11px;color:var(--cx-faint);text-align:right;white-space:nowrap}
+.cdz-mark .cdx-bar{margin:0}
+.cdz-refresh .cdz-rrow{display:flex;align-items:center;gap:10px;padding:6px 0}
+.cdz-refresh .cdz-rrow > span:first-child{flex:1;min-width:0}
+
+/* Assessments: the records, a card for each term, the app's own modules inside */
+button.cdz-thead{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;cursor:pointer}
+button.cdz-thead:focus-visible{outline:2px solid var(--cx-blue);outline-offset:4px;border-radius:12px}
+.cdz-thead .grow{flex:1;min-width:0}
+.cdz-thead .cdx-kick{margin:0 0 2px}
+.cdz-thead h4{margin:0;font:600 16px/1.3 var(--cd-serif);color:var(--cx-ink)}
+.cdz-lock{font-size:12px;color:var(--cx-faint);white-space:nowrap}
+.cdz-chev{flex:0 0 auto;width:28px;height:28px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:var(--cx-soft);
+  background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest);transition:transform .1s var(--cx-spring),box-shadow .12s}
+button.cdz-thead:hover .cdz-chev{transform:translateY(-2px);box-shadow:var(--cx-k-hover)}
+.cdz-tbody{margin-top:12px}
+.cdz-tbody > p{margin:0 0 10px;font-size:12px;color:var(--cx-faint)}
+.cdz-tbody [id^="assess-"]{border-top:0 !important;padding:9px 12px !important;margin:0 0 8px;border-radius:12px;background:var(--cx-k-face);border:1px solid var(--cx-k-bd) !important;box-shadow:var(--cx-k-rest);
+  transition:transform .1s var(--cx-spring),box-shadow .12s}
+.cdz-tbody [id^="assess-"]:hover{transform:translateY(-1px);box-shadow:var(--cx-k-hover)}
+
+/* the app's own keys inside the new cards, raised like the rest */
+.cdx .cdz-own button.btn,.cdx .cdz-own button.glass,.cdx #asc-doctorate button{background:var(--cx-k-face) !important;border:1px solid var(--cx-k-bd) !important;box-shadow:var(--cx-k-rest) !important;
+  color:var(--cx-ink) !important;border-radius:10px !important;padding:7px 12px !important;font:600 12.5px/1.2 var(--cd-ui) !important;cursor:pointer;
+  transition:transform .1s var(--cx-spring),box-shadow .12s !important}
+.cdx .cdz-own button.btn:hover,.cdx .cdz-own button.glass:hover,.cdx #asc-doctorate button:hover{transform:translateY(-2px) !important;box-shadow:var(--cx-k-hover) !important}
+.cdx .cdz-own button.btn:active,.cdx .cdz-own button.glass:active,.cdx #asc-doctorate button:active{transform:translateY(1px) scale(.98) !important;box-shadow:var(--cx-k-down) !important}
+
+/* Ascensus: the rank, the labours, the courses */
+.cdz-rank{display:flex;align-items:center;gap:18px}
+.cdz-rank .medal{flex:0 0 auto}
+.cdz-rank .grow{flex:1;min-width:0}
+.cdz-rank h3{margin:0;font:600 28px/1.15 var(--cd-serif);color:var(--cx-blue)}
+.cdz-rank h3 small{font:italic 400 14px/1 var(--cd-ui);color:var(--cx-soft);margin-left:8px}
+.cdz-rank .xp{font:600 16px/1 var(--cd-ui);color:var(--cx-ink);align-self:flex-start;margin-top:8px;white-space:nowrap}
+.cdz-rank .cdx-bar{height:9px}
+.cdz-rank .cdx-bar i{background:linear-gradient(90deg,#c79a3e,#efd486,#c79a3e)}
+.cdz-motto{margin:4px 0 0;font-style:italic;color:var(--cx-soft)}
+.cdz-seg button .fl{display:inline-block;margin-right:4px}
+.cdz-lab{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:14px;background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest);
+  transition:transform .1s var(--cx-spring),box-shadow .12s;margin:0 0 10px}
+.cdz-lab:hover{transform:translateY(-2px);box-shadow:var(--cx-k-hover)}
+.cdz-lab .cdx-box{width:24px;height:24px;margin-top:1px;font-size:13px}
+.cdz-lab .t{flex:1;min-width:0}
+.cdz-lab .t b{display:block;font-weight:600;line-height:1.4;color:var(--cx-ink)}
+.cdz-lab.done .t b{color:var(--cx-faint);text-decoration:line-through}
+.cdz-lab .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cdz-lab.stretch{border-color:rgba(169,128,58,.5)}
+.cdz-lab .acts{display:flex;gap:6px;flex:0 0 auto;align-items:center}
+.cdz-lab .cd-tip-btn{margin:0}
+.cdz-courses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cdx button.cdz-course{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--cx-k-face);border:1px solid var(--cx-k-bd);box-shadow:var(--cx-k-rest);
+  text-align:left;font:inherit;color:var(--cx-ink);cursor:pointer;transition:transform .1s var(--cx-spring),box-shadow .12s;min-width:0}
+.cdx button.cdz-course:hover{transform:translateY(-2px);box-shadow:var(--cx-k-hover)}
+.cdx button.cdz-course:active{transform:translateY(1px) scale(.98);box-shadow:var(--cx-k-down)}
+.cdx button.cdz-course[disabled]{opacity:.6;cursor:default;transform:none}
+.cdz-course .grow{flex:1;min-width:0}
+.cdz-course .cdx-kick{margin:0 0 3px;font-size:9.5px}
+.cdz-course b{display:block;font:600 15px/1.25 var(--cd-serif)}
+.cdz-course span.s{display:block;font-size:12px;color:var(--cx-faint)}
+.cdz-course .cdx-ring svg{width:40px;height:40px}
+.cdz-find{display:flex;align-items:center;gap:10px}
+.cdz-find .cdx-field{flex:1}
+.cdz-find span{font-size:11.5px;font-style:italic;color:var(--cx-faint);white-space:nowrap}
+.cdz-log{margin:0;padding:0;list-style:none}
+.cdz-log li{display:flex;gap:10px;align-items:baseline;padding:7px 2px;border-bottom:1px solid var(--cx-rim);font-size:13px;color:var(--cx-soft)}
+.cdz-log li b{color:var(--cx-blue);font:600 12px/1 ui-monospace,Menlo,monospace;min-width:44px}
+.cdx #asc-doctorate{background:var(--cx-sage) !important;border:1px solid var(--cx-rim) !important;border-radius:16px !important;box-shadow:var(--cx-s-rest) !important;padding:16px 18px !important;margin:0 !important}
+.cdx #asc-doctorate > div:first-child{font:700 10.5px/1.2 var(--cd-ui) !important;letter-spacing:.14em;text-transform:uppercase;color:var(--cx-blue) !important;margin-bottom:8px !important}
+
+@media (max-width:900px){.cdz-mini{grid-template-columns:repeat(3,1fr)}.cdz-mark{grid-template-columns:32px minmax(0,1fr) 44px 44px}.cdz-mark .k,.cdz-mark .cdx-bar,.cdz-mark .b{display:none}}
+@media (max-width:640px){.cdz-courses{grid-template-columns:1fr}.cdz-rank{flex-wrap:wrap}}
+/* the app's own module rows inside a term card: one raised row each (the app raises bare buttons on this page) */
+#assess-root .cdz-tbody [id^="assess-"] > button{box-shadow:none !important;background:transparent !important;border:0 !important;padding:3px 0 !important;border-radius:0 !important;transform:none !important;min-height:0 !important}
+#assess-root .cdz-tbody [id^="assess-"]{padding:10px 14px !important}
+
+/* 1078 · Records and Marks, calm (the owner: "the many 3D line for the terms, they are triggering my sensory issues"):
+   no raised edges and no shadows on these two lists; soft cards, plain rows with faint dividers, a gentle tint under
+   the pointer, and the chevrons and badges flat. */
+.cdx.cdz-calm .cdx-card{box-shadow:none !important;border:1px solid rgba(16,42,58,.08) !important;transform:none !important;animation:none !important}
+.cdx.cdz-calm .cdx-card:hover{transform:none !important;box-shadow:none !important}
+body[data-theme="night"] .cdx.cdz-calm .cdx-card{border-color:rgba(255,255,255,.07) !important}
+.cdx.cdz-calm .cdz-badge,.cdx.cdz-calm .cdz-chev{box-shadow:none !important;border:1px solid rgba(16,42,58,.08) !important;background:rgba(255,255,255,.55) !important}
+body[data-theme="night"] .cdx.cdz-calm .cdz-badge,body[data-theme="night"] .cdx.cdz-calm .cdz-chev{border-color:rgba(255,255,255,.08) !important;background:rgba(255,255,255,.04) !important}
+.cdx.cdz-calm button.cdz-thead:hover .cdz-chev{transform:none !important;box-shadow:none !important}
+.cdx.cdz-calm button.cdz-thead{border-radius:10px}
+.cdx.cdz-calm button.cdz-thead:hover h4{color:var(--cx-blue)}
+#assess-root .cdx.cdz-calm .cdz-tbody [id^="assess-"]{box-shadow:none !important;border:0 !important;border-radius:8px !important;background:transparent !important;
+  border-bottom:1px solid rgba(16,42,58,.07) !important;margin:0 !important;padding:9px 10px !important;transform:none !important}
+#assess-root .cdx.cdz-calm .cdz-tbody [id^="assess-"]:last-child{border-bottom:0 !important}
+#assess-root .cdx.cdz-calm .cdz-tbody [id^="assess-"]:hover{background:rgba(27,107,147,.06) !important;transform:none !important;box-shadow:none !important}
+body[data-theme="night"] #assess-root .cdx.cdz-calm .cdz-tbody [id^="assess-"]{border-bottom-color:rgba(255,255,255,.06) !important}
+body[data-theme="night"] #assess-root .cdx.cdz-calm .cdz-tbody [id^="assess-"]:hover{background:rgba(91,174,219,.08) !important}
+.cdx.cdz-calm .cdz-marks{background:var(--cx-cream);border:1px solid rgba(16,42,58,.08);border-radius:16px;padding:4px 14px}
+body[data-theme="night"] .cdx.cdz-calm .cdz-marks{border-color:rgba(255,255,255,.07)}
+.cdx.cdz-calm .cdz-mark{box-shadow:none !important;border:0 !important;background:transparent !important;border-radius:0 !important;margin:0 !important;padding:11px 2px !important;
+  border-bottom:1px solid rgba(16,42,58,.07) !important}
+.cdx.cdz-calm .cdz-mark:last-child{border-bottom:0 !important}
+body[data-theme="night"] .cdx.cdz-calm .cdz-mark{border-bottom-color:rgba(255,255,255,.06) !important}
+.cdx.cdz-calm .cdx-rise{animation:none !important}
