@@ -1,0 +1,34 @@
+[
+ {
+  "id": "home",
+  "at": 0.3
+ },
+ {
+  "id": "overview",
+  "at": 7.39
+ },
+ {
+  "id": "candidatus",
+  "at": 14.98
+ },
+ {
+  "id": "assessments",
+  "at": 25.36
+ },
+ {
+  "id": "ascensus",
+  "at": 35.56
+ },
+ {
+  "id": "librarian",
+  "at": 46.2
+ },
+ {
+  "id": "magister",
+  "at": 53.54
+ },
+ {
+  "id": "end",
+  "at": 58.38
+ }
+]

@@ -1,0 +1,27 @@
+/* 1079 · Ascensus: the neon lights back, as the owner asked (31 October 2026): "I want the neon flashing lights back on
+   the Ascensus page but I also want to keep the new design look of the page". The labours and the rank card glow again
+   through gold, blue, lilac, teal and rose on the app's own 17-second round (ascCardAura), each labour a little out of
+   step with the next, as before; the glow lies over the new raised cards, so their look stays. Calm, minimal motion and
+   a device's reduced motion keep a still, soft gold glow instead of the flashing. */
+@keyframes cdzAscAura{
+  0%,100%{box-shadow:var(--cx-k-rest),0 0 36px 1px rgba(245,195,75,.60),inset 0 0 26px -10px rgba(245,195,75,.50)}
+  20%{box-shadow:var(--cx-k-rest),0 0 40px 3px rgba(90,150,255,.62),inset 0 0 28px -10px rgba(90,150,255,.55)}
+  40%{box-shadow:var(--cx-k-rest),0 0 40px 3px rgba(186,140,246,.62),inset 0 0 28px -10px rgba(186,140,246,.55)}
+  60%{box-shadow:var(--cx-k-rest),0 0 40px 3px rgba(70,200,210,.60),inset 0 0 28px -10px rgba(70,200,210,.50)}
+  80%{box-shadow:var(--cx-k-rest),0 0 40px 3px rgba(240,130,185,.60),inset 0 0 28px -10px rgba(240,130,185,.50)}}
+@keyframes cdzAscAuraCard{
+  0%,100%{box-shadow:var(--cx-s-rest),0 0 36px 1px rgba(245,195,75,.60),inset 0 0 26px -10px rgba(245,195,75,.50)}
+  20%{box-shadow:var(--cx-s-rest),0 0 40px 3px rgba(90,150,255,.62),inset 0 0 28px -10px rgba(90,150,255,.55)}
+  40%{box-shadow:var(--cx-s-rest),0 0 40px 3px rgba(186,140,246,.62),inset 0 0 28px -10px rgba(186,140,246,.55)}
+  60%{box-shadow:var(--cx-s-rest),0 0 40px 3px rgba(70,200,210,.60),inset 0 0 28px -10px rgba(70,200,210,.50)}
+  80%{box-shadow:var(--cx-s-rest),0 0 40px 3px rgba(240,130,185,.60),inset 0 0 28px -10px rgba(240,130,185,.50)}}
+#cdx-asc .cdz-lab{animation:cdzAscAura 17s ease-in-out infinite}
+#asc-labours .cdz-lab:nth-child(3){animation-delay:-4.25s}
+#asc-labours .cdz-lab:nth-child(4){animation-delay:-8.5s}
+#asc-labours .cdz-lab:nth-child(5){animation-delay:-12.75s}
+#cdx-asc > .cdx-card:first-child{animation:cdxPop .55s cubic-bezier(.2,.8,.2,1) backwards,cdzAscAuraCard 17s ease-in-out infinite}
+html[data-cd-calm] #cdx-asc .cdz-lab,html[data-sc-calm] #cdx-asc .cdz-lab,body[data-motion="minimal"] #cdx-asc .cdz-lab{animation:none !important;box-shadow:var(--cx-k-rest),0 0 22px -2px rgba(245,195,75,.42) !important}
+html[data-cd-calm] #cdx-asc > .cdx-card:first-child,html[data-sc-calm] #cdx-asc > .cdx-card:first-child,body[data-motion="minimal"] #cdx-asc > .cdx-card:first-child{animation:none !important;box-shadow:var(--cx-s-rest),0 0 26px -2px rgba(245,195,75,.42) !important}
+@media (prefers-reduced-motion:reduce){
+  #cdx-asc .cdz-lab{animation:none !important;box-shadow:var(--cx-k-rest),0 0 22px -2px rgba(245,195,75,.42) !important}
+  #cdx-asc > .cdx-card:first-child{animation:none !important;box-shadow:var(--cx-s-rest),0 0 26px -2px rgba(245,195,75,.42) !important}}

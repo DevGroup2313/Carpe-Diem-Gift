@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1078, 31 October 2026.** The About panel in the app ends with
-"Build 1078 · 528171078". Finder's Get Info on the app shows
-version 1078.
+**Build 1079, 31 October 2026.** The About panel in the app ends with
+"Build 1079 · 528171079". Finder's Get Info on the app shows
+version 1079.
 
-## New in build 1078
+## New in build 1079
+
+Ascensus has its neon lights back, as before, in its new design: the labours and the rank card glow again through
+gold, blue, lilac, teal and rose, each labour a little out of step with the next; Calm, minimal motion and a device's
+reduced motion keep a still, soft gold glow instead.
+
+The Guidebook has a film, Carpe Diem in action: about a minute of the app at work, with no sound and with captions,
+in a calm player. Nothing plays until Play is pressed; the film can be slowed to three quarters or quickened, started
+again, jumped through by scene, or read instead as a list of what it shows; Space plays and pauses, the arrows move five
+seconds, Escape closes, and the speed and captions are remembered. It opens from a card at the top of the Guidebook, and the
+tour's first chapter and its end offer it too. The film is in the page itself, so
+it plays with the network off. It was filmed with sample entries: no one's own details appear in it.
+
+## Earlier, in build 1078
 
 Home's tabs are the Forge's: Home and Overview sit, compact and sized to their words, at the left of the Backup
 key's row. Offline by design is a cream card with its lock key, in its own words. How Candidatus works is redesigned
