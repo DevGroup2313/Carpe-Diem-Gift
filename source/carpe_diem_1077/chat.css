@@ -1,0 +1,138 @@
+/* 1077 · the Librarian's and Magister's conversations, laid out as Ingenium's chat in its three looks (Carpe Diem: the
+   conversation in its raised card, each message raised; Soft: quieter messages; Clean: flat and open, like a page), in
+   Carpe Diem's colours (the Librarian's cream and gold, Magister's blue), by day and by night, as the owner approved on
+   31 October 2026. Everything here lives under .cdc, the conversation's own page. */
+.cdc{--ui:var(--cd-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif);--serif:var(--cd-serif,Georgia,"Iowan Old Style","Times New Roman",serif);
+  --bg:#f4f5f7;--card:#fbf7ee;--card2:#ffffff;--ink:#1d2a35;--soft:#4a5966;--faint:#66737e;--acc:#1B6B93;--rim:rgba(27,107,147,.16);
+  --me:#e3eef6;--me-ink:#13405a;--tint:#eaf3f9;--book:#fffdf7;
+  --k-face:linear-gradient(180deg,#ffffff,#f1f4f7);--k-bd:rgba(16,42,58,.12);
+  --k-rest:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1.5px 0 rgba(16,42,58,.16),0 2px 0 rgba(16,42,58,.30),0 4px 5px rgba(16,42,58,.20),0 9px 14px rgba(16,42,58,.13);
+  --k-hover:inset 0 1px 0 #fff,inset 0 -1.5px 0 rgba(16,42,58,.16),0 3px 0 rgba(16,42,58,.30),0 6px 8px rgba(16,42,58,.22),0 13px 20px rgba(16,42,58,.15);
+  --k-down:inset 0 2px 5px rgba(16,42,58,.24),0 1px 1px rgba(16,42,58,.25);
+  --m-face:linear-gradient(180deg,#2a81ad,#1B6B93);--m-ink:#fff;
+  --m-rest:inset 0 1px 0 rgba(255,255,255,.30),inset 0 -1.5px 0 rgba(0,0,0,.18),0 2px 0 #0f4c6b,0 4px 5px rgba(16,42,58,.24),0 9px 14px rgba(16,42,58,.16);
+  --m-hover:inset 0 1px 0 rgba(255,255,255,.34),inset 0 -1.5px 0 rgba(0,0,0,.18),0 3px 0 #0f4c6b,0 6px 8px rgba(16,42,58,.26),0 13px 20px rgba(16,42,58,.18);
+  --m-down:inset 0 2px 6px rgba(0,0,0,.34),0 1px 0 #0f4c6b;
+  --s-rest:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(16,42,58,.10),0 1px 0 rgba(16,42,58,.22),0 3px 4px rgba(16,42,58,.14),0 8px 14px rgba(16,42,58,.09);
+  --s-hover:inset 0 1.5px 0 #fff,inset 0 -1px 0 rgba(16,42,58,.10),0 2px 0 rgba(16,42,58,.20),0 8px 12px rgba(16,42,58,.15),0 18px 32px rgba(16,42,58,.12);
+  --w:inset 0 2px 4px rgba(16,42,58,.10),inset 0 0 0 1px rgba(16,42,58,.05);--spring:cubic-bezier(.34,1.35,.64,1);
+  position:fixed;inset:0;z-index:70;overflow:auto;background:var(--bg);color:var(--ink);font:400 14px/1.55 var(--ui);padding:0 16px}
+.cdc.lib{--acc:#8a6420;--me:#f6ead0;--me-ink:#5a4114;--tint:#fbf3e2;--rim:rgba(169,128,58,.24);--bg:linear-gradient(180deg,#f7f1e4,#efe5d0);
+  --m-face:linear-gradient(180deg,#c39a4f,#a9803a);--m-ink:#fff;
+  --m-rest:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1.5px 0 rgba(0,0,0,.16),0 2px 0 #7a5a20,0 4px 5px rgba(58,42,16,.22),0 9px 14px rgba(58,42,16,.14);
+  --m-hover:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1.5px 0 rgba(0,0,0,.16),0 3px 0 #7a5a20,0 6px 8px rgba(58,42,16,.24),0 13px 20px rgba(58,42,16,.16);
+  --m-down:inset 0 2px 6px rgba(0,0,0,.3),0 1px 0 #7a5a20}
+body[data-theme="night"] .cdc{--bg:#121419;--card:#1f242b;--card2:#252b33;--ink:#e8eef4;--soft:#b9c4cd;--faint:#93a0aa;--acc:#5BAEDB;--rim:rgba(91,174,219,.20);
+  --me:#1d3546;--me-ink:#d6ebf7;--tint:#1b2833;--book:#20262e;
+  --k-face:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));--k-bd:rgba(255,255,255,.10);
+  --k-rest:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -2px 0 rgba(0,0,0,.5),0 2px 0 rgba(0,0,0,.8),0 4px 5px rgba(0,0,0,.6),0 9px 14px rgba(0,0,0,.45),0 18px 28px rgba(0,0,0,.3);
+  --k-hover:inset 0 1px 0 rgba(255,255,255,.11),inset 0 -2px 0 rgba(0,0,0,.5),0 3px 0 rgba(0,0,0,.82),0 6px 8px rgba(0,0,0,.62),0 13px 20px rgba(0,0,0,.5),0 24px 36px rgba(0,0,0,.32);
+  --k-down:inset 0 3px 7px rgba(0,0,0,.75),inset 0 -1px 0 rgba(255,255,255,.06),0 1px 0 rgba(0,0,0,.6);
+  --m-face:linear-gradient(180deg,#6ebde6,#4c9fcb);--m-ink:#0d1a22;
+  --m-rest:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -2px 0 rgba(0,0,0,.22),0 2px 0 #1f5f82,0 4px 5px rgba(0,0,0,.55),0 9px 14px rgba(0,0,0,.42);
+  --m-hover:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -2px 0 rgba(0,0,0,.22),0 3px 0 #1f5f82,0 6px 8px rgba(0,0,0,.58),0 13px 20px rgba(0,0,0,.46);
+  --m-down:inset 0 3px 7px rgba(0,0,0,.45),0 1px 0 #1f5f82;
+  --s-rest:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -2px 0 rgba(0,0,0,.45),0 2px 0 rgba(0,0,0,.7),0 4px 4px rgba(0,0,0,.52),0 10px 12px rgba(0,0,0,.42),0 18px 22px rgba(0,0,0,.26);
+  --s-hover:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 0 rgba(0,0,0,.45),0 3px 0 rgba(0,0,0,.72),0 8px 10px rgba(0,0,0,.55),0 16px 22px rgba(0,0,0,.45),0 28px 40px rgba(0,0,0,.3);
+  --w:inset 0 2px 5px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.04)}
+body[data-theme="night"] .cdc.lib{--acc:#e2be6e;--me:#3a3020;--me-ink:#f3e2bb;--tint:#2a2720;--rim:rgba(201,162,74,.24);--bg:linear-gradient(180deg,#16140f,#110f0b);
+  --m-face:linear-gradient(180deg,#e2c072,#c9a24a);--m-ink:#1d1606;
+  --m-rest:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.2),0 2px 0 #7a5a20,0 4px 5px rgba(0,0,0,.55),0 9px 14px rgba(0,0,0,.42);
+  --m-hover:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 0 rgba(0,0,0,.2),0 3px 0 #7a5a20,0 6px 8px rgba(0,0,0,.58),0 13px 20px rgba(0,0,0,.46);
+  --m-down:inset 0 3px 7px rgba(0,0,0,.45),0 1px 0 #7a5a20}
+.cdc *{box-sizing:border-box}
+.cdc-frame{max-width:1080px;margin:0 auto;padding:56px 0 18px;min-height:100vh;display:flex;flex-direction:column}
+.cdc-chat{flex:1;display:flex;flex-direction:column;min-height:0;height:calc(100vh - 74px);height:calc(100dvh - 74px);border-radius:20px;background:var(--card);border:1px solid var(--rim);box-shadow:var(--s-rest);overflow:hidden}
+
+/* keys */
+.cdc-key{font:600 12.5px/1 var(--ui);padding:9px 13px;border-radius:10px;border:1px solid var(--k-bd);background:var(--k-face);color:var(--ink);box-shadow:var(--k-rest);cursor:pointer;
+  transition:transform .1s var(--spring),box-shadow .12s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.cdc-key:hover{transform:translateY(-2px);box-shadow:var(--k-hover)}
+.cdc-key:active{transform:translateY(1px) scale(.98);box-shadow:var(--k-down);transition-duration:.04s}
+.cdc-key:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.cdc-key[aria-pressed="true"],.cdc-key[aria-pressed="true"]:hover{transform:translateY(1px);box-shadow:var(--k-down);background:var(--tint);color:var(--acc)}
+.cdc-key.main{background:var(--m-face);color:var(--m-ink);box-shadow:var(--m-rest);border-color:rgba(0,0,0,.1)}
+.cdc-key.main:hover{box-shadow:var(--m-hover)} .cdc-key.main:active{box-shadow:var(--m-down)}
+.cdc-key.sq{width:36px;height:36px;justify-content:center;padding:0;font-size:14px}
+.cdc-key.mini{width:28px;height:28px;justify-content:center;padding:0;border-radius:8px;font-size:12.5px;color:var(--soft)}
+.cdc-key.chip{border-radius:999px;padding:8px 13px;font-weight:600}
+.cdc-key.sm{padding:7px 11px;font-size:12px}
+.cdc-key[disabled]{opacity:.55;cursor:default;transform:none !important}
+
+/* the top of the conversation */
+.cdc-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--rim);position:relative}
+.cdc-who{flex:1;min-width:0}
+.cdc-who b{display:block;font:600 16.5px/1.2 var(--serif);color:var(--ink)}
+.cdc-who span{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdc-dot{width:9px;height:9px;border-radius:50%;background:#3aa76d;box-shadow:0 0 0 3px rgba(58,167,109,.18);flex:0 0 auto}
+.cdc-menu{position:absolute;right:14px;top:58px;z-index:3;min-width:240px;padding:12px;border-radius:14px;background:var(--card2);border:1px solid var(--rim);box-shadow:var(--s-hover);animation:cdcIn .2s var(--spring) both}
+.cdc-menu p{margin:0 0 8px;font:700 10.5px/1.2 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.cdc-menu .cdc-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.cdc-menu .cdc-key.wide{width:100%;justify-content:flex-start}
+@keyframes cdcIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+
+/* the messages */
+.cdc-feed{flex:1;overflow:auto;padding:18px 18px 10px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.cdc-msg{position:relative;max-width:min(86%,780px);padding:12px 15px 10px;border-radius:16px;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s}
+.cdc-msg.new{animation:cdcPop .5s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes cdcPop{0%{transform:translateY(12px) scale(.98);opacity:0}100%{transform:none;opacity:1}}
+.cdc-msg.bot{align-self:flex-start;background:var(--card2);border:1px solid var(--rim);box-shadow:var(--s-rest)}
+.cdc-msg.me{align-self:flex-end;background:var(--me);color:var(--me-ink);border:1px solid var(--rim);box-shadow:var(--s-rest)}
+.cdc-msg:hover{transform:translateY(-2px);box-shadow:var(--s-hover)}
+.cdc-name{font:700 10.5px/1.2 var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin:0 0 6px}
+.cdc-text{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.cdc.lib .cdc-msg .cdc-text{font-family:var(--serif);font-size:14.5px}
+.cdc-hint{margin:6px 0 0;font-size:12.5px;font-style:italic;color:var(--faint)}
+.cdc-acts{display:flex;gap:6px;margin-top:10px}
+.cdc-msg.me .cdc-acts{justify-content:flex-end}
+.cdc-empty{color:var(--faint);text-align:center;padding:40px 10px;font-size:13px}
+.cdc-books{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.cdc-book{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--book);border:1px solid var(--rim);box-shadow:var(--k-rest);transition:transform .14s var(--spring),box-shadow .14s}
+.cdc-book:hover{transform:translateY(-2px);box-shadow:var(--k-hover)}
+.cdc-spine{flex:0 0 auto;width:34px;height:50px;border-radius:4px 6px 6px 4px;box-shadow:inset 3px 0 0 rgba(0,0,0,.18),0 2px 0 rgba(0,0,0,.18)}
+.cdc-book b{display:block;font:600 15px/1.3 var(--serif);color:var(--ink)}
+.cdc-book i{font-style:italic;color:var(--faint);font-size:12.5px}
+.cdc-book p{margin:6px 0 9px;color:var(--soft);font:13.5px/1.55 var(--serif)}
+
+/* the end of a session */
+.cdc-end{padding:14px 18px;border-top:1px solid var(--rim)}
+.cdc-end p{margin:0 0 12px;color:var(--soft)}
+.cdc-end .cdc-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* the prompts, the composer */
+.cdc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 4px;border-top:1px solid var(--rim)}
+.cdc-note{font-size:11.5px;color:var(--faint);margin:0;padding:6px 18px 0}
+.cdc-composer{margin:10px 16px 8px;border-radius:18px;background:var(--card2);border:1px solid var(--rim);box-shadow:var(--w);padding:10px 12px;display:flex;align-items:flex-end;gap:10px}
+.cdc-composer textarea{flex:1;border:0;outline:0;background:transparent;resize:none;font:15px/1.5 var(--ui);color:var(--ink);min-height:44px;max-height:180px;padding:4px 2px}
+.cdc.lib .cdc-composer textarea{font-family:var(--serif)}
+.cdc-composer textarea::placeholder{color:var(--faint)}
+.cdc-send{width:42px;height:42px;border-radius:50%;font-size:17px;flex:0 0 auto}
+.cdc-foot{font-size:11.5px;color:var(--faint);text-align:center;margin:0 0 12px}
+
+/* Soft: the raised card, with quieter messages */
+.cdc.soft .cdc-msg{box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(27,107,147,.06);border-radius:20px}
+.cdc.soft .cdc-msg.bot{background:color-mix(in srgb,var(--card2) 88%,var(--tint));line-height:1.7;font-size:14.5px}
+.cdc.soft .cdc-msg:hover{transform:none;box-shadow:0 2px 4px rgba(0,0,0,.05),0 8px 20px rgba(27,107,147,.09)}
+.cdc.soft .cdc-book{box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 10px rgba(0,0,0,.05)}
+body[data-theme="night"] .cdc.soft .cdc-msg{box-shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.3)}
+/* Clean: flat and open, like a page */
+.cdc.clean .cdc-chat{background:transparent;border:0;box-shadow:none}
+.cdc.clean .cdc-top{border-bottom:0}
+.cdc.clean .cdc-feed{padding:14px max(16px,calc((100% - 780px) / 2)) 24px;gap:24px}
+.cdc.clean .cdc-msg.bot{max-width:none;align-self:stretch;background:transparent;border:0;box-shadow:none;padding:0 4px}
+.cdc.clean .cdc-msg.bot .cdc-text{font:16.5px/1.75 var(--serif)}
+.cdc.clean .cdc-msg.bot:hover{transform:none}
+.cdc.clean .cdc-msg.me{border-radius:22px;padding:10px 16px;box-shadow:var(--k-rest)}
+.cdc.clean .cdc-msg .cdc-acts{opacity:0;transition:opacity .16s}
+.cdc.clean .cdc-msg:hover .cdc-acts,.cdc.clean .cdc-msg:last-child .cdc-acts,.cdc.clean .cdc-msg:focus-within .cdc-acts{opacity:1}
+.cdc.clean .cdc-chips{border-top:0;justify-content:center}
+.cdc.clean .cdc-note{text-align:center}
+.cdc.clean .cdc-end{border-top:0;max-width:780px;margin:0 auto;width:100%}
+.cdc.clean .cdc-composer{max-width:780px;margin:8px auto;width:calc(100% - 24px);border-radius:24px;box-shadow:var(--s-rest)}
+
+/* small screens; the dock at the right edge stays clear */
+@media (max-width:640px){.cdc{padding:0 8px}.cdc-frame{padding-top:48px}.cdc-chat{height:calc(100vh - 60px);height:calc(100dvh - 60px);border-radius:16px}.cdc-msg{max-width:100%}
+  .cdc-top{flex-wrap:wrap}.cdc-chips,.cdc-composer,.cdc-feed{padding-right:58px}.cdc-composer{margin-right:58px}.cdc-key.end-txt{padding:9px 10px}}
+body[data-motion="minimal"] .cdc *{animation:none !important;transition:none !important}
+body[data-motion="minimal"] .cdc :hover,body[data-motion="minimal"] .cdc :active{transform:none !important}
+@media (prefers-reduced-motion:reduce){.cdc *{animation:none !important;transition:none !important}.cdc :hover,.cdc :active{transform:none !important}}

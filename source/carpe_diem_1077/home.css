@@ -1,0 +1,4 @@
+/* 1077 · Home on a low-energy day: the low day's own card at the top of Home */
+#cd-low-home[hidden] { display: none !important; }
+#cd-low-home { margin: 0 0 16px; }
+#cd-low-home > .sc-page.sc-solo { margin: 0; }

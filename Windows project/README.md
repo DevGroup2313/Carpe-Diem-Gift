@@ -7,10 +7,29 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1076, 31 October 2026.** The About panel in the app ends with
-"Build 1076 · 528171076".
+**Build 1077, 31 October 2026.** The About panel in the app ends with
+"Build 1077 · 528171077".
 
-## New in build 1076
+## New in build 1077
+
+The Librarian's and Magister's conversations have their new look, as approved: Ingenium's chat in Carpe Diem's
+colours, the Librarian in cream and gold, Magister in blue, in three looks chosen from the ⋯ menu and kept (Carpe Diem:
+the conversation in its raised card, each message raised; Soft: quieter messages; Clean: flat and open, like a page),
+by day and by night. Each message lifts under the pointer and has its own keys (read aloud, copy, keep in my notes;
+edit, copy, ask again); the Librarian's books are cards with their spines and Open the book; the moods and prompts are
+keys; Enter sends and Shift+Enter breaks a line. Everything the two pages did, they still do; nothing else changes.
+
+Home is no longer empty on a low-energy day. Choosing Low on an Overview's energy card (or on the Focus page) makes
+the day a low day, which shows only the essentials on Home; on a day with no next step, such as a weekend, nothing was
+left, so Home looked missing after leaving the Overview. Home now shows the low day's own card at its top, saying what
+is showing and why, with Make today a Gentle Day and Show everything again, which brings the whole of Home back at
+once. The energy cards say that Home shows only the essentials on a low day.
+
+The install kits inside the app carry this very build in each project's record (BUILD_INFO), the Windows installer's
+version, the Fire tablet's version name and the READMEs; the kits of build 1076 still said 1075 there, and GitHub's
+check of the kits stopped on it.
+
+## Earlier, in build 1076
 
 Candidatus's Applications, Proposal, Milestones and Citations are redesigned like its Overview. Applications: the
 three buckets as raised tiles, each programme a card with its checklist ring, opening on its status, deadlines,
