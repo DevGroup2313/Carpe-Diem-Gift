@@ -1,0 +1,5 @@
+/* Offline by design, by day in Classic: white acrylic (Folio keeps its tan card; night is unchanged) */
+body:not(.mode-folio):not([data-theme="night"]) #offline-notice .cdn-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.90),rgba(252,253,255,.78));
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);
+  border-color:rgba(27,107,147,.14)}

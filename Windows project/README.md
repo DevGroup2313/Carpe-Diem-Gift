@@ -7,10 +7,23 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1079, 31 October 2026.** The About panel in the app ends with
-"Build 1079 · 528171079".
+**Build 1080, 1 November 2026.** The About panel in the app ends with
+"Build 1080 · 528171080".
 
-## New in build 1079
+## New in build 1080
+
+The little cards that name a key when the pointer rests on it now have a solid surface by night, on Ascensus and
+everywhere else: by night they had taken the key's faint glass face alone, so the page showed through them.
+
+The side keys stay with the Librarian's and Magister's conversations: they show above the conversation and the
+chevron folds them there, instead of hiding while it is open and appearing behind it afterwards.
+
+The Fontes keys of the Proposal and the Citations (in the demonstrations, Drafts and Citations) carry Fontes's small
+drawing, as the key on Home does.
+
+Offline by design is white acrylic in Classic by day, so it sits with the rest of the page; it stays tan in Folio.
+
+## Earlier, in build 1079
 
 Ascensus has its neon lights back, as before, in its new design: the labours and the rank card glow again through
 gold, blue, lilac, teal and rose, each labour a little out of step with the next; Calm, minimal motion and a device's
