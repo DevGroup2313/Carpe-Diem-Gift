@@ -1,0 +1,75 @@
+/* 1080 · the Guidebook's film, "Carpe Diem in action": the calm player of 1079 in the Overview's look, now with the film
+   no larger than it stays sharp, this device's own side keys drawn over it, the captions above them and the controls
+   below the film. Nothing moves until it is asked to. */
+.cdf{position:fixed;inset:0;z-index:100050;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(16,24,32,.42);
+  --f-card:#fbf7ee;--f-ink:#1d2a35;--f-soft:#4a5966;--f-faint:#66737e;--f-blue:#1B6B93;--f-rim:rgba(27,107,147,.16);
+  --f-k-face:linear-gradient(180deg,#ffffff,#f1f4f7);--f-k-bd:rgba(16,42,58,.12);
+  --f-k-rest:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1.5px 0 rgba(16,42,58,.16),0 2px 0 rgba(16,42,58,.30),0 4px 5px rgba(16,42,58,.20),0 9px 14px rgba(16,42,58,.13);
+  --f-k-hover:inset 0 1px 0 #fff,inset 0 -1.5px 0 rgba(16,42,58,.16),0 3px 0 rgba(16,42,58,.30),0 6px 8px rgba(16,42,58,.22),0 13px 20px rgba(16,42,58,.15);
+  --f-k-down:inset 0 2px 5px rgba(16,42,58,.24),0 1px 1px rgba(16,42,58,.25)}
+body[data-theme="night"] .cdf{background:rgba(0,0,0,.6);--f-card:#1f242b;--f-ink:#e8eef4;--f-soft:#b9c4cd;--f-faint:#93a0aa;--f-blue:#5BAEDB;--f-rim:rgba(91,174,219,.20);
+  --f-k-face:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));--f-k-bd:rgba(255,255,255,.10);
+  --f-k-rest:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -2px 0 rgba(0,0,0,.5),0 2px 0 rgba(0,0,0,.8),0 4px 5px rgba(0,0,0,.6),0 9px 14px rgba(0,0,0,.45);
+  --f-k-hover:inset 0 1px 0 rgba(255,255,255,.11),inset 0 -2px 0 rgba(0,0,0,.5),0 3px 0 rgba(0,0,0,.82),0 6px 8px rgba(0,0,0,.62),0 13px 20px rgba(0,0,0,.5);
+  --f-k-down:inset 0 3px 7px rgba(0,0,0,.75),0 1px 0 rgba(0,0,0,.6)}
+.cdf *{box-sizing:border-box}
+.cdf-panel{width:min(1000px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--f-card);color:var(--f-ink);border:1px solid var(--f-rim);border-radius:18px;padding:18px 20px 16px;
+  font:400 13.5px/1.5 var(--cd-ui);box-shadow:0 18px 60px rgba(0,0,0,.28)}
+.cdf-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.cdf-top .grow{flex:1;min-width:0}
+.cdf-kick{margin:0 0 3px;font:700 10.5px/1.2 var(--cd-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--f-blue)}
+.cdf-h{margin:0;font:600 21px/1.25 var(--cd-serif);color:var(--f-ink)}
+.cdf-sub{margin:3px 0 0;color:var(--f-soft);font-size:12.5px}
+/* the film: its box is exactly the picture (no border inside it), so the side keys land where they were filmed */
+.cdf-stage{position:relative;margin:0 auto;border-radius:12px;overflow:hidden;background:#0f1a22;box-shadow:0 0 0 1px var(--f-rim);cursor:pointer;max-width:100%}
+.cdf-stage video{position:absolute;inset:0;display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;object-fit:fill;background:transparent;max-width:none}
+.cdf-sk{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;contain:layout paint}
+.cdf-sk-key{position:absolute;display:block;margin:0;padding:0;pointer-events:none;transform-origin:0 0}
+.cdf-sk-g{display:flex;width:100%;height:100%;margin:0;padding:0;align-items:center;justify-content:center;white-space:nowrap;overflow:visible;color:inherit;
+  -webkit-user-select:none;user-select:none;pointer-events:none;background:none;border:0;box-shadow:none;animation:none;transition:none}
+.cdf-sk-g img.cd-emo{display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin:0;border:0;max-width:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.cdf-cc{position:absolute;left:0;right:0;bottom:4.5%;z-index:2;display:flex;justify-content:center;pointer-events:none}
+.cdf-cc span{max-width:84%;padding:3px 10px;border-radius:6px;background:rgba(10,20,28,.8);color:#fff;font:500 15px/1.45 var(--cd-ui);text-align:center}
+.cdf-cc:not(.on) span{display:none}
+.cdf-seek{display:flex;align-items:center;gap:10px;margin:10px auto 0}
+.cdf-seek input{flex:1;min-width:0;margin:0;accent-color:var(--f-blue);cursor:pointer}
+.cdf-time{font:600 12px/1 var(--cd-ui);font-variant-numeric:tabular-nums;color:var(--f-faint);min-width:2.6em}
+.cdf-time[data-t="dur"]{text-align:right}
+.cdf-keys{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 0}
+.cdf-key,.cdf-seg button{font:600 13px/1 var(--cd-ui);padding:9px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;
+  background:var(--f-k-face);border:1px solid var(--f-k-bd);box-shadow:var(--f-k-rest);color:var(--f-ink);transition:transform .1s cubic-bezier(.34,1.35,.64,1),box-shadow .12s}
+.cdf-key:hover,.cdf-seg button:hover{transform:translateY(-2px);box-shadow:var(--f-k-hover)}
+.cdf-key:active,.cdf-seg button:active{transform:translateY(1px) scale(.98);box-shadow:var(--f-k-down);transition-duration:.04s}
+.cdf-key:focus-visible,.cdf-seg button:focus-visible,.cdf-chap:focus-visible,.cdf-seek input:focus-visible{outline:2px solid var(--f-blue);outline-offset:2px}
+.cdf-key.main{background:linear-gradient(180deg,#2a81ad,#1B6B93);color:#fff;border-color:rgba(0,0,0,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1.5px 0 rgba(0,0,0,.18),0 2px 0 #0f4c6b,0 4px 5px rgba(16,42,58,.24),0 9px 14px rgba(16,42,58,.16)}
+body[data-theme="night"] .cdf-key.main{background:linear-gradient(180deg,#6ebde6,#4c9fcb);color:#0d1a22}
+.cdf-key.x{padding:7px 10px;font-size:14px}
+.cdf-seg{display:inline-flex;gap:6px}
+.cdf-seg button{padding:8px 11px;font-size:12.5px}
+.cdf-seg button[aria-pressed="true"]{box-shadow:var(--f-k-down);transform:translateY(1px);color:var(--f-blue)}
+.cdf-label{font-size:11.5px;color:var(--f-faint);margin-right:2px}
+.cdf-chaps{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.cdf-chap{font:600 12px/1.2 var(--cd-ui);padding:7px 11px;border-radius:999px;cursor:pointer;background:var(--f-k-face);border:1px solid var(--f-k-bd);box-shadow:var(--f-k-rest);color:var(--f-ink);
+  transition:transform .1s cubic-bezier(.34,1.35,.64,1),box-shadow .12s}
+.cdf-chap:hover{transform:translateY(-2px);box-shadow:var(--f-k-hover)}
+.cdf-chap[aria-current="true"]{color:var(--f-blue);box-shadow:var(--f-k-down);transform:translateY(1px)}
+.cdf-chap span{color:var(--f-faint);font-weight:500;margin-left:5px}
+.cdf-read{margin:14px 0 0;border-top:1px solid var(--f-rim);padding-top:10px}
+.cdf-read summary{cursor:pointer;font:600 13px/1.4 var(--cd-ui);color:var(--f-blue);list-style:none}
+.cdf-read summary::-webkit-details-marker{display:none}
+.cdf-read ol{margin:10px 0 0;padding-left:20px;color:var(--f-soft)}
+.cdf-read li{margin:0 0 6px}
+.cdf-read li b{color:var(--f-ink)}
+.cdf-note{margin:10px 0 0;font-size:12px;color:var(--f-faint)}
+/* the Guidebook's own entries to the film (as in 1079) */
+.cdf-gbcard{display:flex;align-items:center;gap:14px;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:#eaf3f9;border:1px solid rgba(27,107,147,.16)}
+body[data-theme="night"] .cdf-gbcard{background:#1b2833;border-color:rgba(91,174,219,.2)}
+.cdf-gbcard .grow{flex:1;min-width:0}
+.cdf-gbcard b{display:block;font:600 15px/1.3 var(--cd-serif);color:var(--text-primary)}
+.cdf-gbcard span{font-size:12.5px;color:var(--text-secondary)}
+.cdf-gbbadge{flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px;background:linear-gradient(180deg,#fff,#f1f4f7);
+  border:1px solid rgba(16,42,58,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1.5px 0 rgba(16,42,58,.16),0 2px 0 rgba(16,42,58,.30),0 4px 5px rgba(16,42,58,.20);color:#1B6B93}
+body[data-theme="night"] .cdf-gbbadge{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));border-color:rgba(255,255,255,.1);color:#5BAEDB}
+.cdf-tourkey{margin:10px 0 0}
+@media (max-width:560px){.cdf{padding:8px}.cdf-panel{padding:14px}.cdf-h{font-size:18px}.cdf-cc span{font-size:12.5px}}
+@media (prefers-reduced-motion:reduce){.cdf-key,.cdf-seg button,.cdf-chap{transition:none}.cdf-key:hover,.cdf-seg button:hover,.cdf-chap:hover{transform:none}}

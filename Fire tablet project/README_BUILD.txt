@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1080, 1 November 2026. The About panel inside the app ends with
-"Build 1080 · 528171080".
-The app's own version is 1080 too; Android usually shows it on the
+Build 1081, 1 November 2026. The About panel inside the app ends with
+"Build 1081 · 528171081".
+The app's own version is 1081 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,22 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1080
+NEW IN BUILD 1081
+  On Windows, the side keys of a floating window hold one look: the Quiet Screen's leaf no longer flickers between two
+  drawings, and the bell and the thought balloon are never empty. The moon or sun changes once per change, without a
+  flash of the old drawing.
+
+  Day and night reach a room's own window at once: the room is drawn first and the desk hidden beneath it after, so the
+  change shows in a fraction of the time it took. In the Mac and Windows apps, each window is told directly, without
+  waiting for the others.
+
+  The Guidebook's film is made again, sharp: filmed at twice the resolution and shown no larger than it stays sharp. Its
+  side keys are no longer part of the picture: the player draws them over the film with the keys this device itself
+  shows, so on a Mac they are Apple's, and they follow every frame. The player has its own slim bar below the film, so
+  nothing covers the keys or the captions.
+
+
+EARLIER, IN BUILD 1080
   The little cards that name a key when the pointer rests on it now have a solid surface by night, on Ascensus and
   everywhere else: by night they had taken the key's faint glass face alone, so the page showed through them.
 

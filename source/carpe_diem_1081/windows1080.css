@@ -1,0 +1,4 @@
+/* A room in a window of its own: the desk under the room is neither styled nor drawn while the room covers it. */
+html.cd-room-1080 body.cd-tabula-window.ext-open > #cd-scroll,
+html.cd-room-1080 body.cd-tabula-window.ext-open > .ambient,
+html.cd-room-1080 body.cd-tabula-window.ext-open > #cd-sky-fx{content-visibility:hidden}

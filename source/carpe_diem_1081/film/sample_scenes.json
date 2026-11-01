@@ -1,0 +1,30 @@
+[
+ {
+  "id": "home",
+  "at": 0
+ },
+ {
+  "id": "overview",
+  "at": 6.433
+ },
+ {
+  "id": "assessments",
+  "at": 13.167
+ },
+ {
+  "id": "ascensus",
+  "at": 22.667
+ },
+ {
+  "id": "librarian",
+  "at": 35.833
+ },
+ {
+  "id": "magister",
+  "at": 42.3
+ },
+ {
+  "id": "end",
+  "at": 47.233
+ }
+]

@@ -832,9 +832,13 @@ class TabulaWindowApi:
         return room_to_dock(which)
 
     def broadcast_theme(self, dark):
-        """Build 1059: a day or night change made in this window reaches the desk and every other window."""
+        """Build 1059: a day or night change made in this window reaches the desk and every other window.
+        Build 1080: every window but this one, which has the change already."""
         try:
             if self.host is not None:
+                relay = getattr(self.host, "_relay_theme", None)
+                if relay is not None:
+                    return relay(dark, self.win)
                 return self.host.broadcast_theme(dark)
         except Exception:
             log_problem("TabulaWindowApi.broadcast_theme")
@@ -1184,6 +1188,13 @@ class CarpeApi:
         Separate webviews do not reliably observe one another's localStorage
         writes, so the main window asks Python to relay the change directly.
         """
+        return self._relay_theme(dark, self.main_window)
+
+    def _relay_theme(self, dark, sender=None):
+        """Build 1080: the change goes to every window but the one that made it, each window on a thread of its own.
+        pywebview's evaluate_js waits for the page's answer, so in turn the room windows waited first for Carpe Diem's
+        window, which had made the change itself and was busy redrawing; now none waits for another."""
+        import threading
         js = "try{window.cdApplyThemeExternal&&window.cdApplyThemeExternal(%s);}catch(e){}" % (
             "true" if dark else "false",
         )
@@ -1194,13 +1205,19 @@ class CarpeApi:
             pass
         with self._lock:
             targets.extend(list(self._wins.values()))
-        for w in targets:
-            if w is None:
-                continue
+
+        def send(w):
             try:
                 w.evaluate_js(js)
             except Exception:
                 pass
+        for w in targets:
+            if w is None or w is sender:
+                continue
+            try:
+                threading.Thread(target=send, args=(w,), daemon=True).start()
+            except Exception:
+                send(w)
         return True
 
     def open_tabula(self):
