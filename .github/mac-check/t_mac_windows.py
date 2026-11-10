@@ -176,7 +176,17 @@ def run(win, api):
     try:
         ok = win.events.loaded.wait(90)
         say("desk loaded:", ok, "url:", getattr(win, "real_url", None))
-        time.sleep(5)
+        ready = False
+        for _ in range(90):
+            time.sleep(1)
+            try:
+                ready = bool(win.evaluate_js("typeof openExt==='function'&&typeof state!=='undefined'&&!!document.getElementById('frame-tabula')"))
+            except Exception:  # noqa: BLE001
+                ready = False
+            if ready:
+                break
+        say("desk page ready:", ready)
+        time.sleep(3)
         say("DESK", json.dumps(windows()))
         say("desk page:", page_says(win))
         if not print_check(win):
@@ -189,7 +199,15 @@ def run(win, api):
             except Exception as e:  # noqa: BLE001
                 r = "raised %r" % (e,)
             say("open_app(%s, %s) -> %r in %.1fs" % (which, mode, r, time.time() - t0))
-            time.sleep(7)
+            time.sleep(4)
+            w0 = api._wins.get(which)
+            for _ in range(60):
+                try:
+                    if w0 is not None and w0.evaluate_js("!!window.__cdRoomOnly&&!!document.getElementById('sticky-fab')"):
+                        break
+                except Exception:  # noqa: BLE001
+                    pass
+                time.sleep(1)
             rows = windows()
             say("AFTER %s %s" % (which, mode), json.dumps(rows))
             w = api._wins.get(which)
@@ -229,6 +247,13 @@ def main():
     win = A._make_window(webview, api, html)
     api.main_window = win
     A._hear_pywebview()
+    # as the app's own start does: the helper that answers the page's question about work kept at the old address
+    # (without it the page waits for an answer and never opens)
+    try:
+        A._load_carry()
+        A.start_carry_server()
+    except Exception as e:  # noqa: BLE001
+        say("carry helper:", repr(e))
     threading.Thread(target=run, args=(win, api), daemon=True).start()
     store = tempfile.mkdtemp(prefix="carpe-check-")
     webview.start(gui=None, debug=False, private_mode=False, storage_path=store, http_port=A.CARPE_PORT)
