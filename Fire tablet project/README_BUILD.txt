@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1081, 1 November 2026. The About panel inside the app ends with
-"Build 1081 · 528171081".
-The app's own version is 1081 too; Android usually shows it on the
+Build 1082, 10 November 2026. The About panel inside the app ends with
+"Build 1082 · 528171082".
+The app's own version is 1082 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,23 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1081
+NEW IN BUILD 1082
+  Tabula prints in colour. Print now sends the document itself to the print dialog: its text colours, highlights,
+  shaded table cells and pictures, as they look by day, even when the app is in night mode. In the Mac app, Print used
+  to make a plain PDF of black text and hand that to Preview, which is why every print came out without colour; the
+  Mac's own print panel now opens over the window, with a preview. Highlights and shading print without ticking any
+  "background" box. Export, PDF Document, is as it was.
+
+  In Tabula, a list that reaches the end of a page is split there. A bulleted or numbered list used to move to the
+  next page in one piece and leave the rest of the page empty (and a list longer than a page ran across the gap
+  between pages). Each page is now filled: the first item that does not fit starts the next page with its bullet or
+  number beside it, and an item of several lines is divided between two lines.
+
+  A Word or web page file made from a document no longer carries the screen's page marks (the spacing that moved a
+  paragraph to the next page on the screen).
+
+
+EARLIER, IN BUILD 1081
   On Windows, the side keys of a floating window hold one look: the Quiet Screen's leaf no longer flickers between two
   drawings, and the bell and the thought balloon are never empty. The moon or sun changes once per change, without a
   flash of the old drawing.

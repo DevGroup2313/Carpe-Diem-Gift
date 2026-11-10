@@ -1,11 +1,12 @@
 # CARPE DIEM  |  Copyright (c) 2026 Yannie D. Forest. All rights reserved.
 # NO LICENCE IS GRANTED. See LICENCE.txt.
 #
-# A check, not a build: Carpe Diem's Mac program is run from its source on GitHub's Macs, on the newest macOS they
-# offer and on the one before it, and rooms are asked for in windows of their own. The windows the Mac really shows
-# are listed. It runs only when this file or the check itself changes; it makes no app and publishes nothing.
+# A check, not a build: Carpe Diem's Mac program is run from its source on GitHub's newest Mac (macos-latest; in
+# November 2026 that is macOS 26, and GitHub offers no macOS 27 yet), and rooms are asked for in windows of their own.
+# The windows the Mac really shows are listed. It runs only when this file or the check itself changes; it makes no
+# app and publishes nothing.
 
-name: Check the rooms' windows on the newest macOS
+name: Check printing and the rooms' windows on the newest macOS
 
 on:
   push:
@@ -21,9 +22,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-27, macos-26]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Get the project
         uses: actions/checkout@v5
@@ -46,7 +47,7 @@ jobs:
           python -m pip install --quiet pywebview
           python -m pip list | grep -i -E "pywebview|pyobjc-core|pyobjc-framework-(Cocoa|WebKit|Quartz)" || true
 
-      - name: Ask for rooms in windows of their own
+      - name: Print from Tabula, then ask for rooms in windows of their own
         run: |
           rm -f "$HOME/Library/Application Support/CarpeDiem/carpe_session.flag" "$HOME/Library/Application Support/CarpeDiem/carpe_room.flag"
           python .github/mac-check/t_mac_windows.py "$GITHUB_WORKSPACE/Mac project"

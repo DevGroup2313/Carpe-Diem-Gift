@@ -1,0 +1,12 @@
+{
+ "date": "2026-11-10",
+ "pass": "1082",
+ "stamp": "528171082",
+ "prev": "1081",
+ "when": "10 November 2026",
+ "prev_when": "1 November 2026",
+ "ios_version": "2026111001",
+ "en": "Tabula prints in colour. Print now sends the document itself to the print dialog: its text colours, highlights,\nshaded table cells and pictures, as they look by day, even when the app is in night mode. In the Mac app, Print used\nto make a plain PDF of black text and hand that to Preview, which is why every print came out without colour; the\nMac's own print panel now opens over the window, with a preview. Highlights and shading print without ticking any\n\"background\" box. Export, PDF Document, is as it was.\n\nIn Tabula, a list that reaches the end of a page is split there. A bulleted or numbered list used to move to the\nnext page in one piece and leave the rest of the page empty (and a list longer than a page ran across the gap\nbetween pages). Each page is now filled: the first item that does not fit starts the next page with its bullet or\nnumber beside it, and an item of several lines is divided between two lines.\n\nA Word or web page file made from a document no longer carries the screen's page marks (the spacing that moved a\nparagraph to the next page on the screen).",
+ "web": "Tabula prints in colour, from night mode too, and a list that reaches the end of a page is split there instead of moving to the next page in one piece.",
+ "ios": "Tabula prints in colour, from night mode too, and a list that reaches the end of a page is split there instead of\nmoving to the next page in one piece."
+}

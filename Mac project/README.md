@@ -7,11 +7,27 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1081, 1 November 2026.** The About panel in the app ends with
-"Build 1081 · 528171081". Finder's Get Info on the app shows
-version 1081.
+**Build 1082, 10 November 2026.** The About panel in the app ends with
+"Build 1082 · 528171082". Finder's Get Info on the app shows
+version 1082.
 
-## New in build 1081
+## New in build 1082
+
+Tabula prints in colour. Print now sends the document itself to the print dialog: its text colours, highlights,
+shaded table cells and pictures, as they look by day, even when the app is in night mode. In the Mac app, Print used
+to make a plain PDF of black text and hand that to Preview, which is why every print came out without colour; the
+Mac's own print panel now opens over the window, with a preview. Highlights and shading print without ticking any
+"background" box. Export, PDF Document, is as it was.
+
+In Tabula, a list that reaches the end of a page is split there. A bulleted or numbered list used to move to the
+next page in one piece and leave the rest of the page empty (and a list longer than a page ran across the gap
+between pages). Each page is now filled: the first item that does not fit starts the next page with its bullet or
+number beside it, and an item of several lines is divided between two lines.
+
+A Word or web page file made from a document no longer carries the screen's page marks (the spacing that moved a
+paragraph to the next page on the screen).
+
+## Earlier, in build 1081
 
 On Windows, the side keys of a floating window hold one look: the Quiet Screen's leaf no longer flickers between two
 drawings, and the bell and the thought balloon are never empty. The moon or sun changes once per change, without a
