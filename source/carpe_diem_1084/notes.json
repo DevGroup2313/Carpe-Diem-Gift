@@ -1,0 +1,12 @@
+{
+ "date": "2026-11-10",
+ "pass": "1084",
+ "stamp": "528171084",
+ "prev": "1083",
+ "when": "10 November 2026",
+ "prev_when": "10 November 2026",
+ "ios_version": "2026111003",
+ "en": "The five rooms speak French throughout. In French, Tabula's ribbon, its hover words and its File page, Abacus's\nribbon and the bar at the foot of its sheet, Imago's hover words, Scriba's two tabs and the whole of Fontes's form\nare now French: 343 words and sentences in all, gathered from the rooms as you see them, tab by tab and menu by\nmenu. Names that are not words of the language are left as they are: the fonts, Word, Excel, PowerPoint, BibTeX,\nRIS and CSL-JSON, the styles of citation (APA, OSCOLA, MLA, Chicago, Harvard) and the tongues in Scriba's list,\nwhich name themselves.\n\nThe Guidebook was found to be whole in French already: its 40 chapters and 39 Tips keys were read and nothing of\nthem was English. A test now keeps it so, and keeps the rooms so, in Chromium, in Safari's engine and in Firefox.",
+ "web": "The five rooms speak French throughout: Tabula's ribbon and File page, Abacus's ribbon and status bar, Imago's hover words, Scriba's tabs and the whole of Fontes's form.",
+ "ios": "The five rooms speak French throughout: Tabula's ribbon and File page, Abacus's ribbon and the bar at the foot of\nits sheet, Imago's hover words, Scriba's tabs and the whole of Fontes's form."
+}

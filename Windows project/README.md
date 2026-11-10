@@ -7,10 +7,22 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1083, 10 November 2026.** The About panel in the app ends with
-"Build 1083 · 528171083".
+**Build 1084, 10 November 2026.** The About panel in the app ends with
+"Build 1084 · 528171084".
 
-## New in build 1083
+## New in build 1084
+
+The five rooms speak French throughout. In French, Tabula's ribbon, its hover words and its File page, Abacus's
+ribbon and the bar at the foot of its sheet, Imago's hover words, Scriba's two tabs and the whole of Fontes's form
+are now French: 343 words and sentences in all, gathered from the rooms as you see them, tab by tab and menu by
+menu. Names that are not words of the language are left as they are: the fonts, Word, Excel, PowerPoint, BibTeX,
+RIS and CSL-JSON, the styles of citation (APA, OSCOLA, MLA, Chicago, Harvard) and the tongues in Scriba's list,
+which name themselves.
+
+The Guidebook was found to be whole in French already: its 40 chapters and 39 Tips keys were read and nothing of
+them was English. A test now keeps it so, and keeps the rooms so, in Chromium, in Safari's engine and in Firefox.
+
+## Earlier, in build 1083
 
 On a Mac, Tabula, Abacus, Imago, Scriba and Fontes are easy to find as apps of their own. A new sheet, "The rooms as
 apps on this Mac", puts all five in the Dock in one step, puts an alias of each on the Desktop, or shows them in the

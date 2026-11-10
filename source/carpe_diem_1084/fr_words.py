@@ -1,0 +1,381 @@
+# -*- coding: utf-8 -*-
+"""1084 · the French of the five rooms: every word the person can see, in French when the app is in French.
+
+The owner: "The guidebook is not fully translated to French, there are still other areas inside of the app that are
+not translated. I want Carpe Diem to be fully bilingual."
+
+The Guidebook itself was found to be whole in French (233 strings read across its 40 chapters and 39 Tips keys, none
+in English). What was left in English was inside the rooms: Tabula's ribbon in part, its hover words and its File
+page; Abacus's ribbon almost whole; Imago's hover words; Scriba's two tabs; Fontes's form, its kinds of source and
+its styles of citation. 269 strings in all, gathered by `tests/t_fr_rooms.js` from the rooms as the person sees them.
+
+Each room carries a layer that puts French in place of English wherever it is written (text, and the title,
+placeholder and aria-label of an element), the layer of pass 1052; Tabula, Abacus and Imago have one already and it
+is added to here, Scriba and Fontes are given one. Names that are not words of the language are left as they are:
+the fonts (Calibri, Garamond), the makers' formats (Word, Excel, PowerPoint, BibTeX, RIS, CSL-JSON), the styles of
+citation (APA, OSCOLA, MLA) and the tongues in Scriba's list, which name themselves (English, Español, Deutsch).
+"""
+
+# the keys, the seals and the signatures: the same words in Tabula, Abacus and Imago
+SHARED = {
+    "Seal. The mark on its own, at the cursor": "Le sceau. La marque seule, au curseur",
+    "Crest. Seal above the wordmark, centred": "L’écusson. Le sceau au-dessus du nom, centré",
+    "Formal. Crest, wordmark and rule, for official documents":
+        "Officiel. L’écusson, le nom et un filet, pour les documents officiels",
+    "Rule. A quiet rule with the seal set into it": "Le filet. Un filet discret où le sceau est serti",
+    "All Carpe Diem letterheads, with previews, and the seal to copy":
+        "Tous les en-têtes de Carpe Diem, avec aperçus, et le sceau à copier",
+    "All Carpe Diem letterheads": "Tous les en-têtes de Carpe Diem",
+    "Carpe Diem letterheads": "En-têtes de Carpe Diem",
+    "Yannie D. Forest. Place it here": "Yannie D. Forest. La placer ici",
+    "Sample — Nancy Bousquet. Place it here": "Exemple — Nancy Bousquet. La placer ici",
+    "Sample — Jane Smith. Place it here": "Exemple — Jane Smith. La placer ici",
+    "Make a signature, keep it, or place one you have kept":
+        "Faire une signature, la garder, ou en placer une que vous avez gardée",
+    "Your signatures": "Vos signatures",
+    "All your signatures": "Toutes vos signatures",
+    "Add a seal, letterhead or masthead of your own from a picture on this device":
+        "Ajouter votre propre sceau, en-tête ou bandeau à partir d’une image de cet appareil",
+    "Your own": "Le vôtre",
+    "Seal": "Sceau",
+    "Crest": "Écusson",
+    "Formal": "Officiel",
+    "Rule": "Filet",
+    "Clipboard": "Presse-papiers",
+    "Cut": "Couper",
+    "Copy": "Copier",
+    "Paste": "Coller",
+    "Undo": "Annuler",
+    "Redo": "Rétablir",
+    "Close": "Fermer",
+    "Home": "Accueil",
+    "Insert": "Insertion",
+    "View": "Affichage",
+    "Font": "Police",
+    "Clear": "Effacer",
+    "⌄ Fold rows": "⌄ Replier les rangées",
+    "⌄ Hide bar": "⌄ Masquer la barre",
+}
+
+TABULA = {
+    # the File page
+    "Open from this device": "Ouvrir depuis cet appareil",
+    "Documents saved in Tabula": "Documents enregistrés dans Tabula",
+    "on this device": "sur cet appareil",
+    "Recent documents": "Documents récents",
+    "latest saves and autosave": "derniers enregistrements et enregistrement automatique",
+    "Save a copy to this device": "Enregistrer une copie sur cet appareil",
+    "Suivant": "Suivant",
+    # the ribbon
+    "Mailings": "Publipostage",
+    "Format Painter": "Reproduire la mise en forme",
+    "Applications": "Applications",
+    "Open .docx": "Ouvrir un .docx",
+    "Save .docx": "Enregistrer en .docx",
+    "Documents": "Documents",
+    "Journal": "Journal",
+    "Conversations": "Conversations",
+    "Row +": "Rangée +",
+    "Col +": "Col. +",
+    "Col. −": "Col. −",
+    "Table styles": "Styles de tableau",
+    "Commentaire": "Commentaire",
+    "Lien": "Lien",
+    "Signet": "Signet",
+    "Lettrine": "Lettrine",
+    "Date": "Date",
+    "Image": "Image",
+    "Symbole": "Symbole",
+    "QuickPart": "Bloc rapide",
+    "Art text": "Texte décoré",
+    "Champs": "Champs",
+    "0 words": "0 mot",
+    "0 characters": "0 caractère",
+    # the hover words
+    "Close Tabula": "Fermer Tabula",
+    "Undo (Ctrl+Z)": "Annuler (Ctrl+Z)",
+    "Redo (Ctrl+Y)": "Rétablir (Ctrl+Y)",
+    "Paste Options": "Options de collage",
+    "Format Painter. Double-click to lock; Escape to stop.":
+        "Reproduire la mise en forme. Double-cliquez pour verrouiller ; Échap pour arrêter.",
+    "Format painter. Double-click to lock; Escape to stop.":
+        "Reproduire la mise en forme. Double-cliquez pour verrouiller ; Échap pour arrêter.",
+    "Font colour: colours the selection": "Couleur de police : colore la sélection",
+    "Text colour palette": "Palette des couleurs de texte",
+    "Highlight: marks the selection": "Surlignage : marque la sélection",
+    "Highlight palette": "Palette de surlignage",
+    "Bullet Library": "Bibliothèque de puces",
+    "Numbering": "Numérotation",
+    "Numbering Library": "Bibliothèque de numérotations",
+    "Multilevel List": "Liste à plusieurs niveaux",
+    "List Library": "Bibliothèque de listes",
+    "Decrease Indent": "Diminuer le retrait",
+    "Increase Indent": "Augmenter le retrait",
+    "Align Left": "Aligner à gauche",
+    "Align Right": "Aligner à droite",
+    "Line and Paragraph Spacing": "Interligne et espacement des paragraphes",
+    "Shading": "Trame de fond",
+    "Styles gallery": "Galerie de styles",
+    "Styles pane": "Volet des styles",
+    "Open a Word document from your computer": "Ouvrir un document Word depuis votre ordinateur",
+    "Save this as a Word document, which Google Docs also opens":
+        "Enregistrer en document Word, que Google Docs ouvre aussi",
+    "Section": "Section",
+    "Link to Previous": "Lier au précédent",
+    "Write your name in one of the house hands": "Écrire votre nom dans une des écritures de la maison",
+    "Open a PDF, add text and a signature, and save it back":
+        "Ouvrir un PDF, y ajouter du texte et une signature, puis l’enregistrer",
+    "More PDF tools": "Plus d’outils PDF",
+    "Signature — drops a fillable box into the document":
+        "Signature — place dans le document un cadre à remplir",
+    "Initials — drops a fillable box into the document":
+        "Initiales — place dans le document un cadre à remplir",
+    "Date — drops a fillable box into the document": "Date — place dans le document un cadre à remplir",
+    "Text — drops a fillable box into the document": "Texte — place dans le document un cadre à remplir",
+    "Insert a sample agreement with its fields already placed":
+        "Insérer un exemple de contrat, ses champs déjà placés",
+    "More signing tools": "Plus d’outils de signature",
+    "Hide the counter bar": "Masquer la barre du compte",
+    "CARPE DIEM": "CARPE DIEM",
+}
+
+ABACUS = {
+    "Formulas": "Formules",
+    "Fill": "Remplissage",
+    "Wrap": "Renvoyer",
+    "Merge": "Fusionner",
+    "Indent": "Retrait",
+    "Outdent": "Retrait négatif",
+    "Alignment": "Alignement",
+    "Rules": "Règles",
+    "No rules": "Aucune règle",
+    "Insert row": "Insérer une ligne",
+    "Insert column": "Insérer une colonne",
+    "Delete row": "Supprimer la ligne",
+    "Delete column": "Supprimer la colonne",
+    "Cells": "Cellules",
+    "Editing": "Modification",
+    "Close Abacus": "Fermer Abacus",
+    "Cut the cell (Ctrl+X)": "Couper la cellule (Ctrl+X)",
+    "Copy the cell (Ctrl+C)": "Copier la cellule (Ctrl+C)",
+    "Paste into the cell (Ctrl+V)": "Coller dans la cellule (Ctrl+V)",
+    "Font colour": "Couleur de police",
+    "Fill colour": "Couleur de remplissage",
+    "Font size": "Taille de police",
+    "Grow the text": "Agrandir le texte",
+    "Shrink the text": "Réduire le texte",
+    "Wrap text in the cell": "Renvoyer le texte dans la cellule",
+    "Merge the selected cells, or unmerge them": "Fusionner les cellules choisies, ou les séparer",
+    "Increase the indent": "Augmenter le retrait",
+    "Decrease the indent": "Diminuer le retrait",
+    "Highlight cells that meet a rule": "Surligner les cellules qui suivent une règle",
+    "Remove every conditional rule": "Retirer toutes les règles conditionnelles",
+    "Insert a row above the selected cell": "Insérer une ligne au-dessus de la cellule choisie",
+    "Insert a column before the selected cell": "Insérer une colonne avant la cellule choisie",
+    "Delete the selected row": "Supprimer la ligne choisie",
+    "Delete the selected column": "Supprimer la colonne choisie",
+    "Clear the cell contents and formatting": "Effacer le contenu et la mise en forme de la cellule",
+    "Summarise a table of data": "Résumer un tableau de données",
+    "Sum the numbers above (Alt+=)": "Additionner les nombres au-dessus (Alt+=)",
+    "Sort rows ascending by the selected column": "Trier les lignes par ordre croissant selon la colonne choisie",
+    "Sort rows descending by the selected column": "Trier les lignes par ordre décroissant selon la colonne choisie",
+    "Find a value in the sheet": "Trouver une valeur dans la feuille",
+    "Set a rule for what may be typed here": "Fixer une règle pour ce qui peut être saisi ici",
+    "Remove validation from the selected cells": "Retirer la validation des cellules choisies",
+    "Open an Excel workbook from your computer": "Ouvrir un classeur Excel depuis votre ordinateur",
+    "Save this workbook as an Excel file": "Enregistrer ce classeur en fichier Excel",
+    "Keep row 1 visible while scrolling": "Garder la ligne 1 visible pendant le défilement",
+    "Keep column A visible while scrolling": "Garder la colonne A visible pendant le défilement",
+    "Name Box: type a cell (for example C5) and press Enter":
+        "Zone de nom : tapez une cellule (par exemple C5) et appuyez sur Entrée",
+    "Name Box": "Zone de nom",
+    "Click to open, double click to rename": "Cliquez pour ouvrir, double-cliquez pour renommer",
+    "Add a sheet": "Ajouter une feuille",
+    "Value or formula, e.g. =AVERAGE(B2:B10)": "Valeur ou formule, par exemple =MOYENNE(B2:B10)",
+    "Default": "Par défaut",
+    "Size": "Taille",
+    "Number 1234.10": "Nombre 1234,10",
+    "Currency $1,234.10": "Monnaie 1 234,10 $",
+    "Percent 12.3%": "Pourcentage 12,3 %",
+}
+
+SLIDES = {
+    "Close Imago": "Fermer Imago",
+    "Paste what was cut or copied": "Coller ce qui a été coupé ou copié",
+    "Cut the selected text": "Couper le texte choisi",
+    "Copy the selected text": "Copier le texte choisi",
+    "Add a slide to the deck": "Ajouter une diapositive à la présentation",
+    "Grow the selected text": "Agrandir le texte choisi",
+    "Shrink the selected text": "Réduire le texte choisi",
+    "Superscript": "Exposant",
+    "Subscript": "Indice",
+    "Change the case: capitals, small letters, title case":
+        "Changer la casse : majuscules, minuscules, casse de titre",
+    "Line spacing": "Interligne",
+    "Insert rectangle": "Insérer un rectangle",
+    "Insert rounded": "Insérer un rectangle arrondi",
+    "Insert ellipse": "Insérer une ellipse",
+    "Insert triangle": "Insérer un triangle",
+    "Insert line": "Insérer une ligne",
+    "Insert arrow": "Insérer une flèche",
+    "Turn the selected text into a link": "Transformer le texte choisi en lien",
+    "Insert a table": "Insérer un tableau",
+    "Insert a symbol": "Insérer un symbole",
+    "Insert today’s date": "Insérer la date du jour",
+    "Show the slide number on every slide": "Afficher le numéro sur chaque diapositive",
+    "Insert a chart from numbers you type": "Insérer un graphique à partir de nombres que vous saisissez",
+    "Place a video on the slide": "Placer une vidéo sur la diapositive",
+    "Place a sound on the slide": "Placer un son sur la diapositive",
+    "Write an equation": "Écrire une équation",
+    "A diagram of your points": "Un schéma de vos points",
+    "Set a line in a display style": "Mettre une ligne en style d’affichage",
+    "A button that jumps to another slide": "Un bouton qui saute à une autre diapositive",
+    "What appears along the foot of every slide": "Ce qui apparaît au bas de chaque diapositive",
+    "Open a PowerPoint deck from your computer": "Ouvrir une présentation PowerPoint depuis votre ordinateur",
+    "Save this deck as a PowerPoint file": "Enregistrer cette présentation en fichier PowerPoint",
+    "Choose a theme, previewed": "Choisir un thème, avec aperçu",
+    "Choose a layout, previewed": "Choisir une disposition, avec aperçu",
+    "Begin a section at this slide": "Commencer une section à cette diapositive",
+    "Remove the section that starts here": "Retirer la section qui commence ici",
+    "Set the none transition": "Mettre la transition aucune",
+    "Set the fade transition": "Mettre la transition fondu",
+    "Set the push left transition": "Mettre la transition poussée vers la gauche",
+    "Set the push right transition": "Mettre la transition poussée vers la droite",
+    "Set the zoom transition": "Mettre la transition zoom",
+    "Set the wipe up transition": "Mettre la transition balayage vers le haut",
+    "Give every slide this transition": "Donner cette transition à chaque diapositive",
+    "Animate this slide's text: none": "Animer le texte de cette diapositive : aucune",
+    "Animate this slide's text: rise": "Animer le texte de cette diapositive : montée",
+    "Animate this slide's text: fade in": "Animer le texte de cette diapositive : apparition en fondu",
+    "Animate this slide's text: drift in": "Animer le texte de cette diapositive : arrivée en glissant",
+    "Print / PDF": "Imprimer / PDF",
+    "Style": "Style",
+}
+
+SCRIBA = {
+    "Dictate": "Dicter",
+    "Recordings": "Enregistrements",
+    "Scriba views": "Vues de Scriba",
+    "Dictation language": "Langue de la dictée",
+    "The language you will speak, for dictation and transcription":
+        "La langue que vous parlerez, pour la dictée et la transcription",
+}
+
+FONTES = {
+    "Author(s), Surname, First; Surname, First": "Auteur(s), Nom, Prénom ; Nom, Prénom",
+    "Title": "Titre",
+    "Editor(s)": "Éditeur(s) scientifique(s)",
+    "City": "Ville",
+    "Publisher": "Éditeur",
+    "Year": "Année",
+    "Pages": "Pages",
+    "Accessed": "Consulté le",
+    "Tags (comma-separated)": "Mots-clés (séparés par des virgules)",
+    "Lookup DOI": "Chercher le DOI",
+    "Add from a DOI, an ISBN, or BibTeX, RIS or CSL-JSON (Zotero exports all three)":
+        "Ajouter depuis un DOI, un ISBN, ou BibTeX, RIS ou CSL-JSON (Zotero exporte les trois)",
+    "Add to the well": "Ajouter au puits",
+    "Open a .bib, .ris or .json file": "Ouvrir un fichier .bib, .ris ou .json",
+    "Export RIS": "Exporter en RIS",
+    "Export CSL-JSON": "Exporter en CSL-JSON",
+    "e.g. theory, methodology, chapter 3": "par exemple théorie, méthodologie, chapitre 3",
+    "Notes on this source": "Notes sur cette source",
+    "Book": "Livre",
+    "Journal article": "Article de revue",
+    "Chapter in edited book": "Chapitre d’ouvrage collectif",
+    "Thesis or dissertation": "Thèse ou mémoire",
+    "Newspaper or magazine article": "Article de journal ou de magazine",
+    "Conference paper": "Communication de colloque",
+    "APA, 7th edition": "APA, 7e édition",
+    "Harvard (Cite Them Right)": "Harvard (Cite Them Right)",
+    "Chicago, author-date": "Chicago, auteur-date",
+    "OSCOLA (Oxford, law)": "OSCOLA (Oxford, droit)",
+    "OSCOLA, without ibid": "OSCOLA, sans ibid",
+    "MLA, 9th edition": "MLA, 9e édition",
+    "Author A-Z": "Auteur de A à Z",
+    "Newest first": "Les plus récentes d’abord",
+    "Title A-Z": "Titre de A à Z",
+    "By type": "Par type",
+    "All tags": "Tous les mots-clés",
+    "Type": "Type",
+}
+
+# round two: what the first layer left (the ribbon's Mailings group, the signing desk, the paragraph panel)
+TABULA.update({
+    "Paragraph settings": "Réglages du paragraphe",
+    "Paragraph\u2026": "Paragraphe\u2026",
+    "Update this style to match the selection": "Mettre ce style à jour d’après la sélection",
+    "Typed hand": "Écriture dactylographiée",
+    "Signature": "Signature",
+    "Initials": "Initiales",
+    "Fill a PDF": "Remplir un PDF",
+    "Signing desk": "Bureau de signature",
+    "Select Recipients": "Choisir les destinataires",
+    "Edit Recipient List": "Modifier la liste des destinataires",
+    "Start Mail Merge": "Démarrer le publipostage",
+    "Insert Merge Field": "Insérer un champ de fusion",
+    "Highlight Merge Fields": "Surligner les champs de fusion",
+    "Write & Insert Fields": "Écriture et insertion de champs",
+    "Preview Results": "Aperçu des résultats",
+    "\u2758\u25c0 First": "\u2758\u25c0 Premier",
+    "\u25c0 Previous": "\u25c0 Précédent",
+    "Next \u25b6": "Suivant \u25b6",
+    "Last \u25b6\u2758": "Dernier \u25b6\u2758",
+    "No list": "Aucune liste",
+    "Finish & Merge": "Terminer et fusionner",
+    "Finish": "Terminer",
+    "Multiple": "Multiple",
+    "Exactly": "Exactement",
+    "First line": "Première ligne",
+    "Hanging": "Suspendu",
+    # the sample card of the Journal
+    "The Stoics": "Les sto\u00efciens",
+    "Attention rebuilt daily, like a muscle\u2026": "L\u2019attention reconstruite chaque jour, comme un muscle\u2026",
+    "Whether serenity inside the cave is freedom at all\u2026":
+        "Si la s\u00e9r\u00e9nit\u00e9 au fond de la caverne est vraiment la libert\u00e9\u2026",
+})
+
+ABACUS.update({
+    "Number  1234.10": "Nombre  1234,10",
+    "Currency  $1,234.10": "Monnaie  1 234,10 $",
+    "Percent  12.3%": "Pourcentage  12,3 %",
+    "AutoSum": "Somme automatique",
+    "More sheets are coming in a later pass": "D’autres feuilles viendront dans une passe ultérieure",
+    "One sheet for now. Several sheets are planned for a later pass.":
+        "Une seule feuille pour l’instant. Plusieurs feuilles sont prévues pour une passe ultérieure.",
+})
+
+SLIDES.update({
+    "Animate this slide's text: grow": "Animer le texte de cette diapositive : agrandissement",
+    "Bring the lines in one after another": "Faire venir les lignes l’une après l’autre",
+    "Bring the lines in together": "Faire venir les lignes ensemble",
+    "Give every slide this animation": "Donner cette animation à chaque diapositive",
+    "Present from the first slide": "Présenter depuis la première diapositive",
+    "Present from the slide you are on": "Présenter depuis la diapositive où vous êtes",
+    "See every slide at once": "Voir toutes les diapositives d’un coup",
+    "Show or hide the centring guides": "Afficher ou masquer les repères de centrage",
+    "Show or hide a light grid on the slide": "Afficher ou masquer une grille légère sur la diapositive",
+    "See more of the slide": "Voir davantage de la diapositive",
+    "Look more closely": "Regarder de plus près",
+    "Return the slide to its natural size": "Rendre à la diapositive sa taille naturelle",
+    "The ordinary editing view": "La vue de modification ordinaire",
+    "Add a comment to this slide": "Ajouter un commentaire à cette diapositive",
+    "Show or hide the comment marks": "Afficher ou masquer les marques de commentaire",
+    "Remove every comment on this slide": "Retirer tous les commentaires de cette diapositive",
+    "Count the words on this slide": "Compter les mots de cette diapositive",
+})
+
+
+def _real(d):
+    """An entry whose French is its English is a word the two languages share (Date, Section, Type): it is left out,
+    so the layer carries only what it really changes."""
+    return {k: v for k, v in d.items() if k != v}
+
+
+ROOMS = {
+    "TABULA_SRC": _real(dict(SHARED, **TABULA)),
+    "ABACUS_SRC": _real(dict(SHARED, **ABACUS)),
+    "SLIDES_SRC": _real(dict(SHARED, **SLIDES)),
+    "SCRIBA_SRC": _real(SCRIBA),
+    "FONTES_SRC": _real(FONTES),
+}
