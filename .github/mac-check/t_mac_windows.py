@@ -229,6 +229,18 @@ def run(win, api):
     except Exception as e:  # noqa: BLE001
         say("the check itself failed:", repr(e))
         RESULT["ok"] = False
+        # build 1083: each window was confirmed on the screen before the page was told, and the record says so
+        try:
+            rec = A.app_record()
+            n_ok, n_no = rec.count(" is shown ("), rec.count("is NOT shown")
+            say("record: %d windows confirmed shown, %d not shown; home folder named: %s" % (n_ok, n_no, os.path.expanduser("~") in rec))
+            if n_ok < 4 or n_no:
+                RESULT["ok"] = False
+                RESULT["notes"].append("the record does not confirm the four windows (%d shown, %d not)" % (n_ok, n_no))
+            say("rooms_state:", json.dumps(A.rooms_state()))
+        except Exception as e:  # noqa: BLE001
+            say("record check failed:", repr(e))
+            RESULT["ok"] = False
     finally:
         try:
             say("--- the app's own record ---")

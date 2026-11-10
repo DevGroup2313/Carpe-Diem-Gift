@@ -263,6 +263,22 @@ jobs:
           n=$(defaults read com.apple.dock persistent-apps | grep -c "Carpe%20Diem%20Rooms/Fontes.app" || true)
           if [ "$n" != "1" ]; then echo "::error::Fontes is in the Dock $n times, not once"; defaults read com.apple.dock persistent-apps | tail -30; exit 1; fi
           echo "Fontes's own app is in the Dock, once."
+          # build 1083: all five in the Dock at one request, each once however often it is asked, and an alias of each
+          # on the Desktop (the page's sheet "The rooms as apps on this Mac" asks for both)
+          "$EXE" --rooms-to-dock
+          "$EXE" --rooms-to-dock
+          for r in Tabula Abacus Imago Scriba Fontes; do
+            n=$(defaults read com.apple.dock persistent-apps | grep -c "Carpe%20Diem%20Rooms/$r.app" || true)
+            if [ "$n" != "1" ]; then echo "::error::$r is in the Dock $n times, not once"; exit 1; fi
+          done
+          echo "All five rooms' own apps are in the Dock, each once."
+          "$EXE" --rooms-to-desktop
+          for r in Tabula Abacus Imago Scriba Fontes; do
+            if [ ! -e "$HOME/Desktop/$r" ]; then echo "::error::no alias of $r on the Desktop"; ls -la "$HOME/Desktop"; exit 1; fi
+          done
+          ls -la "$HOME/Desktop" | grep -E "Tabula|Abacus|Imago|Scriba|Fontes" || true
+          echo "An alias of each room's own app is on the Desktop."
+          rec | grep -E "room window:|rooms:" || true
           rm -f "$LOG" "$STORE/carpe_session.flag" "$STORE/carpe_room.flag"
 
       - name: Keep the screenshots with this run

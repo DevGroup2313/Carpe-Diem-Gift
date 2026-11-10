@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1082, 10 November 2026. The About panel inside the app ends with
-"Build 1082 · 528171082".
-The app's own version is 1082 too; Android usually shows it on the
+Build 1083, 10 November 2026. The About panel inside the app ends with
+"Build 1083 · 528171083".
+The app's own version is 1083 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,26 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1082
+NEW IN BUILD 1083
+  On a Mac, Tabula, Abacus, Imago, Scriba and Fontes are easy to find as apps of their own. A new sheet, "The rooms as
+  apps on this Mac", puts all five in the Dock in one step, puts an alias of each on the Desktop, or shows them in the
+  Finder. It is in the menu of any room's floating window (the key with the arrow), and a note offers it once on a Mac
+  where none of the five is in the Dock or on the Desktop. They are kept in your home folder, in Applications, Carpe
+  Diem Rooms, and Spotlight finds each by its name.
+
+  On a Mac, a room's own window is checked before Carpe Diem counts it as open. The app used to say the window had
+  opened as soon as it had asked for it, and the floating window then closed; if the Mac did not show the new window,
+  the room was gone from the screen. The app now waits until the Mac really shows the window. One that is not shown
+  is brought out (out of the Dock, out of Carpe Diem's tabs, onto the main screen, to the front); if it still is not
+  shown, the room stays in its floating window, and a note offers the app's own record to copy, so that the cause
+  can be read. This was written for the Mac mini on macOS 27, where no window opened for a room; it could not be
+  tried on macOS 27, which GitHub does not offer yet, only on macOS 26, where the windows open.
+
+  The rule that keeps rooms in Carpe Diem's window after a bad ending now counts only an ending within seconds of a
+  room's window opening, not any bad ending however long after (a Mac switched off at the wall hours later counted).
+
+
+EARLIER, IN BUILD 1082
   Tabula prints in colour. Print now sends the document itself to the print dialog: its text colours, highlights,
   shaded table cells and pictures, as they look by day, even when the app is in night mode. In the Mac app, Print used
   to make a plain PDF of black text and hand that to Preview, which is why every print came out without colour; the

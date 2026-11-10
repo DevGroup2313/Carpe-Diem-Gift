@@ -1,0 +1,12 @@
+{
+ "date": "2026-11-10",
+ "pass": "1083",
+ "stamp": "528171083",
+ "prev": "1082",
+ "when": "10 November 2026",
+ "prev_when": "10 November 2026",
+ "ios_version": "2026111002",
+ "en": "On a Mac, Tabula, Abacus, Imago, Scriba and Fontes are easy to find as apps of their own. A new sheet, \"The rooms as\napps on this Mac\", puts all five in the Dock in one step, puts an alias of each on the Desktop, or shows them in the\nFinder. It is in the menu of any room's floating window (the key with the arrow), and a note offers it once on a Mac\nwhere none of the five is in the Dock or on the Desktop. They are kept in your home folder, in Applications, Carpe\nDiem Rooms, and Spotlight finds each by its name.\n\nOn a Mac, a room's own window is checked before Carpe Diem counts it as open. The app used to say the window had\nopened as soon as it had asked for it, and the floating window then closed; if the Mac did not show the new window,\nthe room was gone from the screen. The app now waits until the Mac really shows the window. One that is not shown\nis brought out (out of the Dock, out of Carpe Diem's tabs, onto the main screen, to the front); if it still is not\nshown, the room stays in its floating window, and a note offers the app's own record to copy, so that the cause\ncan be read. This was written for the Mac mini on macOS 27, where no window opened for a room; it could not be\ntried on macOS 27, which GitHub does not offer yet, only on macOS 26, where the windows open.\n\nThe rule that keeps rooms in Carpe Diem's window after a bad ending now counts only an ending within seconds of a\nroom's window opening, not any bad ending however long after (a Mac switched off at the wall hours later counted).",
+ "web": "On a Mac, the rooms' own apps can be put in the Dock or on the Desktop from a sheet in the app, and a room's own window is checked on the screen before it counts as open.",
+ "ios": "No change for the iPhone and iPad in this build: it brings the Mac app's sheet for the rooms' own apps and its check\nof a room's own window, which the iPhone and iPad do not use."
+}
