@@ -7,11 +7,40 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1084, 10 November 2026.** The About panel in the app ends with
-"Build 1084 · 528171084". Finder's Get Info on the app shows
-version 1084.
+**Build 1085, 11 November 2026.** The About panel in the app ends with
+"Build 1085 · 528171085". Finder's Get Info on the app shows
+version 1085.
 
-## New in build 1084
+## New in build 1085
+
+Tabula keeps its paragraphs and bullet points in good order. Until now Tabula left lists, indents and new
+paragraphs to the browser's own editing, and the browsers make the same faults: a list made inside a paragraph (which
+also kept it from filling the page), text after a list run into that paragraph, a paragraph after a heading made as a
+different kind of block with no space after it, Increase Indent turning a paragraph into an italic grey quotation, Tab
+moving the caret out of the document and losing what was typed next, bullets taken off a list running its items into
+one paragraph, a nested list hung outside any item, and Backspace at the start of the first item doing nothing.
+
+Tabula now does these things itself. Bullets and Numbering go on and off paragraph by paragraph; Tab and Shift+Tab
+move an item in and out a level (Tab on the first item moves the whole list in, as in Word); within a line, Tab is a
+tab, at Word's half inch; in a table, Tab goes to the next cell and past the last cell adds a row. Increase and
+Decrease Indent are a real indent of half an inch. Enter on an empty item moves it out a level, and again ends the
+list; Backspace at the start of an item takes its bullet off. The Bullet and Numbering Libraries and the multilevel
+lists work as before. After every change Tabula checks the paragraphs around the caret and puts any stray structure
+back in order without losing a word, and a document made before this build is put in order when it opens (its
+paragraphs typed after a heading gain the space a paragraph has).
+
+Because the browser's undo cannot follow such changes, Tabula keeps its own history of the document: Undo and Redo,
+by the keys and by the buttons, a step for each change and for each pause in typing, up to 400 steps. In a document of
+about 100,000 words a list is made in under 10 ms and an Undo takes under half a second in the three engines tested.
+A Word file made from Tabula now carries tabs and indents (left, first line and hanging), and a Word file opened in
+Tabula brings its indents in.
+
+Tested by keyboard in Chromium, Safari's engine and Firefox: 19 cases of lists and paragraphs, 10 of the libraries,
+pasting, Word and a long document, and runs of 300 to 400 random keys and buttons, each checked for lost words and
+broken structure. Record corrected: the 1084 note says the French test passes in Firefox; it was run in Chromium and
+Safari's engine, and the Firefox run did not finish.
+
+## Earlier, in build 1084
 
 The five rooms speak French throughout. In French, Tabula's ribbon, its hover words and its File page, Abacus's
 ribbon and the bar at the foot of its sheet, Imago's hover words, Scriba's two tabs and the whole of Fontes's form

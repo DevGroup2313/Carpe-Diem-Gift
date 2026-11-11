@@ -34,7 +34,8 @@ Build 1084 is made from build 1083 by `cd1084.py IN_1083.html OUT.html`. The par
 * the Guidebook in French: every chapter opened, no passage of four words or more that reads as English;
 * no page error.
 
-It passes in Chromium, in Safari's engine (WebKit) and in Firefox. 1081's `t_rooms_all.js`, 1082's `t_lists.js`,
+It passes in Chromium and in Safari's engine (WebKit). Corrected in build 1085: this record first said Firefox too, but
+the Firefox run did not finish in the time allowed, so a pass in Firefox is not claimed. 1081's `t_rooms_all.js`, 1082's `t_lists.js`,
 `t_print_doc.js` and `t_print_host.js`, 1083's `t_macrooms.js`, the seal in three engines and the six install kits
 all pass on this build.
 
