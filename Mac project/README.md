@@ -7,11 +7,22 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1087, 11 November 2026.** The About panel in the app ends with
-"Build 1087 · 528171087". Finder's Get Info on the app shows
-version 1087.
+**Build 1088, 11 November 2026.** The About panel in the app ends with
+"Build 1088 · 528171088". Finder's Get Info on the app shows
+version 1088.
 
-## New in build 1087
+## New in build 1088
+
+Tabula is offered under Open With on every device, for the files it reads. Until now the Mac and Windows apps
+offered it for Word and PDF files only. Now Tabula opens Word (.docx), PDF, plain text, web pages and Markdown,
+whose headings, lists and emphasis become Tabula's own; a kind it cannot read is refused in words. On a Mac,
+Tabula's own app is offered for the five kinds; on Windows, Explorer's Open With offers Tabula for .txt, .html,
+.htm and .md besides .docx and .pdf; on the Fire tablet, Open with and Share offer Carpe Diem, and shared words open
+as plain text; on an iPhone or iPad, "Open in Carpe Diem"; the installed web edition names the same kinds.
+Tested in Chromium, Safari's engine and Firefox with three stand-in hosts. Not tried on a Fire tablet, an iPhone
+or an iPad; .doc, RTF and OpenDocument files are not offered, because Tabula cannot read them yet.
+
+## Earlier, in build 1087
 
 The Writing Rooms, each with a face of its own. Proposal, Curriculum, Research Writing and the French Tutor
 opened in one shared frame and looked alike and flat. Each now has its medallion (a quill, a laurelled book, a compass

@@ -1350,7 +1350,8 @@ def log_note(tag):
 
 # Build 1072: a Word or PDF file the app is asked to open (Open With in the Finder or in Explorer, or a double click once
 # Carpe Diem is chosen for it) goes to Tabula, through the same readers as Tabula's File, Open.
-OPENABLE = (".docx", ".pdf")
+# Build 1088: and plain text, web pages and Markdown, which Tabula reads too
+OPENABLE = (".docx", ".pdf", ".txt", ".text", ".html", ".htm", ".md", ".markdown")
 _OPENED = {"queue": [], "parts": {}}
 _PART = 1 << 20
 
@@ -1383,7 +1384,7 @@ def _hear_pywebview():
 
 
 def files_asked(paths):
-    """Word and PDF files to hand to Tabula as soon as the page can take them."""
+    """Files Tabula reads (Word, PDF, text, web pages, Markdown), to hand to it as soon as the page can take them."""
     got = [os.path.abspath(p) for p in (paths or []) if _openable(p)]
     for p in got:
         log_note("file: %s asked to open" % os.path.basename(p))
@@ -1464,7 +1465,7 @@ def _file_part(key, i):
 # and icon, kept in ~/Applications/Carpe Diem Rooms, where the Dock, Launchpad and Spotlight find them. Each is a small
 # launcher made on this Mac (an AppleScript applet, by the Mac's own osacompile, signed for this Mac alone) that asks
 # Carpe Diem for its room in a window of its own, apart from Carpe Diem's window (carpediem://room/<room>), so the work
-# stays in one place. Tabula's is the one the Finder offers under Open With for Word and PDF files: it hands the file to
+# stays in one place. Tabula's is the one the Finder offers under Open With for the files Tabula reads: it hands the file to
 # Carpe Diem, which opens it in Tabula's own window.
 # ---------------------------------------------------------------------------
 ROOM_NAMES = {"tabula": "Tabula", "abacus": "Abacus", "slides": "Imago", "scriba": "Scriba", "fontes": "Fontes"}
@@ -1521,7 +1522,7 @@ def _room_survives(win, after_s=25.0):
         pass
 OWN_BUNDLE_ID = "com.yannieforest.carpediem"
 # changes only when the room apps themselves change: a new Carpe Diem leaves them as they are, so the Dock keeps them
-ROOM_APP_KIND = "1073"
+ROOM_APP_KIND = "1088"
 _ROOMS_ASKED = {"queue": [], "early": None}
 _DESK = {"shown": False}
 
@@ -1557,7 +1558,7 @@ def room_app_path(which):
 
 def _room_script(which, carpe):
     """The launcher's AppleScript: Carpe Diem (the copy that made it, else any by its identity) opens the room; Tabula's
-    also hands on the Word and PDF files it is given."""
+    also hands on the files it is given."""
     def q(t):
         return '"' + str(t).replace("\\", "\\\\").replace('"', '\\"') + '"'
     link = q(ROOM_LINK + which)
@@ -1658,15 +1659,28 @@ def _make_room_app(which, force=False):
         })
         info.pop("CFBundleIconName", None)
         if which == "tabula":
-            # Open With offers Tabula for Word and PDF files; "Alternate": the owner chooses the default in Get Info
+            # Open With offers Tabula for the files it reads; "Alternate": the owner chooses the default in Get Info
             info["CFBundleDocumentTypes"] = [
                 {"CFBundleTypeName": "Word document", "CFBundleTypeRole": "Editor", "LSHandlerRank": "Alternate",
                  "LSItemContentTypes": ["org.openxmlformats.wordprocessingml.document"]},
                 {"CFBundleTypeName": "PDF document", "CFBundleTypeRole": "Viewer", "LSHandlerRank": "Alternate",
                  "LSItemContentTypes": ["com.adobe.pdf"]},
+                # build 1088: plain text, web pages and Markdown, read as Tabula's File, Open reads them
+                {"CFBundleTypeName": "Text document", "CFBundleTypeRole": "Editor", "LSHandlerRank": "Alternate",
+                 "LSItemContentTypes": ["public.plain-text", "net.daringfireball.markdown"]},
+                {"CFBundleTypeName": "Web page", "CFBundleTypeRole": "Editor", "LSHandlerRank": "Alternate",
+                 "LSItemContentTypes": ["public.html"]},
+            ]
+            # build 1088: Markdown named for a Mac that does not know it already, so a .md file is offered to Tabula
+            info["UTImportedTypeDeclarations"] = [
+                {"UTTypeIdentifier": "net.daringfireball.markdown", "UTTypeDescription": "Markdown document",
+                 "UTTypeConformsTo": ["public.plain-text"],
+                 "UTTypeTagSpecification": {"public.filename-extension": ["md", "markdown"],
+                                            "public.mime-type": ["text/markdown"]}},
             ]
         else:
             info.pop("CFBundleDocumentTypes", None)
+            info.pop("UTImportedTypeDeclarations", None)
         with open(plist, "wb") as fh:
             plistlib.dump(info, fh)
         r = subprocess.run(["/usr/bin/codesign", "--force", "--sign", "-", "--timestamp=none", made],
@@ -2381,7 +2395,7 @@ def _hear_opened_files():
 
     try:
         cocoa.BrowserView._shared_app_delegate = CarpeDiemAppDelegate.alloc().init()
-        log_note("files: listening for Word and PDF files from the Finder")
+        log_note("files: listening for files from the Finder")
     except Exception:
         log_problem("files: the Finder's requests cannot be heard")
 

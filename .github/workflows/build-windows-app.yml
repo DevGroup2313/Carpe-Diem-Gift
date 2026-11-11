@@ -244,8 +244,8 @@ jobs:
           "A newer build took the older one's place."
           # build 1072: Explorer's Open With offers Carpe Diem for .docx and .pdf; a file opened with it goes to Tabula,
           # when it starts the app and, through a second start that hands it over, when the app is already open
-          $ow = @('.docx', '.pdf') | ForEach-Object { [bool]((Get-Item "HKCU:\Software\Classes\$_\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') }
-          "Open With offers Carpe Diem for .docx and .pdf: $($ow -join ', ')"
+          $ow = @('.docx', '.pdf', '.txt', '.html', '.htm', '.md') | ForEach-Object { [bool]((Get-Item "HKCU:\Software\Classes\$_\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') }
+          "Open With offers Carpe Diem for .docx, .pdf, .txt, .html, .htm and .md: $($ow -join ', ')"
           if ($ow -contains $false) { Write-Error "The installer did not offer Carpe Diem under Open With."; exit 1 }
           "Open With's command: $((Get-ItemProperty 'HKCU:\Software\Classes\CarpeDiem.Tabula\shell\open\command').'(default)')"
           Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
@@ -284,6 +284,14 @@ jobs:
           Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.pdf|room tabula" | ForEach-Object { $_.Line }
           if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A PDF opened with Tabula did not reach Tabula's own window."; exit 1 }
           "A PDF opened with Tabula went to Tabula's own window."
+          # build 1088: and a Markdown file, which Tabula reads too
+          $t = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room', 'tabula', ('"' + (Join-Path $F 'chapter.md') + '"') -PassThru
+          if (-not $t.WaitForExit(40000)) { Stop-Process -Id $t.Id -Force; Write-Error "Open With's start did not end: two copies would be open."; exit 1 }
+          $ok = $false
+          for ($k = 0; $k -lt 90 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.md handed to Tabula \(\d+ bytes\) in its own window" -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.md" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A Markdown file opened with Tabula did not reach Tabula's own window."; exit 1 }
+          "A Markdown file opened with Tabula went to Tabula's own window."
           if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
           # build 1073: a room's shortcut while Carpe Diem is closed: Carpe Diem starts, and the room opens in a window of its
           # own, with its own taskbar button, as soon as Carpe Diem's page has loaded (from 1063 to 1072 it waited two minutes)
@@ -315,6 +323,7 @@ jobs:
           if (-not (Test-Path (Join-Path $store "keep-me.txt"))) { Write-Error "Uninstalling touched the work folder."; exit 1 }
           if (Test-Path "HKCU:\Software\Classes\CarpeDiem.Tabula") { Write-Error "Uninstalling left Open With's entry behind."; exit 1 }
           if ((Get-Item "HKCU:\Software\Classes\.pdf\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') { Write-Error "Uninstalling left Carpe Diem under Open With for .pdf."; exit 1 }
+          if ((Get-Item "HKCU:\Software\Classes\.md\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') { Write-Error "Uninstalling left Carpe Diem under Open With for .md."; exit 1 }
           "Uninstalled cleanly; the work folder is untouched."
 
       - name: Keep the installer with this run

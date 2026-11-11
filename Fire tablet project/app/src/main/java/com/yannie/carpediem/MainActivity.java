@@ -69,6 +69,19 @@ public class MainActivity extends Activity {
     private static final int MODEL_IMPORT_REQUEST = 4714;
     private ModelHost models;
 
+    // BUILD 1088: A FILE ANOTHER APP GIVES CARPE DIEM (Open with, Share) waits
+    // here until the page takes it, as the Mac and Windows apps keep one for
+    // their page: the page asks every second or so (takeFile), then fetches it
+    // in pieces (filePart), and Tabula opens it with its own readers.
+    private static final int FILE_PART = 393216;
+    private static final long FILE_MOST = 200L * 1024 * 1024;
+    private final java.util.ArrayList<Object[]> filesWaiting = new java.util.ArrayList<>();
+    private Object[] fileGiven;
+    private static final String[][] FILE_KINDS = {
+            {"application/pdf", ".pdf"},
+            {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx"},
+            {"text/plain", ".txt"}, {"text/html", ".html"}, {"text/markdown", ".md"}, {"text/x-markdown", ".md"}};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +166,85 @@ public class MainActivity extends Activity {
         });
         web.loadUrl("https://appassets.androidplatform.net/assets/carpe_diem.html");
         setContentView(web);
+        takeIncoming(getIntent());
+    }
+
+    // Build 1088: a file opened with Carpe Diem while it is already open
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        takeIncoming(intent);
+    }
+
+    private void takeIncoming(Intent intent) {
+        if (intent == null) return;
+        Uri u = null;
+        try {
+            if (Intent.ACTION_VIEW.equals(intent.getAction())) u = intent.getData();
+            else if (Intent.ACTION_SEND.equals(intent.getAction())) u = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        } catch (RuntimeException e) {
+            u = null;
+        }
+        if (u == null) {
+            // words shared from another app, not a file: they open in Tabula as plain text
+            CharSequence words = null;
+            try {
+                if (Intent.ACTION_SEND.equals(intent.getAction())) words = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+            } catch (RuntimeException e) {
+                words = null;
+            }
+            if (words == null || words.length() == 0) return;
+            byte[] b = words.toString().getBytes(StandardCharsets.UTF_8);
+            if (b.length > FILE_MOST) return;
+            Object[] f = { java.util.UUID.randomUUID().toString(), "Shared text.txt", b };
+            synchronized (filesWaiting) { filesWaiting.add(f); }
+            return;
+        }
+        final Uri uri = u;
+        final String type = intent.getType();
+        new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    String name = incomingName(uri, type);
+                    InputStream in = getContentResolver().openInputStream(uri);
+                    if (in == null) return;
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    byte[] buf = new byte[65536];
+                    int n;
+                    long total = 0;
+                    try {
+                        while ((n = in.read(buf)) > 0) {
+                            total += n;
+                            if (total > FILE_MOST) return;
+                            out.write(buf, 0, n);
+                        }
+                    } finally { in.close(); }
+                    Object[] f = { java.util.UUID.randomUUID().toString(), name, out.toByteArray() };
+                    synchronized (filesWaiting) { filesWaiting.add(f); }
+                } catch (Exception ignored) {
+                    // a file that cannot be read is not offered; the app goes on as it was
+                }
+            }
+        }).start();
+    }
+
+    private String incomingName(Uri u, String type) {
+        String name = null;
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(u, new String[]{ OpenableColumns.DISPLAY_NAME }, null, null, null);
+            if (c != null && c.moveToFirst()) name = c.getString(0);
+        } catch (RuntimeException ignored) {
+        } finally { if (c != null) c.close(); }
+        if (name == null || name.length() == 0) {
+            String last = u.getLastPathSegment();
+            name = last == null ? "document" : last;
+        }
+        if (name.indexOf('.') < 0 && type != null) {
+            for (String[] k : FILE_KINDS) if (k[0].equalsIgnoreCase(type)) { name = name + k[1]; break; }
+        }
+        return name;
     }
 
     // Exposed to the page as window.CarpeNative. The page calls saveFile when the
@@ -161,6 +253,43 @@ public class MainActivity extends Activity {
     // chosen. Returns true when the dialog is being opened, so the page knows the
     // native path was taken; false lets the page fall back to Copy.
     public class CarpeBridge {
+        // Build 1088: the page takes a file another app gave (see takeIncoming), as from the Mac and Windows apps
+        @JavascriptInterface
+        public String takeFile(String where) {
+            synchronized (filesWaiting) {
+                if (filesWaiting.isEmpty()) return "";
+                fileGiven = filesWaiting.remove(0);
+                byte[] b = (byte[]) fileGiven[2];
+                int parts = Math.max(1, (b.length + FILE_PART - 1) / FILE_PART);
+                try {
+                    JSONObject o = new JSONObject();
+                    o.put("key", fileGiven[0]);
+                    o.put("name", fileGiven[1]);
+                    o.put("parts", parts);
+                    return o.toString();
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        }
+
+        @JavascriptInterface
+        public String filePart(String key, int i) {
+            synchronized (filesWaiting) {
+                if (fileGiven == null || key == null || !key.equals(fileGiven[0])) return "";
+                byte[] b = (byte[]) fileGiven[2];
+                int from = i * FILE_PART;
+                if (i < 0 || from >= b.length) return "";
+                int to = Math.min(b.length, from + FILE_PART);
+                return Base64.encodeToString(b, from, to - from, Base64.NO_WRAP);
+            }
+        }
+
+        @JavascriptInterface
+        public void fileOpened(String name, String how) {
+            // the page says what became of the file; nothing is kept
+        }
+
         @JavascriptInterface
         public boolean saveFile(final String name, final String mime, final String b64) {
             try {

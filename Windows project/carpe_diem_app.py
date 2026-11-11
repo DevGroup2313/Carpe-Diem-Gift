@@ -1270,7 +1270,8 @@ def log_note(tag):
 
 # Build 1072: a Word or PDF file the app is asked to open (Open With in the Finder or in Explorer, or a double click once
 # Carpe Diem is chosen for it) goes to Tabula, through the same readers as Tabula's File, Open.
-OPENABLE = (".docx", ".pdf")
+# Build 1088: and plain text, web pages and Markdown, which Tabula reads too
+OPENABLE = (".docx", ".pdf", ".txt", ".text", ".html", ".htm", ".md", ".markdown")
 _OPENED = {"queue": [], "parts": {}}
 _PART = 1 << 20
 
@@ -1303,7 +1304,7 @@ def _hear_pywebview():
 
 
 def files_asked(paths):
-    """Word and PDF files to hand to Tabula as soon as the page can take them."""
+    """Files Tabula reads (Word, PDF, text, web pages, Markdown), to hand to it as soon as the page can take them."""
     got = [os.path.abspath(p) for p in (paths or []) if _openable(p)]
     for p in got:
         log_note("file: %s asked to open" % os.path.basename(p))

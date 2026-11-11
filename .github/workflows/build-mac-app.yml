@@ -214,7 +214,7 @@ jobs:
 
       - name: The rooms as apps of their own, Tabula under Open With, and the Dock
         # build 1073: Carpe Diem makes Tabula, Abacus, Imago, Scriba and Fontes as apps of their own, each with its own
-        # name and icon, in ~/Applications/Carpe Diem Rooms. Tabula's is offered under Open With for Word and PDF files
+        # name and icon, in ~/Applications/Carpe Diem Rooms. Tabula's is offered under Open With for the files it reads
         # (Carpe Diem itself no longer is). Each opens its room in a window of its own (carpediem://room/<room>), Carpe
         # Diem closed or open, and one can be kept in the Dock.
         run: |
@@ -236,8 +236,8 @@ jobs:
             codesign -dv "$ROOMS/$r.app" 2>&1 | grep -E "^Identifier|^Signature" || true
           done
           /usr/libexec/PlistBuddy -c "Print :CFBundleDocumentTypes" "$ROOMS/Tabula.app/Contents/Info.plist"
-          # the Finder's Open With for a Word file and a PDF: Tabula, not Carpe Diem
-          for f in chapter.docx chapter.pdf; do
+          # the Finder's Open With for each kind of file Tabula reads: Tabula, not Carpe Diem
+          for f in chapter.docx chapter.pdf chapter.txt chapter.html chapter.md; do
             W=$(osascript -l JavaScript -e 'ObjC.import("AppKit"); var u = $.NSWorkspace.sharedWorkspace.URLsForApplicationsToOpenURL($.NSURL.fileURLWithPath("'"$F/$f"'")); var o = []; for (var i = 0; i < u.count; i++) o.push(u.objectAtIndex(i).path.js); o.join("\n")')
             echo "Open With for $f:"; echo "$W" | sed 's/^/  /'
             if ! echo "$W" | grep -q "Carpe Diem Rooms/Tabula.app"; then echo "::error::Open With does not offer Tabula for $f"; exit 1; fi
@@ -255,6 +255,12 @@ jobs:
           rec | grep -E "room: tabula|chapter.docx" || true
           if ! rec | grep -q "file: chapter.docx handed to Tabula .* in its own window"; then echo "::error::a Word file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
           echo "A Word file opened with Tabula went to Tabula's own window after $T seconds."
+          # build 1088: and a Markdown file, which Tabula reads too
+          open -a "$ROOMS/Tabula.app" "$F/chapter.md"
+          T=0; until rec | grep -q "file: chapter.md handed to Tabula .* in its own window" || [ $T -ge 120 ]; do sleep 2; T=$((T+2)); done
+          rec | grep -E "chapter.md" || true
+          if ! rec | grep -q "file: chapter.md handed to Tabula .* in its own window"; then echo "::error::a Markdown file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
+          echo "A Markdown file opened with Tabula went to Tabula's own window after $T seconds."
           if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
           stop; sleep 3
           # kept in the Dock, once however often it is asked

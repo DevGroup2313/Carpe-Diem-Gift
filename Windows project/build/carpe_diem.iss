@@ -21,7 +21,7 @@
 ; The AppId never changes, so every build installs over the one before and keeps one entry in Settings, Apps.
 
 #ifndef AppVersion
-  #define AppVersion "1087"
+  #define AppVersion "1088"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist_installed\Carpe Diem"
@@ -111,10 +111,19 @@ Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open"; ValueType: st
 Root: HKA; Subkey: "Software\Classes\CarpeDiem.Tabula\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" --room tabula ""%1"""
 Root: HKA; Subkey: "Software\Classes\.docx\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+; build 1088: and plain text, web pages and Markdown, which Tabula reads too (Open With only, as for Word and PDF)
+Root: HKA; Subkey: "Software\Classes\.txt\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.html\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.htm\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.md\OpenWithProgids"; ValueType: string; ValueName: "CarpeDiem.Tabula"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Tabula"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\rooms\tabula.ico,0"
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".docx"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".pdf"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".txt"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".html"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".htm"; ValueData: ""
+Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\SupportedTypes"; ValueType: string; ValueName: ".md"; ValueData: ""
 Root: HKA; Subkey: "Software\Classes\Applications\Carpe Diem.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\Carpe Diem.exe"" --room tabula ""%1"""
 
 [Run]
