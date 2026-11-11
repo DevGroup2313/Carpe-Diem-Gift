@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1088, 11 November 2026. The About panel inside the app ends with
-"Build 1088 · 528171088".
-The app's own version is 1088 too; Android usually shows it on the
+Build 1089, 11 November 2026. The About panel inside the app ends with
+"Build 1089 · 528171089".
+The app's own version is 1089 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,17 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1088
+NEW IN BUILD 1089
+  The Guidebook and the tour, tidied. The Guidebook's chapters now stand in nine sections (Your day, Focus
+  and small tools, Reading and study, Tutors and practice, Your projects, The five studios, Around the desk, Your
+  copy of Carpe Diem, For the author), with a search field, a contents strip and a line saying how long each tour
+  takes. Two notes on the look of the page are set aside, the Focus page has a chapter at last, and the chapters
+  that described an earlier build are put right, in English and in French. The guided tour is short by default:
+  71 of its 201 cards, about thirty-five minutes; the full tour starts from the Guidebook. A tour card no longer
+  lands below the screen. The install kits are made even when Ubuntu's package server does not answer.
+
+
+EARLIER, IN BUILD 1088
   Tabula is offered under Open With on every device, for the files it reads. Until now the Mac and Windows apps
   offered it for Word and PDF files only. Now Tabula opens Word (.docx), PDF, plain text, web pages and Markdown,
   whose headings, lists and emphasis become Tabula's own; a kind it cannot read is refused in words. On a Mac,

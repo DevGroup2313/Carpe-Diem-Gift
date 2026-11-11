@@ -7,11 +7,21 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1088, 11 November 2026.** The About panel in the app ends with
-"Build 1088 · 528171088". Finder's Get Info on the app shows
-version 1088.
+**Build 1089, 11 November 2026.** The About panel in the app ends with
+"Build 1089 · 528171089". Finder's Get Info on the app shows
+version 1089.
 
-## New in build 1088
+## New in build 1089
+
+The Guidebook and the tour, tidied. The Guidebook's chapters now stand in nine sections (Your day, Focus
+and small tools, Reading and study, Tutors and practice, Your projects, The five studios, Around the desk, Your
+copy of Carpe Diem, For the author), with a search field, a contents strip and a line saying how long each tour
+takes. Two notes on the look of the page are set aside, the Focus page has a chapter at last, and the chapters
+that described an earlier build are put right, in English and in French. The guided tour is short by default:
+71 of its 201 cards, about thirty-five minutes; the full tour starts from the Guidebook. A tour card no longer
+lands below the screen. The install kits are made even when Ubuntu's package server does not answer.
+
+## Earlier, in build 1088
 
 Tabula is offered under Open With on every device, for the files it reads. Until now the Mac and Windows apps
 offered it for Word and PDF files only. Now Tabula opens Word (.docx), PDF, plain text, web pages and Markdown,

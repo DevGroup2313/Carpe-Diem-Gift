@@ -37,7 +37,11 @@ jobs:
           cd .github/kits
           npm init -y > /dev/null
           npm install --no-audit --no-fund playwright@1.63.0 > /dev/null
-          npx playwright install --with-deps chromium > /dev/null
+          npx playwright install chromium > /dev/null
+          # build 1089: the browser's system libraries are already on GitHub's Ubuntu machines; installing them again
+          # needs Ubuntu's package server, which did not answer on 11 November 2026 (builds 1087 and 1088 had no
+          # kits), so a failure there is noted and the kits are made with the libraries the machine has
+          npx playwright install-deps chromium > /dev/null 2>&1 || echo "::warning::The browser's system libraries could not be installed from Ubuntu's package server; the kits are made with those already on this machine."
           npx playwright --version
 
       - name: Make the kits from the app itself

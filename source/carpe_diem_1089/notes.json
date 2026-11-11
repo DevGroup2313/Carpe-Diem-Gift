@@ -1,0 +1,12 @@
+{
+ "date": "2026-11-11",
+ "pass": "1089",
+ "stamp": "528171089",
+ "prev": "1088",
+ "when": "11 November 2026",
+ "prev_when": "11 November 2026",
+ "ios_version": "2026111105",
+ "en": "The Guidebook and the tour, tidied. The Guidebook's chapters now stand in nine sections (Your day, Focus\nand small tools, Reading and study, Tutors and practice, Your projects, The five studios, Around the desk, Your\ncopy of Carpe Diem, For the author), with a search field, a contents strip and a line saying how long each tour\ntakes. Two notes on the look of the page are set aside, the Focus page has a chapter at last, and the chapters\nthat described an earlier build are put right, in English and in French. The guided tour is short by default:\n71 of its 201 cards, about thirty-five minutes; the full tour starts from the Guidebook. A tour card no longer\nlands below the screen. The install kits are made even when Ubuntu's package server does not answer.",
+ "web": "The Guidebook in nine sections with a search, its chapters put right, and a short guided tour by default.",
+ "ios": "The Guidebook in nine sections with a search and a contents strip, its chapters put right in English and in\nFrench, and a short guided tour by default (the full tour starts from the Guidebook)."
+}
