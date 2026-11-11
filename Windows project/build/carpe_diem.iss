@@ -21,7 +21,7 @@
 ; The AppId never changes, so every build installs over the one before and keeps one entry in Settings, Apps.
 
 #ifndef AppVersion
-  #define AppVersion "1086"
+  #define AppVersion "1087"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\dist_installed\Carpe Diem"

@@ -1,0 +1,154 @@
+/* Carpe Diem 1087: the Writing Rooms' faces. Each room has its colour; everything else is the house's raised hand. */
+html body #modal-root .cd-wr { --wr: #1b6b93; --wr2: #0f4560; --wr-rgb: 27,107,147; --wr-gilt: #c69c3f; --wr-gilt-hi: #e2c27a; --wr-accent: #c69c3f;
+  background: radial-gradient(900px 520px at 50% -8%, rgba(var(--wr-rgb), .14), transparent 62%), radial-gradient(700px 500px at 100% 100%, rgba(var(--wr-rgb), .07), transparent 60%), linear-gradient(180deg, #f8f5ee 0%, #efe7d8 100%) !important; }
+html body #modal-root .cd-wr-curriculum { --wr: #7a2334; --wr2: #4c1220; --wr-rgb: 122,35,52; --wr-gilt: #c69c3f; --wr-gilt-hi: #e6c784; --wr-accent: #c69c3f; }
+html body #modal-root .cd-wr-research { --wr: #2f5a42; --wr2: #1b3a29; --wr-rgb: 47,90,66; --wr-gilt: #b58a3a; --wr-gilt-hi: #d9b56a; --wr-accent: #b58a3a; }
+html body #modal-root .cd-wr-french { --wr: #2b4c8c; --wr2: #182f63; --wr-rgb: 43,76,140; --wr-gilt: #c69c3f; --wr-gilt-hi: #e2c27a; --wr-accent: #b3261e; }
+html body #modal-root .cd-wr > .cd-wr-mark { position: fixed; left: 50%; top: 54%; width: min(78vh, 760px); height: min(78vh, 760px); transform: translate(-50%, -50%); color: rgb(var(--wr-rgb)); opacity: .045; pointer-events: none; z-index: 0; }
+html body #modal-root .cd-wr > .cd-wr-mark svg { width: 100%; height: 100%; stroke-width: 1.1; }
+html body #modal-root .cd-wr > div:not(.cd-wr-mark) { position: relative; z-index: 1; }
+/* the room's head: its medallion, its name, its Latin line */
+html body #modal-root .cd-wr .cd-wr-head { position: relative !important; display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 0 !important;
+  padding: 26px 26px 22px !important; margin-bottom: 20px !important; border-radius: 22px !important; border: 1px solid rgba(var(--wr-rgb), .22) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf9f3 100%) !important;
+  box-shadow: 0 1px 0 #fff inset, 0 0 0 5px rgba(var(--wr-rgb), .06), 0 20px 44px rgba(16,42,58,.12), 0 4px 10px rgba(16,42,58,.07) !important; }
+html body #modal-root .cd-wr .cd-wr-head > button:first-child { position: absolute !important; left: 16px; top: 16px; padding: 7px 13px !important; border-radius: 11px !important; border: 1px solid rgba(var(--wr-rgb), .35) !important;
+  background: linear-gradient(180deg, #fff 0%, #f2f4f6 100%) !important; color: var(--wr) !important; font-weight: 600 !important; box-shadow: 0 1px 0 #fff inset, 0 3px 0 rgba(var(--wr-rgb), .22), 0 6px 12px rgba(16,42,58,.10) !important; transition: transform .14s, box-shadow .14s; }
+html body #modal-root .cd-wr .cd-wr-head > button:first-child:hover { transform: translateY(-1px); }
+html body #modal-root .cd-wr .cd-wr-head > button:first-child:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(var(--wr-rgb), .22) !important; }
+html body #modal-root .cd-wr-medal { position: relative; width: 92px; height: 92px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 2px 0 12px; color: var(--wr); overflow: hidden;
+  background: radial-gradient(circle at 34% 28%, #ffffff 0%, #f8f2e3 42%, #e8d9b4 100%); border: 2px solid var(--wr-gilt);
+  box-shadow: 0 0 0 5px rgba(var(--wr-rgb), .10), inset 0 2px 0 rgba(255,255,255,.9), inset 0 -8px 14px rgba(120,90,30,.14), 0 14px 26px rgba(16,42,58,.20), 0 3px 6px rgba(16,42,58,.12);
+  animation: cdWrFloat 6s ease-in-out infinite; }
+html body #modal-root .cd-wr-medal .cd-wr-emb { width: 54px; height: 54px; filter: drop-shadow(0 1px 0 rgba(255,255,255,.8)); }
+html body #modal-root .cd-wr-medal .cd-wr-shine { position: absolute; inset: -40%; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%); transform: translateX(-60%); animation: cdWrShine 7s ease-in-out infinite 1.2s; pointer-events: none; }
+@keyframes cdWrFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes cdWrShine { 0%, 70% { transform: translateX(-60%); } 85%, 100% { transform: translateX(60%); } }
+html body #modal-root .cd-wr .cd-wr-head .cd-ws-kicker { color: var(--wr) !important; opacity: .7 !important; letter-spacing: .22em !important; margin-bottom: 4px !important; }
+html body #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > div:not(.cd-ws-kicker):not(.cd-wr-latin):first-of-type,
+html body #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > .cd-ws-kicker + div { font-family: var(--cd-display, var(--cd-serif)) !important; font-size: 34px !important; font-weight: 700 !important; letter-spacing: .12em !important; line-height: 1.1 !important;
+  background: linear-gradient(180deg, var(--wr) 0%, var(--wr2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent !important; text-shadow: none !important; }
+html body #modal-root .cd-wr-latin { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 7px 0 4px; }
+html body #modal-root .cd-wr-latin span { width: 46px; height: 1px; background: var(--wr-gilt); opacity: .7; }
+html body #modal-root .cd-wr-latin b { font: 700 10.5px/1 -apple-system, 'Segoe UI', system-ui, sans-serif; letter-spacing: .26em; color: var(--wr-gilt); }
+html body #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > div:last-child:not(.cd-wr-latin):not(.cd-ws-kicker) { font-family: var(--cd-serif) !important; font-size: 14px !important; font-style: italic !important; color: var(--wr) !important; opacity: .9; margin-top: 4px !important; }
+/* a page inside a room: the same medallion, smaller, beside the name */
+html body #modal-root .cd-wr-subpage .cd-wr-head { flex-direction: row !important; text-align: left !important; padding: 16px 18px !important; gap: 14px !important; border-radius: 18px !important; }
+html body #modal-root .cd-wr-subpage .cd-wr-head > button:first-child { position: static !important; flex: 0 0 auto; }
+html body #modal-root .cd-wr-subpage .cd-wr-medal { width: 54px; height: 54px; margin: 0; flex: 0 0 auto; }
+html body #modal-root .cd-wr-subpage .cd-wr-medal .cd-wr-emb { width: 32px; height: 32px; }
+html body #modal-root .cd-wr-subpage .cd-wr-head > div:not(.cd-wr-medal) > div:not(.cd-ws-kicker):not(.cd-wr-latin):first-of-type,
+html body #modal-root .cd-wr-subpage .cd-wr-head > div:not(.cd-wr-medal) > .cd-ws-kicker + div { font-size: 21px !important; letter-spacing: .06em !important; }
+html body #modal-root .cd-wr-subpage .cd-wr-latin { justify-content: flex-start; }
+html body #modal-root .cd-wr-subpage .cd-wr-latin span:first-child { display: none; }
+/* the count of doors, between two rules */
+html body #modal-root .cd-wr .cd-ws-count { display: flex !important; align-items: center; justify-content: center; gap: 12px; margin: 0 0 18px !important; color: var(--wr) !important; opacity: .85 !important; letter-spacing: .2em !important; }
+html body #modal-root .cd-wr .cd-ws-count::before, html body #modal-root .cd-wr .cd-ws-count::after { content: ""; flex: 0 1 70px; height: 1px; background: linear-gradient(90deg, transparent, rgba(var(--wr-rgb), .45), transparent); }
+/* the doors */
+html body #modal-root .cd-wr .cd-ws-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)) !important; gap: 16px !important; align-items: stretch !important; }
+html body #modal-root .cd-wr .cd-ws-grid > :not(.cd-wr-card) { grid-column: 1 / -1; }
+html body #modal-root .cd-wr .cd-wr-card { position: relative !important; display: grid !important; grid-template-columns: 54px 1fr 18px; grid-template-rows: auto auto; align-content: center !important; column-gap: 15px; row-gap: 4px; align-items: center !important;
+  margin: 0 !important; padding: 18px 18px 18px 16px !important; border-radius: 18px !important; text-align: left !important; cursor: pointer;
+  border: 1px solid rgba(var(--wr-rgb), .18) !important; border-left: 4px solid var(--wr) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf9f4 100%) !important;
+  box-shadow: 0 1px 0 #fff inset, 0 3px 0 rgba(var(--wr-rgb), .16), 0 12px 24px rgba(16,42,58,.09), 0 2px 5px rgba(16,42,58,.06) !important;
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s; animation: cdWrIn .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--wr-i, 0) * 70ms); }
+html body #modal-root .cd-wr .cd-wr-card:hover { transform: translateY(-4px); box-shadow: 0 1px 0 #fff inset, 0 5px 0 rgba(var(--wr-rgb), .18), 0 20px 34px rgba(16,42,58,.14), 0 4px 8px rgba(16,42,58,.08) !important; }
+html body #modal-root .cd-wr .cd-wr-card:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(var(--wr-rgb), .18), 0 4px 10px rgba(16,42,58,.08) !important; }
+html body #modal-root .cd-wr .cd-wr-card:focus-visible { outline: 3px solid rgba(var(--wr-rgb), .45); outline-offset: 3px; }
+@keyframes cdWrIn { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+html body #modal-root .cd-wr-badge { grid-column: 1; grid-row: 1 / span 2; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, rgba(var(--wr-rgb), .08) 55%, rgba(var(--wr-rgb), .18) 100%); border: 1.5px solid rgba(var(--wr-rgb), .3);
+  box-shadow: inset 0 2px 0 #fff, inset 0 -4px 8px rgba(var(--wr-rgb), .14), 0 4px 10px rgba(16,42,58,.12); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+html body #modal-root .cd-wr .cd-wr-card:hover .cd-wr-badge { transform: rotate(-8deg) scale(1.06); }
+html body #modal-root .cd-wr .cd-wr-card > div:nth-of-type(1) { grid-column: 2; grid-row: 1; font-size: 16.5px !important; font-weight: 700 !important; color: var(--wr2) !important; }
+html body #modal-root .cd-wr .cd-wr-card > div:nth-of-type(2) { grid-column: 2; grid-row: 2; font-size: 13px !important; line-height: 1.5 !important; color: #5a6470 !important; }
+html body #modal-root .cd-wr .cd-wr-card > div:nth-of-type(n+3) { grid-column: 2; }
+html body #modal-root .cd-wr-go { grid-column: 3; grid-row: 1 / span 2; align-self: center; font-size: 28px; line-height: 1; color: var(--wr); opacity: .55; transition: transform .2s, opacity .2s; }
+html body #modal-root .cd-wr .cd-wr-card:hover .cd-wr-go { transform: translateX(4px); opacity: 1; }
+/* the French Tutor */
+html body #modal-root .cd-wr-french .cd-ws-grid.cd-wr-fr, html body #modal-root .cd-wr-fr { display: block !important; max-width: 860px; margin: 0 auto; }
+html body #modal-root .cd-wr-seg { display: inline-flex !important; gap: 4px !important; padding: 5px !important; margin: 0 0 16px !important; border-radius: 15px; background: rgba(var(--wr-rgb), .08); box-shadow: inset 0 1px 3px rgba(16,42,58,.10); }
+html body #modal-root .cd-wr-seg > button { border: none !important; background: transparent !important; box-shadow: none !important; transform: none !important; color: var(--wr2) !important; padding: 9px 20px !important; border-radius: 11px !important; font-size: 13px !important; font-weight: 600 !important; transition: background .15s, box-shadow .15s; }
+html body #modal-root .cd-wr-seg > button.is-on { background: linear-gradient(180deg, #fff 0%, #f4f6f9 100%) !important; box-shadow: 0 1px 0 #fff inset, 0 3px 0 rgba(var(--wr-rgb), .22), 0 6px 12px rgba(16,42,58,.12) !important; color: var(--wr) !important; font-weight: 700 !important; }
+html body #modal-root .cd-wr-chips { gap: 8px !important; margin-bottom: 16px !important; }
+html body #modal-root .cd-wr-chips > button { border: 1px solid rgba(var(--wr-rgb), .28) !important; background: linear-gradient(180deg, #fff 0%, #f5f6f8 100%) !important; color: var(--wr2) !important; padding: 7px 13px !important; font-size: 12.5px !important;
+  box-shadow: 0 1px 0 #fff inset, 0 2px 0 rgba(var(--wr-rgb), .18), 0 4px 8px rgba(16,42,58,.07) !important; transition: transform .14s, box-shadow .14s; }
+html body #modal-root .cd-wr-chips > button:hover { transform: translateY(-1px); }
+html body #modal-root .cd-wr-chips > button.is-on { background: linear-gradient(180deg, color-mix(in srgb, var(--wr) 82%, #fff) 0%, var(--wr) 100%) !important; color: #fff !important; border-color: var(--wr2) !important; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 3px 0 var(--wr2), 0 6px 12px rgba(16,42,58,.18) !important; font-weight: 700 !important; }
+html body #modal-root .cd-wr-stat { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 8px 10px 0 !important; padding: 6px 12px; border-radius: 999px; background: rgba(var(--wr-rgb), .07); border: 1px solid rgba(var(--wr-rgb), .18); color: var(--wr2) !important; font-size: 12px !important; }
+html body #modal-root .cd-wr-intro { border-radius: 16px !important; border: 1px solid rgba(var(--wr-rgb), .2) !important; border-left: 4px solid var(--wr-accent) !important; background: linear-gradient(180deg, #fff 0%, #fbf9f4 100%) !important; box-shadow: 0 8px 20px rgba(16,42,58,.07) !important; }
+html body #modal-root .cd-wr-q { padding: 26px 26px 22px !important; border-radius: 22px !important; border: 1px solid rgba(var(--wr-rgb), .2) !important; border-top: 4px solid var(--wr) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf9f4 100%) !important; box-shadow: 0 1px 0 #fff inset, 0 18px 40px rgba(16,42,58,.12), 0 4px 10px rgba(16,42,58,.07) !important; animation: cdWrIn .4s cubic-bezier(.2,.8,.2,1) both; }
+html body #modal-root .cd-wr-q > div:first-child { color: var(--wr-accent) !important; letter-spacing: .16em !important; }
+html body #modal-root .cd-wr-q > div:nth-child(2) { font-size: 21px !important; line-height: 1.45 !important; color: #1d2733 !important; margin-bottom: 18px !important; }
+html body #modal-root .cd-wr-q:has(> .cd-wr-opt) { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+html body #modal-root .cd-wr-q:has(> .cd-wr-opt) > :not(.cd-wr-opt) { grid-column: 1 / -1; }
+html body #modal-root .cd-wr-opt { position: relative; display: flex !important; align-items: center; gap: 12px; min-height: 52px; margin: 0 0 12px !important; padding: 12px 16px 12px 12px !important; border-radius: 14px !important; font-size: 16px !important; color: #1d2733 !important;
+  border: 1px solid rgba(var(--wr-rgb), .22) !important; background: linear-gradient(180deg, #fff 0%, #f6f7f9 100%) !important; box-shadow: 0 1px 0 #fff inset, 0 3px 0 rgba(var(--wr-rgb), .16), 0 6px 14px rgba(16,42,58,.08) !important; transition: transform .14s, box-shadow .14s; }
+html body #modal-root .cd-wr-opt::before { content: attr(data-l); flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 700 13px/1 -apple-system, 'Segoe UI', system-ui, sans-serif; color: var(--wr); background: rgba(var(--wr-rgb), .09); border: 1px solid rgba(var(--wr-rgb), .28); }
+html body #modal-root .cd-wr-opt:not(.is-right):not(.is-wrong):hover { transform: translateY(-2px); box-shadow: 0 1px 0 #fff inset, 0 5px 0 rgba(var(--wr-rgb), .18), 0 12px 20px rgba(16,42,58,.12) !important; }
+html body #modal-root .cd-wr-opt.is-right { border-color: #4f8a4d !important; background: linear-gradient(180deg, #f3faf1 0%, #e5f2e2 100%) !important; box-shadow: 0 0 0 3px rgba(79,138,77,.18), 0 3px 0 rgba(79,138,77,.3) !important; }
+html body #modal-root .cd-wr-opt.is-right::before { content: "\2713"; color: #fff; background: #4f8a4d; border-color: #3d6f3b; }
+html body #modal-root .cd-wr-opt.is-wrong { border-color: #b3564b !important; background: linear-gradient(180deg, #fcf2f1 0%, #f6e3e1 100%) !important; box-shadow: 0 0 0 3px rgba(179,86,75,.14) !important; }
+html body #modal-root .cd-wr-opt.is-wrong::before { content: "\2715"; color: #fff; background: #b3564b; border-color: #8f3f36; }
+html body #modal-root .cd-wr-input { font-size: 18px !important; padding: 13px 16px !important; border-radius: 13px !important; border: 1.5px solid rgba(var(--wr-rgb), .35) !important; background: #fff !important; box-shadow: inset 0 2px 4px rgba(16,42,58,.06) !important; }
+html body #modal-root .cd-wr-input:focus { border-color: var(--wr) !important; box-shadow: 0 0 0 4px rgba(var(--wr-rgb), .16) !important; }
+html body #modal-root .cd-wr-act { padding: 11px 22px !important; border-radius: 13px !important; border: 1px solid var(--wr2) !important; color: #fff !important; font-size: 14px !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wr) 80%, #fff) 0%, var(--wr) 55%, var(--wr2) 100%) !important; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 3px 0 var(--wr2), 0 8px 16px rgba(16,42,58,.18) !important; transition: transform .14s, box-shadow .14s; }
+html body #modal-root .cd-wr-act:hover { transform: translateY(-1px); }
+html body #modal-root .cd-wr-act:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--wr2) !important; }
+/* by night */
+html body[data-theme="night"] #modal-root .cd-wr { background: radial-gradient(900px 520px at 50% -8%, rgba(var(--wr-rgb), .28), transparent 62%), linear-gradient(180deg, #16181c 0%, #101215 100%) !important; }
+html body[data-theme="night"] #modal-root .cd-wr > .cd-wr-mark { opacity: .09; color: #9cc8e6; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-head, html body[data-theme="night"] #modal-root .cd-wr .cd-wr-card, html body[data-theme="night"] #modal-root .cd-wr-q, html body[data-theme="night"] #modal-root .cd-wr-intro {
+  background: linear-gradient(180deg, #262a30 0%, #1d2025 100%) !important; border-color: rgba(255,255,255,.10) !important; box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 18px 40px rgba(0,0,0,.45) !important; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-card { border-left-color: color-mix(in srgb, var(--wr) 60%, #fff) !important; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > div:not(.cd-ws-kicker):not(.cd-wr-latin):first-of-type,
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > .cd-ws-kicker + div { background: linear-gradient(180deg, #f3eee4 0%, color-mix(in srgb, var(--wr) 45%, #fff) 100%); -webkit-background-clip: text; background-clip: text; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-ws-kicker, html body[data-theme="night"] #modal-root .cd-wr .cd-ws-count, html body[data-theme="night"] #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > div:last-child:not(.cd-wr-latin):not(.cd-ws-kicker) { color: color-mix(in srgb, var(--wr) 45%, #fff) !important; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-card > div:nth-of-type(1) { color: #f1ede6 !important; }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-card > div:nth-of-type(2) { color: #b9b6b0 !important; }
+html body[data-theme="night"] #modal-root .cd-wr-medal { background: radial-gradient(circle at 34% 28%, #3a3f47 0%, #2a2e35 50%, #1c1f24 100%); color: color-mix(in srgb, var(--wr) 40%, #fff); box-shadow: 0 0 0 5px rgba(var(--wr-rgb), .22), inset 0 2px 0 rgba(255,255,255,.12), 0 14px 26px rgba(0,0,0,.5); }
+html body[data-theme="night"] #modal-root .cd-wr-badge { background: radial-gradient(circle at 35% 30%, #3a3f47 0%, #24272c 100%); border-color: rgba(255,255,255,.14); box-shadow: inset 0 2px 0 rgba(255,255,255,.08), 0 4px 10px rgba(0,0,0,.4); }
+html body[data-theme="night"] #modal-root .cd-wr-go { color: color-mix(in srgb, var(--wr) 45%, #fff); }
+html body[data-theme="night"] #modal-root .cd-wr .cd-wr-head > button:first-child, html body[data-theme="night"] #modal-root .cd-wr-chips > button:not(.is-on), html body[data-theme="night"] #modal-root .cd-wr-seg > button.is-on, html body[data-theme="night"] #modal-root .cd-wr-opt {
+  background: linear-gradient(180deg, #2c3036 0%, #23262b 100%) !important; color: #e8e4dc !important; border-color: rgba(255,255,255,.14) !important; box-shadow: 0 3px 0 rgba(0,0,0,.45), 0 6px 12px rgba(0,0,0,.3) !important; }
+html body[data-theme="night"] #modal-root .cd-wr-seg { background: rgba(255,255,255,.06); }
+html body[data-theme="night"] #modal-root .cd-wr-seg > button { color: #c9c6c0 !important; }
+html body[data-theme="night"] #modal-root .cd-wr-q > div:nth-child(2) { color: #f1ede6 !important; }
+html body[data-theme="night"] #modal-root .cd-wr-stat { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: #d6d2ca !important; }
+html body[data-theme="night"] #modal-root .cd-wr-opt.is-right { background: linear-gradient(180deg, #213a24 0%, #1a2f1d 100%) !important; border-color: #5f9e5c !important; }
+html body[data-theme="night"] #modal-root .cd-wr-opt.is-wrong { background: linear-gradient(180deg, #3d2522 0%, #2f1c1a 100%) !important; border-color: #c06a5f !important; }
+html body[data-theme="night"] #modal-root .cd-wr-input { background: #15171a !important; color: #f1ede6 !important; border-color: rgba(255,255,255,.18) !important; }
+/* the reader's own settings: no motion, no depth */
+html body[data-cd-anim-off] #modal-root .cd-wr *, html body[data-motion="minimal"] #modal-root .cd-wr * { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { html body #modal-root .cd-wr * { animation: none !important; transition: none !important; } }
+html body[data-cd-lift-off] #modal-root .cd-wr .cd-wr-card, html body[data-cd-lift-off] #modal-root .cd-wr .cd-wr-head, html body[data-cd-lift-off] #modal-root .cd-wr-q, html body[data-cd-lift-off] #modal-root .cd-wr-opt { box-shadow: none !important; transform: none !important; }
+/* a phone */
+@media (max-width: 640px) {
+  html body #modal-root .cd-wr .cd-wr-head { padding: 54px 16px 18px !important; border-radius: 18px !important; }
+  html body #modal-root .cd-wr-medal { width: 72px; height: 72px; } html body #modal-root .cd-wr-medal .cd-wr-emb { width: 42px; height: 42px; }
+  html body #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > div:not(.cd-ws-kicker):not(.cd-wr-latin):first-of-type, html body #modal-root .cd-wr .cd-wr-head > div:not(.cd-wr-medal) > .cd-ws-kicker + div { font-size: 26px !important; }
+  html body #modal-root .cd-wr-subpage .cd-wr-head { padding: 14px !important; flex-wrap: wrap; }
+  html body #modal-root .cd-wr .cd-wr-card { grid-template-columns: 46px 1fr 14px; padding: 15px 14px !important; }
+  html body #modal-root .cd-wr-badge { width: 46px; height: 46px; font-size: 21px; }
+  html body #modal-root .cd-wr-q { padding: 18px 16px !important; } html body #modal-root .cd-wr-q:has(> .cd-wr-opt) { grid-template-columns: 1fr; }
+  html body #modal-root .cd-wr-q > div:nth-child(2) { font-size: 18px !important; }
+}
+
+/* numerals for the doors inside a room; a door without a badge */
+html body #modal-root .cd-wr-badge.cd-wr-num { font: 700 17px/1 var(--cd-display, var(--cd-serif)); letter-spacing: .04em; color: var(--wr); }
+html body #modal-root .cd-wr .cd-wr-card.cd-wr-nobadge { grid-template-columns: 1fr 18px; }
+html body #modal-root .cd-wr .cd-wr-card.cd-wr-nobadge > div:nth-of-type(n) { grid-column: 1; }
+html body #modal-root .cd-wr .cd-wr-card.cd-wr-nobadge > .cd-wr-go { grid-column: 2; }
+/* a lesson's tabs in the room's colour */
+html body #modal-root .cd-wr .cd-ws-tab[data-on] { color: var(--wr) !important; background: rgba(var(--wr-rgb), .10) !important; box-shadow: inset 0 -2px 0 var(--wr-gilt) !important; }
+html body #modal-root .cd-wr .cd-ws-tabs { border-bottom-color: rgba(var(--wr-rgb), .25) !important; }
+/* by night: the mode keys and the answer letters */
+html body[data-theme="night"] #modal-root .cd-wr-seg > button:not(.is-on) { background: transparent !important; box-shadow: none !important; color: #b9b6b0 !important; border: none !important; }
+html body[data-theme="night"] #modal-root .cd-wr-seg > button.is-on { background: linear-gradient(180deg, #3a3f47 0%, #2e3238 100%) !important; color: color-mix(in srgb, var(--wr) 40%, #fff) !important; }
+html body[data-theme="night"] #modal-root .cd-wr-opt::before { color: #e8e4dc; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
+html body[data-theme="night"] #modal-root .cd-wr-badge.cd-wr-num { color: color-mix(in srgb, var(--wr) 40%, #fff); }
+html body[data-theme="night"] #modal-root .cd-wr .cd-ws-tab[data-on] { color: color-mix(in srgb, var(--wr) 45%, #fff) !important; }
+@media (max-width: 640px) { html body #modal-root .cd-wr .cd-ws-count::before, html body #modal-root .cd-wr .cd-ws-count::after { display: none; } html body #modal-root .cd-wr .cd-ws-count { text-align: center; } }

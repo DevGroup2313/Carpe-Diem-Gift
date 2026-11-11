@@ -7,11 +7,24 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Mac
 
-**Build 1086, 11 November 2026.** The About panel in the app ends with
-"Build 1086 · 528171086". Finder's Get Info on the app shows
-version 1086.
+**Build 1087, 11 November 2026.** The About panel in the app ends with
+"Build 1087 · 528171087". Finder's Get Info on the app shows
+version 1087.
 
-## New in build 1086
+## New in build 1087
+
+The Writing Rooms, each with a face of its own. Proposal, Curriculum, Research Writing and the French Tutor
+opened in one shared frame and looked alike and flat. Each now has its medallion (a quill, a laurelled book, a compass
+rose, a fleur-de-lis), its colour (ink blue, oxblood, forest green, French blue), its Latin line (PROPOSITVM,
+CVRRICVLVM, ARS SCRIBENDI, LINGVA GALLICA) and its emblem faintly behind the page. Its doors are raised cards with a
+badge each, which lift under the pointer and come in one after another; the pages inside a room keep its face,
+smaller, and number their sections in Roman numerals. The French Tutor's modes, sets, score and question are drawn in
+the same hand, the question at full width, the answers lettered, a right answer marked with a tick and a wrong one
+with a cross. Night mode, folio mode, French, a phone's width and the reader's Motion and Depth settings are followed.
+What any page does is unchanged. Tested in Chromium, Safari's engine and Firefox: every door of every room opens its
+page, Back comes back, and the French Tutor marks, moves on, checks a typed answer and shows its tables.
+
+## Earlier, in build 1086
 
 A sign-in for Carpe Diem, as Ingenium has it, and what it keeps on this device sealed. The welcome card has a lock
 key at its top left: "Protect this copy with a sign-in" asks for a user name and a password of at least eight
