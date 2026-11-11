@@ -7,10 +7,30 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1085, 11 November 2026.** The About panel in the app ends with
-"Build 1085 · 528171085".
+**Build 1086, 11 November 2026.** The About panel in the app ends with
+"Build 1086 · 528171086".
 
-## New in build 1085
+## New in build 1086
+
+A sign-in for Carpe Diem, as Ingenium has it, and what it keeps on this device sealed. The welcome card has a lock
+key at its top left: "Protect this copy with a sign-in" asks for a user name and a password of at least eight
+characters, shows the ten words of a recovery phrase to write down, and asks two of them back. Carpe Diem then seals
+what it keeps on the device with AES-256-GCM: the desk (planner, notes, proposals, curriculum, French tutor,
+settings), Fontes's sources, Abacus's workbooks, Imago's decks, Tabula's documents, Scriba's recordings with their
+sound and transcripts, the signatures, and the backups kept in the browser.
+
+From then on Carpe Diem opens to the sign-in, and nothing else of it runs until the password or the phrase opens the
+data key. A wrong password opens nothing and changes nothing. The lock key's sheet locks now, locks by itself after
+five minutes, a quarter of an hour, an hour or never, changes the password, shows the recovery phrase after the
+password, and turns the sign-in off, which opens everything again. Forgot your password? The phrase opens the copy
+and a new password is chosen. A backup holds the work opened, so it restores anywhere with its own passphrase; the
+sign-in's record never travels in one. The welcome card also gains "Open straight to Home from now on".
+
+Not yet sealed: the Forge's own stores. Tested in Chromium, Safari's engine and Firefox from a fresh copy: setting
+it up, every value sealed, a new window showing only the sign-in, a wrong and a right password, Lock now, the phrase
+and a new password, a backup, and turning it off.
+
+## Earlier, in build 1085
 
 Tabula keeps its paragraphs and bullet points in good order. Until now Tabula left lists, indents and new
 paragraphs to the browser's own editing, and the browsers make the same faults: a list made inside a paragraph (which

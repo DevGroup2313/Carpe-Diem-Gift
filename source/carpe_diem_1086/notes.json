@@ -1,0 +1,12 @@
+{
+ "date": "2026-11-11",
+ "pass": "1086",
+ "stamp": "528171086",
+ "prev": "1085",
+ "when": "11 November 2026",
+ "prev_when": "11 November 2026",
+ "ios_version": "2026111102",
+ "en": "A sign-in for Carpe Diem, as Ingenium has it, and what it keeps on this device sealed. The welcome card has a lock\nkey at its top left: \"Protect this copy with a sign-in\" asks for a user name and a password of at least eight\ncharacters, shows the ten words of a recovery phrase to write down, and asks two of them back. Carpe Diem then seals\nwhat it keeps on the device with AES-256-GCM: the desk (planner, notes, proposals, curriculum, French tutor,\nsettings), Fontes's sources, Abacus's workbooks, Imago's decks, Tabula's documents, Scriba's recordings with their\nsound and transcripts, the signatures, and the backups kept in the browser.\n\nFrom then on Carpe Diem opens to the sign-in, and nothing else of it runs until the password or the phrase opens the\ndata key. A wrong password opens nothing and changes nothing. The lock key's sheet locks now, locks by itself after\nfive minutes, a quarter of an hour, an hour or never, changes the password, shows the recovery phrase after the\npassword, and turns the sign-in off, which opens everything again. Forgot your password? The phrase opens the copy\nand a new password is chosen. A backup holds the work opened, so it restores anywhere with its own passphrase; the\nsign-in's record never travels in one. The welcome card also gains \"Open straight to Home from now on\".\n\nNot yet sealed: the Forge's own stores. Tested in Chromium, Safari's engine and Firefox from a fresh copy: setting\nit up, every value sealed, a new window showing only the sign-in, a wrong and a right password, Lock now, the phrase\nand a new password, a backup, and turning it off.",
+ "web": "A sign-in for Carpe Diem, as Ingenium has it: a password and a recovery phrase, and what it keeps on the device sealed with AES-256-GCM.",
+ "ios": "A sign-in for Carpe Diem, as Ingenium has it: a user name, a password and a ten-word recovery phrase, and what it\nkeeps on the device sealed with AES-256-GCM. Set it from the lock key on the welcome card. Whether this device's web\nview offers the cryptography it needs was not tried; where it does not, the sign-in says so."
+}

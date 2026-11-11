@@ -1,0 +1,63 @@
+/* Carpe Diem 1086: the sign-in's door. It carries its own look, since nothing else of the app is drawn before it. */
+html.cdl-gate, html.cdl-gate body { margin: 0; min-height: 100%; background: #f5f5f7; }
+html.cdl-gate #cdl-rest { display: none !important; }
+#cdLockDoor { position: fixed; inset: 0; z-index: 2147483600; display: flex; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box;
+  background: radial-gradient(1200px 700px at 50% 0%, rgba(27,107,147,.10), transparent 60%), rgba(245,245,247,.97);
+  font: 15px/1.55 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; color: #1d1d1f; -webkit-font-smoothing: antialiased; }
+#cdLockDoor.cdl-over { background: rgba(20,18,16,.46); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+#cdLockDoor[hidden] { display: none; }
+#cdLockDoor .cdl-card { width: 100%; max-width: 432px; max-height: calc(100vh - 36px); overflow: auto; box-sizing: border-box; padding: 22px 30px 24px; border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfaf6 100%); border: 1.5px solid #1B6B93;
+  box-shadow: 0 0 0 5px rgba(27,107,147,.10), 0 1px 0 rgba(255,255,255,.9) inset, 0 22px 60px rgba(16,42,58,.22), 0 6px 14px rgba(16,42,58,.10);
+  animation: cdlRise .32s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes cdlRise { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #cdLockDoor .cdl-card { animation: none; } }
+#cdLockDoor .cdl-head { text-align: center; margin: 2px 0 10px; }
+#cdLockDoor .cdl-seal { display: block; width: 88px; height: 88px; margin: 0 auto 6px; border-radius: 50%; filter: drop-shadow(0 6px 10px rgba(16,42,58,.22)) drop-shadow(0 2px 3px rgba(16,42,58,.18)); }
+#cdLockDoor .cdl-word { font-size: 27px; font-weight: 700; letter-spacing: .04em; color: #102a3a; line-height: 1.1; }
+#cdLockDoor .cdl-line { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; }
+#cdLockDoor .cdl-line span { width: 46px; height: 1px; background: #1B6B93; opacity: .5; }
+#cdLockDoor .cdl-line b { font: 700 10px/1 -apple-system, 'Segoe UI', system-ui, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #1B6B93; }
+#cdLockDoor h2 { font-size: 20px; font-weight: 700; margin: 16px 0 6px; color: #102a3a; text-align: center; }
+#cdLockDoor .cdl-sub { text-align: center; font-style: italic; color: #1B6B93; margin: 6px 0 14px; }
+#cdLockDoor p { margin: 8px 0; color: #3a3a40; font-size: 14px; }
+#cdLockDoor label { display: block; margin: 12px 0 0; }
+#cdLockDoor label span { display: block; font: 600 12px/1.4 -apple-system, 'Segoe UI', system-ui, sans-serif; color: #5a5a61; margin-bottom: 5px; }
+#cdLockDoor input, #cdLockDoor select { width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 11px; border: 1px solid rgba(16,42,58,.22); background: #fff;
+  font: 15px/1.3 -apple-system, 'Segoe UI', system-ui, sans-serif; color: #1d1d1f; box-shadow: 0 1px 2px rgba(16,42,58,.08) inset; outline: none; }
+#cdLockDoor input:focus, #cdLockDoor select:focus { border-color: #1B6B93; box-shadow: 0 0 0 3px rgba(27,107,147,.18); }
+#cdLockDoor .cdl-keys { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+#cdLockDoor .cdl-keys > :only-child { margin-left: auto; }
+#cdLockDoor .cdl-col { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+#cdLockDoor .cdl-row { display: flex; flex-direction: column; }
+#cdLockDoor .cdl-key { appearance: none; -webkit-appearance: none; cursor: pointer; padding: 11px 20px; border-radius: 12px; border: 1px solid #154f6d;
+  font: 600 14px/1.2 -apple-system, 'Segoe UI', system-ui, sans-serif; color: #fff; background: linear-gradient(180deg, #2a83ad 0%, #1B6B93 55%, #165a7c 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 3px 0 #0f4560, 0 6px 14px rgba(16,42,58,.24); transform: translateY(0); transition: transform .12s, box-shadow .12s; }
+#cdLockDoor .cdl-key:hover { transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 4px 0 #0f4560, 0 9px 18px rgba(16,42,58,.26); }
+#cdLockDoor .cdl-key:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 1px 0 #0f4560, 0 2px 6px rgba(16,42,58,.2); }
+#cdLockDoor .cdl-key:disabled { opacity: .6; cursor: default; transform: none; }
+#cdLockDoor .cdl-ghost { color: #1B6B93; background: linear-gradient(180deg, #ffffff 0%, #f3f6f8 100%); border-color: rgba(27,107,147,.45); box-shadow: 0 1px 0 #fff inset, 0 3px 0 rgba(27,107,147,.30), 0 5px 12px rgba(16,42,58,.12); }
+#cdLockDoor .cdl-danger { background: linear-gradient(180deg, #b8442f 0%, #9e2f1d 60%, #842515 100%); border-color: #6e1d10; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 3px 0 #5e170c, 0 6px 14px rgba(94,23,12,.25); color: #fff; }
+#cdLockDoor .cdl-danger-text { color: #9e2f1d; border-color: rgba(158,47,29,.4); }
+#cdLockDoor .cdl-link { appearance: none; -webkit-appearance: none; background: none; border: none; padding: 4px 0; cursor: pointer; color: #1B6B93; font: 13px/1.3 -apple-system, 'Segoe UI', system-ui, sans-serif; text-decoration: underline; text-underline-offset: 3px; }
+#cdLockDoor .cdl-note { margin-top: 18px; padding-top: 12px; border-top: .5px solid rgba(16,42,58,.14); text-align: center; font-size: 12.5px; color: #6b6b72; }
+#cdLockDoor .cdl-err { color: #9e2f1d; background: rgba(158,47,29,.07); border: 1px solid rgba(158,47,29,.22); border-radius: 10px; padding: 8px 11px; font-size: 13px; margin: 12px 0 0; }
+#cdLockDoor .cdl-err[hidden] { display: none; }
+#cdLockDoor .cdl-words { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 4px; }
+#cdLockDoor .cdl-words div { padding: 9px 11px; border-radius: 10px; background: #fff; border: 1px solid rgba(27,107,147,.3); box-shadow: 0 2px 0 rgba(27,107,147,.18); font: 600 15px/1.2 ui-monospace, Menlo, Consolas, monospace; color: #102a3a; }
+#cdLockDoor .cdl-words b { display: inline-block; min-width: 22px; color: #1B6B93; font-weight: 700; }
+#cdLockDoor .cdl-bar { height: 10px; border-radius: 6px; background: rgba(27,107,147,.12); overflow: hidden; margin: 18px 0 6px; box-shadow: 0 1px 2px rgba(16,42,58,.12) inset; }
+#cdLockDoor .cdl-bar i { display: block; height: 100%; background: linear-gradient(90deg, #2a83ad, #1B6B93); border-radius: 6px; transition: width .3s; }
+#cdLockDoor.cdl-night { background: radial-gradient(1200px 700px at 50% 0%, rgba(64,150,196,.14), transparent 60%), rgba(18,16,19,.97); color: #ece8e1; }
+#cdLockDoor.cdl-night.cdl-over { background: rgba(0,0,0,.55); }
+#cdLockDoor.cdl-night .cdl-card { background: linear-gradient(180deg, #24262b 0%, #1d1f23 100%); border-color: #4b9cc6; box-shadow: 0 0 0 5px rgba(75,156,198,.12), 0 22px 60px rgba(0,0,0,.55); }
+#cdLockDoor.cdl-night .cdl-word, #cdLockDoor.cdl-night h2 { color: #f1ede6; }
+#cdLockDoor.cdl-night p, #cdLockDoor.cdl-night label span { color: #c9c6c0; }
+#cdLockDoor.cdl-night .cdl-sub, #cdLockDoor.cdl-night .cdl-link, #cdLockDoor.cdl-night .cdl-line b { color: #7cc0e3; }
+#cdLockDoor.cdl-night input, #cdLockDoor.cdl-night select { background: #15171a; color: #f1ede6; border-color: rgba(255,255,255,.18); }
+#cdLockDoor.cdl-night .cdl-ghost { color: #9fd2ec; background: linear-gradient(180deg, #2c2f35 0%, #24272c 100%); border-color: rgba(124,192,227,.4); box-shadow: 0 3px 0 rgba(0,0,0,.45), 0 5px 12px rgba(0,0,0,.3); }
+#cdLockDoor.cdl-night .cdl-words div { background: #15171a; color: #f1ede6; border-color: rgba(124,192,227,.35); }
+#cdLockDoor.cdl-night .cdl-note { color: #9a978f; border-top-color: rgba(255,255,255,.12); }
+.cdl-doorkey { display: inline-flex !important; align-items: center; justify-content: center; }
+.cdl-toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2147483601; max-width: min(560px, calc(100vw - 24px)); padding: 11px 16px; border-radius: 12px; background: #102a3a; color: #fff; font: 13px/1.45 -apple-system, 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+@media (max-width: 480px) { #cdLockDoor .cdl-card { padding: 18px 18px 20px; } #cdLockDoor .cdl-words { grid-template-columns: 1fr; } #cdLockDoor .cdl-keys { justify-content: flex-end; } }

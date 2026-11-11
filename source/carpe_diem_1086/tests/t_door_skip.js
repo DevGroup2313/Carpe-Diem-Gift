@@ -1,0 +1,30 @@
+// t_door_skip.js PAGE_URL: the welcome card's switch "Open straight to Home from now on". Off: the card at the start;
+// on: Carpe Diem opens to Home, and the card still opens from the seal. In French, its words are French.
+const pw = require('playwright');
+const URL = process.argv[2];
+let bad = 0;
+const say = (g, n, i) => { if (!g) bad++; console.log((g ? 'ok   ' : 'BAD  ') + n + (i ? '  ' + i : '')); };
+(async () => {
+  const b = await pw.chromium.launch({ executablePath: process.env.CD_CHROMIUM || '/opt/pw-browsers/chromium' });
+  const ctx = await b.newContext({ viewport: { width: 1300, height: 900 } });
+  let p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(String(e).slice(0, 200)));
+  await p.goto(URL, { waitUntil: 'load', timeout: 240000 }); await p.waitForTimeout(7000);
+  const sw = await p.evaluate(() => { const d = document.getElementById('cd-door'); if (!d) return null; const l = [...d.querySelectorAll('label')].find(x => /Open straight to Home/.test(x.textContent)); return l ? { text: l.textContent.trim(), on: l.querySelector('input').checked } : null; });
+  say(!!sw && !sw.on, 'the welcome card has the switch, off at first', JSON.stringify(sw));
+  await p.evaluate(() => { const l = [...document.querySelectorAll('#cd-door label')].find(x => /Open straight to Home/.test(x.textContent)); l.querySelector('input').click(); });
+  await p.waitForTimeout(500);
+  say(await p.evaluate(() => state.doorSkip === true), 'turning it on is kept');
+  await p.close(); p = await ctx.newPage(); p.on('pageerror', e => errs.push(String(e).slice(0, 200)));
+  await p.goto(URL, { waitUntil: 'load', timeout: 240000 }); await p.waitForTimeout(8000);
+  say(await p.evaluate(() => !document.getElementById('cd-door')), 'with it on, Carpe Diem opens straight to Home');
+  await p.evaluate(() => cdShowDoor()); await p.waitForTimeout(600);
+  say(await p.evaluate(() => !!document.getElementById('cd-door')), 'the card still opens when asked for');
+  await p.evaluate(() => { state.lang = 'fr'; saveState(); cdShowDoor(); }); await p.waitForTimeout(600);
+  const fr = await p.evaluate(() => { const l = [...document.querySelectorAll('#cd-door label')].find(x => /Ouvrir directement/.test(x.textContent)); return l ? l.textContent.trim() + ' / ' + l.querySelector('input').checked : null; });
+  say(!!fr && /true$/.test(fr), 'in French the switch speaks French, and stays on', fr);
+  await p.evaluate(() => { const l = [...document.querySelectorAll('#cd-door label')].find(x => /Ouvrir directement/.test(x.textContent)); l.querySelector('input').click(); state.lang = 'en'; saveState(); });
+  await p.close(); p = await ctx.newPage(); await p.goto(URL, { waitUntil: 'load', timeout: 240000 }); await p.waitForTimeout(8000);
+  say(await p.evaluate(() => !!document.getElementById('cd-door')), 'turned off again, the card is back at the start');
+  if (errs.length) say(false, 'page errors', errs.join(' | '));
+  console.log(bad ? 'FAIL' : 'PASS'); await b.close(); process.exit(bad ? 1 : 0);
+})().catch(e => { console.log('FAIL crash ' + String(e).slice(0, 400)); process.exit(2); });
