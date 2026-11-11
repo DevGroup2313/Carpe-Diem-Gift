@@ -255,12 +255,16 @@ jobs:
           rec | grep -E "room: tabula|chapter.docx" || true
           if ! rec | grep -q "file: chapter.docx handed to Tabula .* in its own window"; then echo "::error::a Word file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
           echo "A Word file opened with Tabula went to Tabula's own window after $T seconds."
-          # build 1088: and a Markdown file, which Tabula reads too
+          if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
+          stop; sleep 3
+          # build 1088: a Markdown file opened with Tabula while Carpe Diem is closed: Carpe Diem starts and Tabula's
+          # own window takes it (the first file it is given; a window already holding text asks before replacing it)
+          rm -f "$LOG" "$HOME/carpe_diem_crash.log" "$STORE/carpe_session.flag" "$STORE/carpe_room.flag"
           open -a "$ROOMS/Tabula.app" "$F/chapter.md"
-          T=0; until rec | grep -q "file: chapter.md handed to Tabula .* in its own window" || [ $T -ge 120 ]; do sleep 2; T=$((T+2)); done
-          rec | grep -E "chapter.md" || true
-          if ! rec | grep -q "file: chapter.md handed to Tabula .* in its own window"; then echo "::error::a Markdown file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
-          echo "A Markdown file opened with Tabula went to Tabula's own window after $T seconds."
+          T=0; until rec | grep -q "file: chapter.md handed to Tabula .* in its own window" || [ $T -ge 150 ]; do sleep 3; T=$((T+3)); done
+          rec | grep -E "room: tabula|chapter.md" || true
+          if ! rec | grep -q "file: chapter.md handed to Tabula .* in its own window"; then echo "::error::a Markdown file opened with Tabula, Carpe Diem closed, did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
+          echo "A Markdown file opened with Tabula, Carpe Diem closed, went to Tabula's own window after $T seconds."
           if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
           stop; sleep 3
           # kept in the Dock, once however often it is asked

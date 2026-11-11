@@ -94,11 +94,7 @@ def words(repo):
          "the document types' note")
     once(p, 'log_note("files: listening for Word and PDF files from the Finder")',
          'log_note("files: listening for files from the Finder")', "the record's line")
-    w = os.path.join(repo, ".github", "workflows", "build-mac-app.yml")
-    once(w, "Tabula's is offered under Open With for Word and PDF files",
-         "Tabula's is offered under Open With for the files it reads", "the Mac build's note")
-    once(w, "          # the Finder's Open With for a Word file and a PDF: Tabula, not Carpe Diem\n",
-         "          # the Finder's Open With for each kind of file Tabula reads: Tabula, not Carpe Diem\n", "the Mac build's check's note")
+
 
 TEST_FILES = {
     "chapter.md": "# Chapter One\n\nA short chapter for the build's check, written in **Markdown**.\n\n## Two points\n\n"
@@ -108,31 +104,47 @@ TEST_FILES = {
                     "<body><h1>Chapter One</h1><p>A short chapter for the build's check, written as a web page.</p></body></html>\n",
 }
 
-MAC_MD_CHECK = """          # build 1088: and a Markdown file, which Tabula reads too
+# A Markdown file is checked from a closed Carpe Diem, so that it is the first file Tabula's own window takes: a window
+# that already holds text asks before replacing it, and nobody answers on a build machine.
+MAC_MD_CHECK = """          # build 1088: a Markdown file opened with Tabula while Carpe Diem is closed: Carpe Diem starts and Tabula's
+          # own window takes it (the first file it is given; a window already holding text asks before replacing it)
+          rm -f "$LOG" "$HOME/carpe_diem_crash.log" "$STORE/carpe_session.flag" "$STORE/carpe_room.flag"
           open -a "$ROOMS/Tabula.app" "$F/chapter.md"
-          T=0; until rec | grep -q "file: chapter.md handed to Tabula .* in its own window" || [ $T -ge 120 ]; do sleep 2; T=$((T+2)); done
-          rec | grep -E "chapter.md" || true
-          if ! rec | grep -q "file: chapter.md handed to Tabula .* in its own window"; then echo "::error::a Markdown file opened with Tabula did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
-          echo "A Markdown file opened with Tabula went to Tabula's own window after $T seconds."
+          T=0; until rec | grep -q "file: chapter.md handed to Tabula .* in its own window" || [ $T -ge 150 ]; do sleep 3; T=$((T+3)); done
+          rec | grep -E "room: tabula|chapter.md" || true
+          if ! rec | grep -q "file: chapter.md handed to Tabula .* in its own window"; then echo "::error::a Markdown file opened with Tabula, Carpe Diem closed, did not reach Tabula's own window"; rec | tail -40; stop; exit 1; fi
+          echo "A Markdown file opened with Tabula, Carpe Diem closed, went to Tabula's own window after $T seconds."
+          if rec | grep -q "Traceback"; then rec; echo "a fault was recorded"; stop; exit 1; fi
+          stop; sleep 3
 """
 
-WIN_MD_CHECK = r"""          # build 1088: and a Markdown file, which Tabula reads too
-          $t = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room', 'tabula', ('"' + (Join-Path $F 'chapter.md') + '"') -PassThru
-          if (-not $t.WaitForExit(40000)) { Stop-Process -Id $t.Id -Force; Write-Error "Open With's start did not end: two copies would be open."; exit 1 }
+WIN_MD_CHECK = r"""          # build 1088: a Markdown file opened with Tabula while Carpe Diem is closed (Open With's own command): Carpe Diem
+          # starts and Tabula's own window takes it (the first file it is given; a window already holding text asks first)
+          Stop-Process -Name 'Carpe Diem' -Force -ErrorAction SilentlyContinue
+          for ($k = 0; $k -lt 30; $k++) { $h = @(Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like '*CarpeDiem*' }); if ($h.Count -eq 0) { break }; Start-Sleep -Seconds 1 }
+          $h | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+          Start-Sleep -Seconds 3
+          Remove-Item "$app\carpe_diem_crash.log", (Join-Path $store "carpe_session.flag"), (Join-Path $store "carpe_room.flag") -ErrorAction SilentlyContinue
+          $md = Start-Process -FilePath "$app\Carpe Diem.exe" -ArgumentList '--room', 'tabula', ('"' + (Join-Path $F 'chapter.md') + '"') -PassThru
           $ok = $false
-          for ($k = 0; $k -lt 90 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.md handed to Tabula \(\d+ bytes\) in its own window" -Quiet -ErrorAction SilentlyContinue) }
-          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.md" | ForEach-Object { $_.Line }
-          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A Markdown file opened with Tabula did not reach Tabula's own window."; exit 1 }
-          "A Markdown file opened with Tabula went to Tabula's own window."
+          for ($k = 0; $k -lt 150 -and -not $ok; $k++) { Start-Sleep -Seconds 1; $ok = [bool](Select-String -Path "$app\carpe_diem_crash.log" -Pattern "file: chapter.md handed to Tabula \(\d+ bytes\) in its own window" -Quiet -ErrorAction SilentlyContinue) }
+          Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-String -Pattern "chapter.md|room tabula" | ForEach-Object { $_.Line }
+          if (-not $ok) { "--- the program's record ---"; Get-Content "$app\carpe_diem_crash.log" -ErrorAction SilentlyContinue | Select-Object -Last 60; Write-Error "A Markdown file opened with Tabula, Carpe Diem closed, did not reach Tabula's own window."; exit 1 }
+          "A Markdown file opened with Tabula, Carpe Diem closed, went to Tabula's own window."
+          if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
 """
 
 WIN_PDF_LEFT = r"""          if ((Get-Item "HKCU:\Software\Classes\.pdf\OpenWithProgids" -ErrorAction SilentlyContinue).Property -contains 'CarpeDiem.Tabula') { Write-Error "Uninstalling left Carpe Diem under Open With for .pdf."; exit 1 }
 """
 
+WIN_ABACUS_DONE = r"""          "Abacus's shortcut started Carpe Diem and opened Abacus in its own window, with its own taskbar button, after $secs seconds."
+          if (Select-String -Path "$app\carpe_diem_crash.log" -Pattern "Traceback" -Quiet -ErrorAction SilentlyContinue) { Get-Content "$app\carpe_diem_crash.log"; Write-Error "A fault was recorded."; exit 1 }
+"""
+
 
 def ci(repo):
     """The Mac and Windows builds check the new kinds: Open With offers Tabula for them, and a Markdown file opened
-    with Tabula reaches Tabula's own window."""
+    with Tabula, Carpe Diem closed, reaches Tabula's own window."""
     d = os.path.join(repo, ".github", "test-files")
     for name, text in TEST_FILES.items():
         f = os.path.join(d, name)
@@ -140,17 +152,21 @@ def ci(repo):
             open(f, "w", encoding="utf-8", newline="\n").write(text)
             print("  %s: written" % os.path.relpath(f))
     w = os.path.join(repo, ".github", "workflows", "build-mac-app.yml")
+    once(w, "Tabula's is offered under Open With for Word and PDF files",
+         "Tabula's is offered under Open With for the files it reads", "the Mac build's note")
+    once(w, "          # the Finder's Open With for a Word file and a PDF: Tabula, not Carpe Diem\n",
+         "          # the Finder's Open With for each kind of file Tabula reads: Tabula, not Carpe Diem\n", "the Mac build's check's note")
     once(w, "          for f in chapter.docx chapter.pdf; do\n",
          "          for f in chapter.docx chapter.pdf chapter.txt chapter.html chapter.md; do\n", "Open With is checked for the new kinds")
-    done_docx = "          echo \"A Word file opened with Tabula went to Tabula's own window after $T seconds.\"\n"
-    once(w, done_docx, done_docx + MAC_MD_CHECK, "a Markdown file opened with Tabula is checked")
+    dock = "          stop; sleep 3\n          # kept in the Dock, once however often it is asked\n"
+    once(w, dock, "          stop; sleep 3\n" + MAC_MD_CHECK + "          # kept in the Dock, once however often it is asked\n",
+         "a Markdown file opened with Tabula, Carpe Diem closed, is checked")
     w = os.path.join(repo, ".github", "workflows", "build-windows-app.yml")
     once(w, "          $ow = @('.docx', '.pdf') | ForEach-Object",
          "          $ow = @('.docx', '.pdf', '.txt', '.html', '.htm', '.md') | ForEach-Object", "Open With is checked for the new kinds")
     once(w, "          \"Open With offers Carpe Diem for .docx and .pdf: $($ow -join ', ')\"",
          "          \"Open With offers Carpe Diem for .docx, .pdf, .txt, .html, .htm and .md: $($ow -join ', ')\"", "and says so")
-    done_pdf = "          \"A PDF opened with Tabula went to Tabula's own window.\"\n"
-    once(w, done_pdf, done_pdf + WIN_MD_CHECK, "a Markdown file opened with Tabula is checked")
+    once(w, WIN_ABACUS_DONE, WIN_ABACUS_DONE + WIN_MD_CHECK, "a Markdown file opened with Tabula, Carpe Diem closed, is checked")
     once(w, WIN_PDF_LEFT, WIN_PDF_LEFT + WIN_PDF_LEFT.replace(".pdf", ".md"), "uninstalling is checked for .md too")
 
 MIMES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
