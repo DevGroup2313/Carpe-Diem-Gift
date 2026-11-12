@@ -8,9 +8,9 @@ distributed copy carries a build marker.
 CARPE DIEM FOR THE FIRE TABLET
 ==============================
 
-Build 1089, 11 November 2026. The About panel inside the app ends with
-"Build 1089 · 528171089".
-The app's own version is 1089 too; Android usually shows it on the
+Build 1090, 12 November 2026. The About panel inside the app ends with
+"Build 1090 · 528171090".
+The app's own version is 1090 too; Android usually shows it on the
 app's information page (on a Fire tablet: Settings, then Apps &
 Notifications).
 
@@ -22,7 +22,12 @@ whenever something in it can make use of a connection. It needs no app
 store, no account and no browser.
 
 
-NEW IN BUILD 1089
+NEW IN BUILD 1090
+  No change in this edition's pages: build 1090 brings the demonstrations up to date with builds 1082 to 1089, and in
+  their Guidebook places the Projects chapter in Your projects (it had fallen into a tenth section of its own).
+
+
+EARLIER, IN BUILD 1089
   The Guidebook and the tour, tidied. The Guidebook's chapters now stand in nine sections (Your day, Focus
   and small tools, Reading and study, Tutors and practice, Your projects, The five studios, Around the desk, Your
   copy of Carpe Diem, For the author), with a search field, a contents strip and a line saying how long each tour

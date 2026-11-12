@@ -7,10 +7,15 @@ distributed copy carries a build marker.
 
 # Carpe Diem for Windows — standalone app
 
-**Build 1089, 11 November 2026.** The About panel in the app ends with
-"Build 1089 · 528171089".
+**Build 1090, 12 November 2026.** The About panel in the app ends with
+"Build 1090 · 528171090".
 
-## New in build 1089
+## New in build 1090
+
+No change in this edition's pages: build 1090 brings the demonstrations up to date with builds 1082 to 1089, and in
+their Guidebook places the Projects chapter in Your projects (it had fallen into a tenth section of its own).
+
+## Earlier, in build 1089
 
 The Guidebook and the tour, tidied. The Guidebook's chapters now stand in nine sections (Your day, Focus
 and small tools, Reading and study, Tutors and practice, Your projects, The five studios, Around the desk, Your
